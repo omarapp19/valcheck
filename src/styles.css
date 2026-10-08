@@ -1,0 +1,107 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Sistema de diseño ValCheck — "Belleza Verificada"
+ * Paleta de marca: amarillo #fff0a0, beige #f8f4e9, marrón oscuro #3f170d,
+ * verde #abd627. Tipografías: Playfair Display Italic (titulares) y
+ * Chillax (secundaria, vía Fontshare con fallback a una sans geométrica).
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-brand-yellow: var(--brand-yellow);
+  --color-brand-beige: var(--brand-beige);
+  --color-brand-brown: var(--brand-brown);
+  --color-brand-green: var(--brand-green);
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body: "Chillax", "Outfit", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.875rem;
+  --brand-yellow: oklch(0.957 0.096 100.4);   /* #fff0a0 */
+  --brand-beige: oklch(0.965 0.018 95.2);     /* #f8f4e9 */
+  --brand-brown: oklch(0.222 0.054 41.5);     /* #3f170d */
+  --brand-green: oklch(0.845 0.196 126.3);    /* #abd627 */
+
+  --background: var(--brand-beige);
+  --foreground: var(--brand-brown);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--brand-brown);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--brand-brown);
+  --primary: var(--brand-brown);
+  --primary-foreground: var(--brand-yellow);
+  --secondary: var(--brand-yellow);
+  --secondary-foreground: var(--brand-brown);
+  --muted: oklch(0.93 0.02 95);
+  --muted-foreground: oklch(0.42 0.05 45);
+  --accent: var(--brand-yellow);
+  --accent-foreground: var(--brand-brown);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.984 0.003 247.858);
+  --border: oklch(0.88 0.03 90);
+  --input: oklch(0.88 0.03 90);
+  --ring: var(--brand-brown);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    font-style: italic;
+  }
+}
+
+@layer utilities {
+  /* Sello / stamp amarillo con bordes festoneados (elemento gráfico de marca) */
+  .stamp {
+    background: var(--brand-yellow);
+    color: var(--brand-brown);
+    border-radius: 9999px;
+    box-shadow: 0 0 0 4px var(--brand-beige), 0 0 0 6px var(--brand-brown);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
