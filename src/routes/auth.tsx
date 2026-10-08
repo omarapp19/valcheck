@@ -4,12 +4,9 @@ import {
   ArrowLeft,
   Check,
   CheckCircle2,
-  ChevronDown,
-  ChevronUp,
   Eye,
   EyeOff,
   HelpCircle,
-  Info,
   KeyRound,
   Loader2,
   Lock,
@@ -50,8 +47,6 @@ function AuthPage() {
     updatePassword,
     isLoggedIn,
     isAdmin,
-    isSupabaseConnected,
-    supabaseProjectUrl,
     isPasswordRecovery,
     setIsPasswordRecovery,
   } = useAuth();
@@ -86,9 +81,6 @@ function AuthPage() {
   // Form update password (recovery)
   const [nuevaPassword, setNuevaPassword] = useState("");
   const [confirmarPassword, setConfirmarPassword] = useState("");
-
-  // Desplegable de guía de Supabase
-  const [mostrarGuia, setMostrarGuia] = useState(false);
 
   // Redirigir si ya está logueado y no está en recuperación de contraseña
   useEffect(() => {
@@ -256,67 +248,13 @@ function AuthPage() {
 
         <p className="mt-1.5 text-xs text-muted-foreground max-w-sm mx-auto">
           {isPasswordRecovery
-            ? "Ingresa tu nueva contraseña para actualizar el acceso a tu cuenta de Supabase."
+            ? "Ingresa tu nueva contraseña para actualizar el acceso a tu cuenta."
             : tab === "login"
-              ? "Inicia sesión con tus credenciales de Supabase para revisar tus pedidos y compras."
+              ? "Inicia sesión para revisar tus pedidos y compras."
               : tab === "register"
-                ? "Regístrate en Supabase para comprar en línea, pagar con Pago Móvil / Binance y hacer seguimiento."
-                : "Te enviaremos un enlace oficial de Supabase para restablecer tu contraseña."}
+                ? "Regístrate para comprar en línea, pagar con Pago Móvil / Binance y hacer seguimiento."
+                : "Te enviaremos un enlace oficial para restablecer tu contraseña."}
         </p>
-
-        {/* Badge de conexión de Supabase */}
-        <div className="mt-3 flex items-center justify-center gap-2">
-          {isSupabaseConnected ? (
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-300 px-3 py-1 text-[11px] font-semibold text-emerald-800 shadow-2xs">
-              <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Supabase Auth Conectado</span>
-            </div>
-          ) : (
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-300 px-3 py-1 text-[11px] font-semibold text-amber-800">
-              <span className="size-2 rounded-full bg-amber-500" />
-              <span>Modo Local (Supabase no configurado)</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Caja desplegable de Consejos de Supabase */}
-      <div className="mt-4 rounded-2xl border border-border bg-muted/40 p-3 text-xs">
-        <button
-          type="button"
-          onClick={() => setMostrarGuia(!mostrarGuia)}
-          className="flex w-full items-center justify-between text-left font-semibold text-foreground/80 hover:text-foreground cursor-pointer"
-        >
-          <span className="flex items-center gap-1.5">
-            <Info className="size-3.5 text-brand-brown" />
-            Configuración de Supabase Auth
-          </span>
-          {mostrarGuia ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
-        </button>
-
-        {mostrarGuia && (
-          <div className="mt-2.5 pt-2.5 border-t border-border/60 text-[11px] text-muted-foreground space-y-2 leading-relaxed">
-            <p>
-              <strong>Proyecto conectado:</strong>{" "}
-              <code className="rounded bg-background px-1 py-0.5 font-mono text-[10px] text-foreground">
-                {supabaseProjectUrl || "Supabase Cloud"}
-              </code>
-            </p>
-            <div className="rounded-xl bg-card p-2.5 border border-border/80">
-              <p className="font-semibold text-foreground mb-1">
-                🚀 ¿Quieres registros instantáneos sin confirmación de email?
-              </p>
-              <p>
-                En tu panel de Supabase ve a <strong>Authentication → Providers → Email</strong> y desmarca la casilla{" "}
-                <strong>"Confirm email"</strong>. Así los clientes podrán comprar y registrarse al instante sin límite de envíos.
-              </p>
-            </div>
-            <p>
-              Las cuentas creadas se guardan en la tabla <strong>auth.users</strong> y se sincronizan con la tabla pública{" "}
-              <strong>public.profiles</strong> (ver <code className="font-mono text-primary">supabase_setup.sql</code>).
-            </p>
-          </div>
-        )}
       </div>
 
       {/* MODO RECUPERACIÓN DE CONTRASEÑA ACTIVO */}

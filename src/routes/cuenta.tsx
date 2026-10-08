@@ -194,12 +194,6 @@ function CuentaPage() {
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
               Panel de Cliente
             </span>
-            {isSupabaseConnected && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-800 border border-emerald-300">
-                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Supabase Auth
-              </span>
-            )}
           </div>
           <h1 className="font-display text-3xl font-bold mt-1">¡Hola, {user.nombre}!</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
