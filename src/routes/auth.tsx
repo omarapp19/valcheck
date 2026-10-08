@@ -15,7 +15,6 @@ import {
   MapPin,
   Phone,
   Send,
-  ShieldCheck,
   Sparkles,
   User as UserIcon,
   UserPlus,
@@ -209,21 +208,6 @@ function AuthPage() {
     }
   };
 
-  const quickDemoLogin = async (email: string, pass: string) => {
-    setLoginEmail(email);
-    setLoginPassword(pass);
-    setEnviando(true);
-    try {
-      const res = await login(email, pass);
-      if (res.ok) {
-        toast.success(`Iniciaste sesión como ${email.toLowerCase() === "omarapp1921@gmail.com" ? "Administrador" : "Cliente"}`);
-      } else {
-        toast.error(res.error || "Error al iniciar sesión");
-      }
-    } finally {
-      setEnviando(false);
-    }
-  };
 
   return (
     <div className="mx-auto max-w-lg px-4 py-10 md:py-14">
@@ -463,38 +447,6 @@ function AuthPage() {
                   "Iniciar Sesión"
                 )}
               </button>
-
-              {/* Accesos rápidos de prueba */}
-              <div className="pt-4 border-t border-border">
-                <p className="text-[11px] font-bold uppercase text-muted-foreground text-center">
-                  Accesos rápidos de demostración
-                </p>
-                <div className="mt-2.5 grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => quickDemoLogin("omarapp1921@gmail.com", "admin123")}
-                    className="rounded-xl border border-border bg-brand-yellow/30 p-2 text-left hover:bg-brand-yellow/50 transition-colors cursor-pointer"
-                  >
-                    <div className="flex items-center gap-1 font-bold text-xs text-brand-brown">
-                      <ShieldCheck className="size-3.5" />
-                      Admin
-                    </div>
-                    <p className="text-[10px] text-muted-foreground truncate">omarapp1921@gmail.com</p>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => quickDemoLogin("cliente@valcheck.ve", "cliente123")}
-                    className="rounded-xl border border-border bg-background p-2 text-left hover:bg-muted transition-colors cursor-pointer"
-                  >
-                    <div className="flex items-center gap-1 font-bold text-xs text-foreground">
-                      <UserIcon className="size-3.5" />
-                      Cliente Demo
-                    </div>
-                    <p className="text-[10px] text-muted-foreground">cliente@valcheck.ve</p>
-                  </button>
-                </div>
-              </div>
             </form>
           )}
 
