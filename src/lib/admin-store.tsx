@@ -140,7 +140,7 @@ interface AdminStoreContextValue {
 
 const AdminStoreContext = createContext<AdminStoreContextValue | null>(null);
 
-const STORAGE_PRODUCTS_KEY = "valcheck_catalog_products";
+const STORAGE_PRODUCTS_KEY = "valcheck_catalog_products_v3";
 const STORAGE_ORDERS_KEY = "valcheck_all_orders";
 const STORAGE_PAYMENT_KEY = "valcheck_payment_settings";
 
@@ -171,24 +171,24 @@ const PEDIDOS_DEMO: Order[] = [
     },
     items: [
       {
-        id: "collar-corazon",
-        nombre: "Collar Corazón",
-        categoria: "Collares",
-        precioUSD: 22,
+        id: productosIniciales[0]?.id || "earcuff",
+        nombre: productosIniciales[0]?.nombre || "Earcuff",
+        categoria: productosIniciales[0]?.categoria || "Aretes",
+        precioUSD: productosIniciales[0]?.precioUSD || 6,
         cantidad: 1,
-        imagen: productosIniciales[2]?.imagen || "",
+        imagen: productosIniciales[0]?.imagen || "",
       },
       {
-        id: "aretes-aro",
-        nombre: "Aretes Aro Clásico",
-        categoria: "Aretes",
-        precioUSD: 16,
+        id: productosIniciales[1]?.id || "anillo-7-indiv",
+        nombre: productosIniciales[1]?.nombre || "Anillo #7 indiv",
+        categoria: productosIniciales[1]?.categoria || "Anillos",
+        precioUSD: productosIniciales[1]?.precioUSD || 2.5,
         cantidad: 1,
-        imagen: productosIniciales[4]?.imagen || "",
+        imagen: productosIniciales[1]?.imagen || "",
       },
     ],
-    totalUSD: 38,
-    totalVES: "Bs. 9.500,00",
+    totalUSD: 8.5,
+    totalVES: "Bs. 7.435,21",
     estado: "pendiente",
     actualizadoEn: "2026-10-07T14:30:00.000Z",
   },
@@ -214,16 +214,16 @@ const PEDIDOS_DEMO: Order[] = [
     },
     items: [
       {
-        id: "collar-capas",
-        nombre: "Collar Doble Capa Moneda",
-        categoria: "Collares",
-        precioUSD: 28,
-        cantidad: 1,
+        id: productosIniciales[3]?.id || "anillo-ajustable-con-textura",
+        nombre: productosIniciales[3]?.nombre || "Anillo ajustable con textura",
+        categoria: productosIniciales[3]?.categoria || "Anillos",
+        precioUSD: productosIniciales[3]?.precioUSD || 4,
+        cantidad: 2,
         imagen: productosIniciales[3]?.imagen || "",
       },
     ],
-    totalUSD: 28,
-    totalVES: "Bs. 7.000,00",
+    totalUSD: 8,
+    totalVES: "Bs. 6.997,84",
     estado: "enviado",
     actualizadoEn: "2026-10-06T16:00:00.000Z",
   },
@@ -248,16 +248,16 @@ const PEDIDOS_DEMO: Order[] = [
     },
     items: [
       {
-        id: "pulsera-perlas",
-        nombre: "Pulsera Perlas Doradas",
-        categoria: "Pulseras",
-        precioUSD: 18,
+        id: productosIniciales[2]?.id || "anillo-8-indiv",
+        nombre: productosIniciales[2]?.nombre || "Anillo #8 indiv",
+        categoria: productosIniciales[2]?.categoria || "Anillos",
+        precioUSD: productosIniciales[2]?.precioUSD || 2.5,
         cantidad: 2,
-        imagen: productosIniciales[0]?.imagen || "",
+        imagen: productosIniciales[2]?.imagen || "",
       },
     ],
-    totalUSD: 36,
-    totalVES: "Bs. 9.000,00",
+    totalUSD: 5,
+    totalVES: "Bs. 4.373,65",
     estado: "aprobado",
     actualizadoEn: "2026-10-05T12:00:00.000Z",
   },

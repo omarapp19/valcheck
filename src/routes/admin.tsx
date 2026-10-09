@@ -82,8 +82,10 @@ function AdminPage() {
   // Pestaña principal: "pedidos" | "productos" | "ajustes"
   const [tabActiva, setTabActiva] = useState<"pedidos" | "productos" | "ajustes">("pedidos");
 
-  // Filtros de pedidos
-  const [filtroEstado, setFiltroEstado] = useState<string>("todos");
+  // Sección de pedidos: por defecto "pendientes" (solo los nuevos por verificar)
+  const [seccionPedidos, setSeccionPedidos] = useState<"pendientes" | "aprobados" | "enviados" | "rechazados" | "todos">("pendientes");
+  const [filtroMetodoPago, setFiltroMetodoPago] = useState<string>("todos");
+  const [filtroFecha, setFiltroFecha] = useState<string>("todos");
   const [busquedaPedido, setBusquedaPedido] = useState("");
 
   // Modales de pedidos
@@ -253,20 +255,60 @@ function AdminPage() {
     .reduce((s, p) => s + p.totalUSD, 0);
 
   const totalPendientes = pedidos.filter((p) => p.estado === "pendiente").length;
-  const totalAprobados = pedidos.filter((p) => p.estado === "aprobado" || p.estado === "enviado").length;
+  const totalAprobados = pedidos.filter((p) => p.estado === "aprobado").length;
+  const totalEnviados = pedidos.filter((p) => p.estado === "enviado").length;
+  const totalRechazados = pedidos.filter((p) => p.estado === "rechazado").length;
   const totalProductosCount = productos.length;
 
-  // Filtrado de pedidos
+  // Filtrado de pedidos y pagos
   const pedidosFiltrados = pedidos.filter((p) => {
-    const coincideEstado = filtroEstado === "todos" ? true : p.estado === filtroEstado;
+    // 1. Filtro estricto por sección activa (por defecto solo "pendientes")
+    let coincideSeccion = true;
+    if (seccionPedidos === "pendientes") {
+      coincideSeccion = p.estado === "pendiente";
+    } else if (seccionPedidos === "aprobados") {
+      coincideSeccion = p.estado === "aprobado";
+    } else if (seccionPedidos === "enviados") {
+      coincideSeccion = p.estado === "enviado";
+    } else if (seccionPedidos === "rechazados") {
+      coincideSeccion = p.estado === "rechazado";
+    }
+
+    // 2. Filtro por Método de Pago
+    const coincideMetodo = filtroMetodoPago === "todos" ? true : p.pago.metodo === filtroMetodoPago;
+
+    // 3. Filtro por Fecha
+    let coincideFecha = true;
+    if (filtroFecha !== "todos") {
+      const fechaPedido = new Date(p.fecha);
+      const hoy = new Date();
+      if (filtroFecha === "hoy") {
+        coincideFecha = fechaPedido.toDateString() === hoy.toDateString();
+      } else if (filtroFecha === "semana") {
+        const hace7Dias = new Date();
+        hace7Dias.setDate(hoy.getDate() - 7);
+        coincideFecha = fechaPedido >= hace7Dias;
+      } else if (filtroFecha === "mes") {
+        coincideFecha =
+          fechaPedido.getMonth() === hoy.getMonth() &&
+          fechaPedido.getFullYear() === hoy.getFullYear();
+      }
+    }
+
+    // 4. Búsqueda por texto (referencia, cliente, banco, teléfono, ID)
     const q = busquedaPedido.toLowerCase().trim();
     const coincideBusqueda =
       !q ||
       p.id.toLowerCase().includes(q) ||
       p.cliente.nombre.toLowerCase().includes(q) ||
       p.cliente.cedula.toLowerCase().includes(q) ||
-      (p.pago.referencia && p.pago.referencia.toLowerCase().includes(q));
-    return coincideEstado && coincideBusqueda;
+      (p.cliente.telefono && p.cliente.telefono.toLowerCase().includes(q)) ||
+      (p.pago.referencia && p.pago.referencia.toLowerCase().includes(q)) ||
+      (p.pago.bancoOrigen && p.pago.bancoOrigen.toLowerCase().includes(q)) ||
+      (p.pago.telefonoOrigen && p.pago.telefonoOrigen.toLowerCase().includes(q)) ||
+      (p.pago.idBinance && p.pago.idBinance.toLowerCase().includes(q));
+
+    return coincideSeccion && coincideMetodo && coincideFecha && coincideBusqueda;
   });
 
   // Manejo de Aprobación
@@ -411,7 +453,14 @@ function AdminPage() {
         </div>
 
         {/* KPI 2 */}
-        <div className="rounded-2xl border-2 border-amber-300 bg-amber-50/50 p-4 shadow-xs">
+        <button
+          type="button"
+          onClick={() => {
+            setTabActiva("pedidos");
+            setSeccionPedidos("pendientes");
+          }}
+          className="rounded-2xl border-2 border-amber-300 bg-amber-50/50 p-4 shadow-xs text-left cursor-pointer hover:border-amber-400 transition-colors"
+        >
           <span className="text-amber-800 text-[11px] font-bold uppercase block flex items-center justify-between">
             Por Verificar
             <Clock className="size-4 text-amber-600" />
@@ -419,20 +468,27 @@ function AdminPage() {
           <p className="mt-1 text-2xl font-bold font-display text-amber-900">
             {totalPendientes}
           </p>
-          <p className="text-[11px] text-amber-700/80 mt-0.5">En lapso de 24-48h</p>
-        </div>
+          <p className="text-[11px] text-amber-700/80 mt-0.5">Nuevos por comprobar</p>
+        </button>
 
         {/* KPI 3 */}
-        <div className="rounded-2xl border-2 border-emerald-300 bg-emerald-50/50 p-4 shadow-xs">
+        <button
+          type="button"
+          onClick={() => {
+            setTabActiva("pedidos");
+            setSeccionPedidos("aprobados");
+          }}
+          className="rounded-2xl border-2 border-emerald-300 bg-emerald-50/50 p-4 shadow-xs text-left cursor-pointer hover:border-emerald-400 transition-colors"
+        >
           <span className="text-emerald-800 text-[11px] font-bold uppercase block flex items-center justify-between">
-            Pagos Aprobados
+            Aprobados
             <CheckCircle2 className="size-4 text-emerald-600" />
           </span>
           <p className="mt-1 text-2xl font-bold font-display text-emerald-900">
             {totalAprobados}
           </p>
-          <p className="text-[11px] text-emerald-700/80 mt-0.5">En proceso o enviados</p>
-        </div>
+          <p className="text-[11px] text-emerald-700/80 mt-0.5">Listos para envío</p>
+        </button>
 
         {/* KPI 4 */}
         <div className="rounded-2xl border-2 border-primary/20 bg-card p-4 shadow-xs">
@@ -451,7 +507,10 @@ function AdminPage() {
       <div className="mt-8 flex border-b border-border">
         <button
           type="button"
-          onClick={() => setTabActiva("pedidos")}
+          onClick={() => {
+            setTabActiva("pedidos");
+            setSeccionPedidos("pendientes");
+          }}
           className={`flex items-center gap-2 border-b-2 py-3 px-6 text-sm font-bold transition-colors cursor-pointer ${
             tabActiva === "pedidos"
               ? "border-primary text-foreground"
@@ -459,10 +518,10 @@ function AdminPage() {
           }`}
         >
           <ShoppingBag className="size-4" />
-          Compras y Pagos
+          Gestión de Pagos y Pedidos
           {totalPendientes > 0 && (
-            <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white">
-              {totalPendientes}
+            <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white animate-pulse">
+              {totalPendientes} por verificar
             </span>
           )}
         </button>
@@ -499,42 +558,193 @@ function AdminPage() {
       {/* ========================================================================= */}
       {tabActiva === "pedidos" && (
         <div className="mt-6 space-y-6">
-          {/* Barra de Filtros y Búsqueda */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-            {/* Filtros de estado */}
-            <div className="flex flex-wrap gap-1.5 rounded-2xl border border-border bg-card p-1 text-xs">
-              {[
-                { id: "todos", label: "Todos" },
-                { id: "pendiente", label: "Pendientes" },
-                { id: "aprobado", label: "Aprobados" },
-                { id: "enviado", label: "Enviados" },
-                { id: "rechazado", label: "Rechazados" },
-              ].map((f) => (
-                <button
-                  key={f.id}
-                  type="button"
-                  onClick={() => setFiltroEstado(f.id)}
-                  className={`rounded-xl px-3 py-1.5 font-semibold transition-all cursor-pointer ${
-                    filtroEstado === f.id
-                      ? "bg-primary text-primary-foreground shadow-xs"
-                      : "text-muted-foreground hover:bg-muted"
+          {/* Pestañas de Secciones de Pedidos */}
+          <div className="flex flex-wrap items-center gap-2 border-b border-border pb-3">
+            <button
+              type="button"
+              onClick={() => setSeccionPedidos("pendientes")}
+              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer ${
+                seccionPedidos === "pendientes"
+                  ? "bg-amber-500 text-white shadow-sm scale-[1.02]"
+                  : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              <Clock className="size-4" />
+              Por Verificar (Nuevos)
+              {totalPendientes > 0 && (
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
+                    seccionPedidos === "pendientes" ? "bg-white text-amber-700" : "bg-amber-500 text-white"
                   }`}
                 >
-                  {f.label}
-                </button>
-              ))}
+                  {totalPendientes}
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSeccionPedidos("aprobados")}
+              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer ${
+                seccionPedidos === "aprobados"
+                  ? "bg-emerald-600 text-white shadow-sm scale-[1.02]"
+                  : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              <CheckCircle2 className="size-4" />
+              Aprobados / Listos para Envío
+              {totalAprobados > 0 && (
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
+                    seccionPedidos === "aprobados" ? "bg-white text-emerald-700" : "bg-emerald-600 text-white"
+                  }`}
+                >
+                  {totalAprobados}
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSeccionPedidos("enviados")}
+              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer ${
+                seccionPedidos === "enviados"
+                  ? "bg-blue-600 text-white shadow-sm scale-[1.02]"
+                  : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              <Truck className="size-4" />
+              Enviados
+              {totalEnviados > 0 && (
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
+                    seccionPedidos === "enviados" ? "bg-white text-blue-700" : "bg-blue-600 text-white"
+                  }`}
+                >
+                  {totalEnviados}
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSeccionPedidos("rechazados")}
+              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer ${
+                seccionPedidos === "rechazados"
+                  ? "bg-rose-600 text-white shadow-sm scale-[1.02]"
+                  : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              <XCircle className="size-4" />
+              Rechazados
+              {totalRechazados > 0 && (
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
+                    seccionPedidos === "rechazados" ? "bg-white text-rose-700" : "bg-rose-600 text-white"
+                  }`}
+                >
+                  {totalRechazados}
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSeccionPedidos("todos")}
+              className={`flex items-center gap-1.5 rounded-2xl px-3.5 py-2.5 text-xs font-bold transition-all cursor-pointer ml-auto ${
+                seccionPedidos === "todos"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              Historial General ({pedidos.length})
+            </button>
+          </div>
+
+          {/* Barra de Filtros y Búsqueda */}
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+              {/* Contexto de la sección actual */}
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground">
+                  {seccionPedidos === "pendientes" && "Mostrando exclusivamente pagos nuevos pendientes por comprobación."}
+                  {seccionPedidos === "aprobados" && "Mostrando pedidos con pago aprobado listos para preparar y despachar."}
+                  {seccionPedidos === "enviados" && "Mostrando encomiendas despachadas con guía asignada."}
+                  {seccionPedidos === "rechazados" && "Mostrando pagos no validados con su motivo de rechazo."}
+                  {seccionPedidos === "todos" && "Mostrando historial consolidado de todos los pedidos."}
+                </p>
+              </div>
+
+              {/* Búsqueda */}
+              <div className="relative w-full lg:w-80">
+                <Search className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={busquedaPedido}
+                  onChange={(e) => setBusquedaPedido(e.target.value)}
+                  placeholder="Buscar por cliente, cédula, ref o banco..."
+                  className="w-full rounded-full border border-input bg-background pl-9 pr-4 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
             </div>
 
-            {/* Búsqueda */}
-            <div className="relative w-full sm:w-72">
-              <Search className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
-              <input
-                type="text"
-                value={busquedaPedido}
-                onChange={(e) => setBusquedaPedido(e.target.value)}
-                placeholder="Buscar por cliente, cédula o ref..."
-                className="w-full rounded-full border border-input bg-background pl-9 pr-4 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
-              />
+            {/* Filtros específicos de Pago y Fecha */}
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card/60 p-2.5 text-xs">
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Selector de Método de Pago */}
+                <div className="flex items-center gap-1.5">
+                  <Wallet className="size-3.5 text-muted-foreground" />
+                  <span className="text-[11px] font-bold text-muted-foreground">Método:</span>
+                  <select
+                    value={filtroMetodoPago}
+                    onChange={(e) => setFiltroMetodoPago(e.target.value)}
+                    className="rounded-xl border border-border bg-background px-2.5 py-1 text-xs font-medium outline-none focus:ring-2 focus:ring-ring cursor-pointer"
+                  >
+                    <option value="todos">Todos los métodos</option>
+                    <option value="pago_movil">Pago Móvil (Bs)</option>
+                    <option value="binance">Binance (USDT)</option>
+                    <option value="transferencia">Transferencia Bancaria</option>
+                    <option value="whatsapp">Directo WhatsApp</option>
+                  </select>
+                </div>
+
+                {/* Selector de Fecha */}
+                <div className="flex items-center gap-1.5">
+                  <Clock className="size-3.5 text-muted-foreground" />
+                  <span className="text-[11px] font-bold text-muted-foreground">Período:</span>
+                  <select
+                    value={filtroFecha}
+                    onChange={(e) => setFiltroFecha(e.target.value)}
+                    className="rounded-xl border border-border bg-background px-2.5 py-1 text-xs font-medium outline-none focus:ring-2 focus:ring-ring cursor-pointer"
+                  >
+                    <option value="todos">Cualquier fecha</option>
+                    <option value="hoy">Hoy</option>
+                    <option value="semana">Últimos 7 días</option>
+                    <option value="mes">Este mes</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Contador y Limpiar filtros */}
+              <div className="flex items-center gap-2 ml-auto">
+                <span className="text-[11px] font-medium text-muted-foreground">
+                  {pedidosFiltrados.length} {pedidosFiltrados.length === 1 ? "pedido en sección" : "pedidos en sección"}
+                </span>
+                {(filtroMetodoPago !== "todos" || filtroFecha !== "todos" || busquedaPedido) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFiltroMetodoPago("todos");
+                      setFiltroFecha("todos");
+                      setBusquedaPedido("");
+                    }}
+                    className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  >
+                    <RotateCcw className="size-3" />
+                    Limpiar
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -542,7 +752,17 @@ function AdminPage() {
           {pedidosFiltrados.length === 0 ? (
             <div className="rounded-3xl border border-border bg-card p-12 text-center">
               <ShoppingBag className="size-10 text-muted-foreground mx-auto" />
-              <p className="mt-3 font-semibold text-sm">No se encontraron compras con este filtro.</p>
+              <p className="mt-3 font-semibold text-sm">
+                {seccionPedidos === "pendientes"
+                  ? "✨ ¡Todo al día! No hay nuevos pagos pendientes por verificar."
+                  : seccionPedidos === "aprobados"
+                  ? "No hay pedidos pendientes por generar guía o despachar."
+                  : seccionPedidos === "enviados"
+                  ? "No hay envíos registrados en tránsito."
+                  : seccionPedidos === "rechazados"
+                  ? "No hay pagos rechazados."
+                  : "No se encontraron compras con los filtros seleccionados."}
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -1405,6 +1625,7 @@ function AdminPage() {
                     <option value="Collares">Collares</option>
                     <option value="Aretes">Aretes</option>
                     <option value="Anillos">Anillos</option>
+                    <option value="Sets">Sets</option>
                   </select>
                 </div>
 
@@ -1578,6 +1799,7 @@ function AdminPage() {
                     <option value="Collares">Collares</option>
                     <option value="Aretes">Aretes</option>
                     <option value="Anillos">Anillos</option>
+                    <option value="Sets">Sets</option>
                   </select>
                 </div>
 

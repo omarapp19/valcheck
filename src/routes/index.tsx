@@ -82,15 +82,15 @@ function Index() {
       {/* Categorías */}
       <section className="mx-auto max-w-6xl px-4 py-12">
         <h2 className="text-3xl font-semibold">Explora por categoría</h2>
-        <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
           {categorias.map((cat) => (
             <Link
               key={cat}
               to="/tienda"
               search={{ categoria: cat }}
-              className="group rounded-2xl border-2 border-primary bg-card px-4 py-8 text-center transition-colors hover:bg-brand-yellow"
+              className="group rounded-2xl border-2 border-primary bg-card px-3 py-6 text-center transition-all hover:bg-brand-yellow hover:scale-[1.02]"
             >
-              <span className="font-display text-xl font-semibold">{cat}</span>
+              <span className="font-display text-lg font-semibold block">{cat}</span>
               <ArrowRight className="mx-auto mt-2 size-4 transition-transform group-hover:translate-x-1" />
             </Link>
           ))}
