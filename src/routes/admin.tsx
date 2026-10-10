@@ -510,15 +510,15 @@ function AdminPage() {
         </div>
       </div>
 
-      {/* Pestañas de Navegación del Panel */}
-      <div className="mt-8 flex border-b border-border">
+      {/* Pestañas de Navegación del Panel (Deslizables horizontalmente en móvil) */}
+      <div className="mt-8 flex border-b border-border overflow-x-auto whitespace-nowrap scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
         <button
           type="button"
           onClick={() => {
             setTabActiva("pedidos");
             setSeccionPedidos("pendientes");
           }}
-          className={`flex items-center gap-2 border-b-2 py-3 px-6 text-sm font-bold transition-colors cursor-pointer ${
+          className={`flex items-center gap-2 border-b-2 py-2.5 sm:py-3 px-4 sm:px-6 text-xs sm:text-sm font-bold transition-colors cursor-pointer shrink-0 ${
             tabActiva === "pedidos"
               ? "border-primary text-foreground"
               : "border-transparent text-muted-foreground hover:text-foreground"
@@ -536,7 +536,7 @@ function AdminPage() {
         <button
           type="button"
           onClick={() => setTabActiva("productos")}
-          className={`flex items-center gap-2 border-b-2 py-3 px-6 text-sm font-bold transition-colors cursor-pointer ${
+          className={`flex items-center gap-2 border-b-2 py-2.5 sm:py-3 px-4 sm:px-6 text-xs sm:text-sm font-bold transition-colors cursor-pointer shrink-0 ${
             tabActiva === "productos"
               ? "border-primary text-foreground"
               : "border-transparent text-muted-foreground hover:text-foreground"
@@ -549,7 +549,7 @@ function AdminPage() {
         <button
           type="button"
           onClick={() => setTabActiva("ajustes")}
-          className={`flex items-center gap-2 border-b-2 py-3 px-6 text-sm font-bold transition-colors cursor-pointer ${
+          className={`flex items-center gap-2 border-b-2 py-2.5 sm:py-3 px-4 sm:px-6 text-xs sm:text-sm font-bold transition-colors cursor-pointer shrink-0 ${
             tabActiva === "ajustes"
               ? "border-primary text-foreground"
               : "border-transparent text-muted-foreground hover:text-foreground"

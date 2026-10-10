@@ -466,13 +466,13 @@ function CheckoutPage() {
       </div>
 
       {/* Indicador de Pasos / Carrusel */}
-      <div className="mb-8 overflow-hidden rounded-2xl border-2 border-primary/30 bg-card p-3 shadow-xs">
-        <div className="grid grid-cols-3 gap-2">
+      <div className="mb-6 sm:mb-8 overflow-hidden rounded-2xl border-2 border-primary/30 bg-card p-2 sm:p-3 shadow-xs">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
           {/* Paso 1 */}
           <button
             type="button"
             onClick={() => setPasoActual(1)}
-            className={`flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 text-xs md:text-sm font-semibold transition-all ${
+            className={`flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl py-2 sm:py-2.5 px-2 sm:px-3 text-xs md:text-sm font-semibold transition-all cursor-pointer ${
               pasoActual === 1
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : pasoActual > 1
@@ -480,10 +480,11 @@ function CheckoutPage() {
                   : "text-muted-foreground hover:bg-muted"
             }`}
           >
-            <span className="flex size-6 items-center justify-center rounded-full text-xs font-bold border border-current">
-              {pasoActual > 1 ? <Check className="size-3.5" strokeWidth={3} /> : "1"}
+            <span className="flex size-5 sm:size-6 items-center justify-center rounded-full text-[10px] sm:text-xs font-bold border border-current shrink-0">
+              {pasoActual > 1 ? <Check className="size-3 sm:size-3.5" strokeWidth={3} /> : "1"}
             </span>
-            <span className="truncate">1. Método de Pago</span>
+            <span className="hidden sm:inline truncate">1. Método de Pago</span>
+            <span className="sm:hidden text-xs">1. Pago</span>
           </button>
 
           {/* Paso 2 */}
@@ -494,7 +495,7 @@ function CheckoutPage() {
               else if (metodoPago === "whatsapp" || referencia.trim() || idBinance.trim())
                 setPasoActual(2);
             }}
-            className={`flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 text-xs md:text-sm font-semibold transition-all ${
+            className={`flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl py-2 sm:py-2.5 px-2 sm:px-3 text-xs md:text-sm font-semibold transition-all cursor-pointer ${
               pasoActual === 2
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : pasoActual > 2
@@ -502,10 +503,11 @@ function CheckoutPage() {
                   : "text-muted-foreground hover:bg-muted"
             }`}
           >
-            <span className="flex size-6 items-center justify-center rounded-full text-xs font-bold border border-current">
-              {pasoActual > 2 ? <Check className="size-3.5" strokeWidth={3} /> : "2"}
+            <span className="flex size-5 sm:size-6 items-center justify-center rounded-full text-[10px] sm:text-xs font-bold border border-current shrink-0">
+              {pasoActual > 2 ? <Check className="size-3 sm:size-3.5" strokeWidth={3} /> : "2"}
             </span>
-            <span className="truncate">2. Envío o Entrega</span>
+            <span className="hidden sm:inline truncate">2. Envío o Entrega</span>
+            <span className="sm:hidden text-xs">2. Envío</span>
           </button>
 
           {/* Paso 3 */}
@@ -514,34 +516,35 @@ function CheckoutPage() {
             onClick={() => {
               if (nombreCompleto.trim() && ciudad.trim()) setPasoActual(3);
             }}
-            className={`flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 text-xs md:text-sm font-semibold transition-all ${
+            className={`flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl py-2 sm:py-2.5 px-2 sm:px-3 text-xs md:text-sm font-semibold transition-all cursor-pointer ${
               pasoActual === 3
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:bg-muted"
             }`}
           >
-            <span className="flex size-6 items-center justify-center rounded-full text-xs font-bold border border-current">
+            <span className="flex size-5 sm:size-6 items-center justify-center rounded-full text-[10px] sm:text-xs font-bold border border-current shrink-0">
               3
             </span>
-            <span className="truncate">3. Confirmar</span>
+            <span className="hidden sm:inline truncate">3. Confirmar</span>
+            <span className="sm:hidden text-xs">3. Listo</span>
           </button>
         </div>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-12">
+      <div className="grid gap-6 sm:gap-8 lg:grid-cols-12">
         {/* Contenido Dinámico del Paso (8 columnas) */}
         <div className="lg:col-span-8">
           {/* ========================================================= */}
           {/* PASO 1: SELECCIONAR MÉTODO DE PAGO */}
           {/* ========================================================= */}
           {pasoActual === 1 && (
-            <div className="rounded-[2rem] border-2 border-primary bg-card p-6 shadow-sm md:p-8 animate-in fade-in duration-300">
+            <div className="rounded-2xl sm:rounded-[2rem] border-2 border-primary bg-card p-4 sm:p-6 md:p-8 shadow-sm animate-in fade-in duration-300">
               <div className="flex items-center gap-3">
-                <span className="flex size-10 items-center justify-center rounded-full bg-brand-yellow text-brand-brown">
-                  <CreditCard className="size-5" />
+                <span className="flex size-9 sm:size-10 items-center justify-center rounded-full bg-brand-yellow text-brand-brown shrink-0">
+                  <CreditCard className="size-4.5 sm:size-5" />
                 </span>
                 <div>
-                  <h2 className="font-display text-2xl font-bold">Paso 1: Selecciona tu Método de Pago</h2>
+                  <h2 className="font-display text-xl sm:text-2xl font-bold">Paso 1: Selecciona tu Método de Pago</h2>
                   <p className="text-xs text-muted-foreground">
                     Primero escoge cómo deseas pagar tu pedido en ValCheck
                   </p>
@@ -1030,13 +1033,13 @@ function CheckoutPage() {
               </div>
 
               {/* Botón para avanzar al paso 2 */}
-              <div className="mt-8 flex justify-end">
+              <div className="mt-6 sm:mt-8 flex justify-end">
                 <button
                   type="button"
                   onClick={avanzarAlPaso2}
-                  className="flex items-center gap-2 rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-primary-foreground shadow-sm transition-transform hover:scale-[1.02] active:scale-95 cursor-pointer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-primary-foreground shadow-sm transition-transform hover:scale-[1.02] active:scale-95 cursor-pointer"
                 >
-                  Continuar a Envíos Nacionales
+                  <span>Continuar a Envíos Nacionales</span>
                   <ArrowRight className="size-4" />
                 </button>
               </div>
@@ -1047,13 +1050,13 @@ function CheckoutPage() {
           {/* PASO 2: DATOS DE ENVÍOS NACIONALES */}
           {/* ========================================================= */}
           {pasoActual === 2 && (
-            <div className="rounded-[2rem] border-2 border-primary bg-card p-6 shadow-sm md:p-8 animate-in fade-in duration-300">
+            <div className="rounded-2xl sm:rounded-[2rem] border-2 border-primary bg-card p-4 sm:p-6 md:p-8 shadow-sm animate-in fade-in duration-300">
               <div className="flex items-center gap-3">
-                <span className="flex size-10 items-center justify-center rounded-full bg-brand-yellow text-brand-brown">
-                  <Truck className="size-5" />
+                <span className="flex size-9 sm:size-10 items-center justify-center rounded-full bg-brand-yellow text-brand-brown shrink-0">
+                  <Truck className="size-4.5 sm:size-5" />
                 </span>
                 <div>
-                  <h2 className="font-display text-2xl font-bold">Paso 2: Entrega o Envíos Nacionales</h2>
+                  <h2 className="font-display text-xl sm:text-2xl font-bold">Paso 2: Entrega o Envíos Nacionales</h2>
                   <p className="text-xs text-muted-foreground">
                     Selecciona ZOOM, MRW o coordinar la entrega directamente con la tienda
                   </p>
@@ -1241,20 +1244,20 @@ function CheckoutPage() {
               </div>
 
               {/* Botones de navegación */}
-              <div className="mt-8 flex items-center justify-between">
+              <div className="mt-6 sm:mt-8 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setPasoActual(1)}
-                  className="rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
+                  className="rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground hover:bg-muted transition-colors text-center cursor-pointer"
                 >
                   ← Volver a Método de Pago
                 </button>
                 <button
                   type="button"
                   onClick={avanzarAlPaso3}
-                  className="flex items-center gap-2 rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-primary-foreground shadow-sm transition-transform hover:scale-[1.02] active:scale-95 cursor-pointer"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-primary-foreground shadow-sm transition-transform hover:scale-[1.02] active:scale-95 cursor-pointer"
                 >
-                  Continuar al Resumen
+                  <span>Continuar al Resumen</span>
                   <ArrowRight className="size-4" />
                 </button>
               </div>
@@ -1265,13 +1268,13 @@ function CheckoutPage() {
           {/* PASO 3: CONFIRMACIÓN Y ENVÍO DEL PEDIDO */}
           {/* ========================================================= */}
           {pasoActual === 3 && (
-            <div className="rounded-[2rem] border-2 border-primary bg-card p-6 shadow-sm md:p-8 animate-in fade-in duration-300">
+            <div className="rounded-2xl sm:rounded-[2rem] border-2 border-primary bg-card p-4 sm:p-6 md:p-8 shadow-sm animate-in fade-in duration-300">
               <div className="flex items-center gap-3">
-                <span className="flex size-10 items-center justify-center rounded-full bg-brand-yellow text-brand-brown">
-                  <ShieldCheck className="size-5" />
+                <span className="flex size-9 sm:size-10 items-center justify-center rounded-full bg-brand-yellow text-brand-brown shrink-0">
+                  <ShieldCheck className="size-4.5 sm:size-5" />
                 </span>
                 <div>
-                  <h2 className="font-display text-2xl font-bold">Paso 3: Confirmación de tu Pedido</h2>
+                  <h2 className="font-display text-xl sm:text-2xl font-bold">Paso 3: Confirmación de tu Pedido</h2>
                   <p className="text-xs text-muted-foreground">
                     Verifica que todo esté correcto antes de enviar el pedido a WhatsApp
                   </p>

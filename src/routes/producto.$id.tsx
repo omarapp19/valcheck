@@ -11,7 +11,7 @@ export const Route = createFileRoute("/producto/$id")({
     let catalogo = productos;
     if (typeof window !== "undefined") {
       try {
-        const raw = localStorage.getItem("valcheck_catalog_products");
+        const raw = localStorage.getItem("valcheck_catalog_products_v4") || localStorage.getItem("valcheck_catalog_products");
         if (raw) catalogo = JSON.parse(raw);
       } catch {
         /* ignore */
@@ -43,16 +43,16 @@ function ProductoPage() {
     .slice(0, 4);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
       <Link
         to="/tienda"
-        className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground"
+        className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="size-4" /> Volver a la tienda
+        <ArrowLeft className="size-3.5 sm:size-4" /> Volver a la tienda
       </Link>
 
-      <div className="mt-6 grid gap-10 md:grid-cols-2">
-        <div className="overflow-hidden rounded-[2rem] border-2 border-primary bg-card">
+      <div className="mt-4 sm:mt-6 grid gap-6 sm:gap-10 md:grid-cols-2">
+        <div className="overflow-hidden rounded-2xl sm:rounded-[2rem] border-2 border-primary bg-card">
           <img
             src={producto.imagen}
             alt={producto.nombre}
@@ -62,15 +62,15 @@ function ProductoPage() {
           />
         </div>
         <div className="flex flex-col justify-center">
-          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+          <p className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground">
             {producto.categoria}
           </p>
-          <h1 className="mt-2 text-4xl font-semibold md:text-5xl">{producto.nombre}</h1>
-          <p className="mt-4 text-lg text-muted-foreground">{producto.descripcion}</p>
+          <h1 className="mt-1.5 sm:mt-2 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight">{producto.nombre}</h1>
+          <p className="mt-3 sm:mt-4 text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed">{producto.descripcion}</p>
 
-          <div className="mt-6 rounded-2xl bg-brand-yellow/60 p-5">
-            <p className="text-3xl font-bold" suppressHydrationWarning>{formatUSD(producto.precioUSD)}</p>
-            <p className="mt-1 text-sm font-medium text-foreground/70" suppressHydrationWarning>
+          <div className="mt-4 sm:mt-6 rounded-2xl bg-brand-yellow/60 p-4 sm:p-5">
+            <p className="text-2xl sm:text-3xl font-bold" suppressHydrationWarning>{formatUSD(producto.precioUSD)}</p>
+            <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm font-medium text-foreground/70" suppressHydrationWarning>
               {formatVES(producto.precioUSD, tasaBCV)} (Tasa BCV oficial)
             </p>
           </div>
@@ -86,22 +86,22 @@ function ProductoPage() {
                 },
               });
             }}
-            className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
+            className="mt-5 sm:mt-6 inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-primary px-8 py-3.5 sm:py-4 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-95 cursor-pointer shadow-md"
           >
-            <ShoppingBag className="size-5" /> Agregar al carrito
+            <ShoppingBag className="size-4.5 sm:size-5" /> Agregar al carrito
           </button>
 
-          <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-            <BadgeCheck className="size-4 text-brand-brown" />
+          <p className="mt-4 flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+            <BadgeCheck className="size-4 text-brand-brown shrink-0" />
             Pieza verificada por ValCheck — calidad garantizada.
           </p>
         </div>
       </div>
 
       {relacionados.length > 0 && (
-        <section className="mt-16">
-          <h2 className="text-2xl font-semibold">También te puede gustar</h2>
-          <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+        <section className="mt-12 sm:mt-16">
+          <h2 className="text-xl sm:text-2xl font-semibold">También te puede gustar</h2>
+          <div className="mt-4 sm:mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 md:gap-6">
             {relacionados.map((p) => (
               <ProductCard key={p.id} producto={p} />
             ))}

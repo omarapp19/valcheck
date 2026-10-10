@@ -44,17 +44,17 @@ export function CartSidebar() {
         className="flex w-full flex-col p-0 sm:max-w-md bg-background border-l border-border shadow-2xl"
       >
         {/* Header */}
-        <SheetHeader className="border-b border-border/80 px-6 py-5 text-left bg-background/80 backdrop-blur">
+        <SheetHeader className="border-b border-border/80 px-4 sm:px-6 py-4 sm:py-5 text-left bg-background/80 backdrop-blur">
           <div className="flex items-center justify-between pr-8">
-            <div className="flex items-center gap-2.5">
-              <span className="flex size-9 items-center justify-center rounded-full bg-brand-yellow text-brand-brown">
-                <ShoppingBag className="size-5" />
+            <div className="flex items-center gap-2 sm:gap-2.5">
+              <span className="flex size-8 sm:size-9 items-center justify-center rounded-full bg-brand-yellow text-brand-brown">
+                <ShoppingBag className="size-4 sm:size-5" />
               </span>
               <div>
-                <SheetTitle className="font-display text-2xl font-bold tracking-tight">
+                <SheetTitle className="font-display text-xl sm:text-2xl font-bold tracking-tight">
                   Tu Carrito
                 </SheetTitle>
-                <p className="text-xs font-medium text-muted-foreground">
+                <p className="text-[11px] sm:text-xs font-medium text-muted-foreground">
                   {totalItems === 0
                     ? "Sin productos seleccionados"
                     : `${totalItems} ${totalItems === 1 ? "pieza seleccionada" : "piezas seleccionadas"}`}
@@ -64,7 +64,7 @@ export function CartSidebar() {
             {items.length > 0 && (
               <button
                 onClick={vaciar}
-                className="text-xs font-semibold text-muted-foreground hover:text-destructive transition-colors"
+                className="text-xs font-semibold text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
                 title="Vaciar todo el carrito"
               >
                 Vaciar
@@ -73,34 +73,34 @@ export function CartSidebar() {
           </div>
 
           {/* Micro banner de confianza */}
-          <div className="mt-3 flex items-center gap-2 rounded-xl bg-brand-yellow/50 px-3 py-1.5 text-xs font-medium text-brand-brown">
-            <ShieldCheck className="size-4 shrink-0 text-brand-brown" />
+          <div className="mt-2.5 sm:mt-3 flex items-center gap-2 rounded-xl bg-brand-yellow/50 px-3 py-1.5 text-[11px] sm:text-xs font-medium text-brand-brown">
+            <ShieldCheck className="size-3.5 sm:size-4 shrink-0 text-brand-brown" />
             <span className="truncate">Piezas verificadas por ValCheck · Calidad garantizada</span>
           </div>
         </SheetHeader>
 
         {/* Content */}
         {items.length === 0 ? (
-          <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center">
-            <div className="stamp flex size-20 items-center justify-center">
-              <ShoppingBag className="size-9 text-brand-brown" />
+          <div className="flex flex-1 flex-col items-center justify-center px-4 sm:px-6 py-12 text-center">
+            <div className="stamp flex size-16 sm:size-20 items-center justify-center">
+              <ShoppingBag className="size-7 sm:size-9 text-brand-brown" />
             </div>
-            <h3 className="mt-6 font-display text-2xl font-semibold">Tu carrito está vacío</h3>
-            <p className="mt-2 max-w-xs text-sm text-muted-foreground">
+            <h3 className="mt-5 sm:mt-6 font-display text-xl sm:text-2xl font-semibold">Tu carrito está vacío</h3>
+            <p className="mt-2 max-w-xs text-xs sm:text-sm text-muted-foreground">
               Descubre accesorios elegantes que celebran tu autenticidad y tu valor.
             </p>
             <button
               onClick={handleIrATienda}
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:scale-105 active:scale-95"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-xs sm:text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer"
             >
               <Sparkles className="size-4" />
               Explorar la tienda
             </button>
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto px-6 py-4 divide-y divide-border/60">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-3 sm:py-4 divide-y divide-border/60">
             {items.map(({ producto, cantidad }) => (
-              <div key={producto.id} className="py-4 first:pt-2 last:pb-2 flex gap-3.5 items-center">
+              <div key={producto.id} className="py-3.5 first:pt-1 last:pb-1 flex gap-3 items-center">
                 <Link
                   to="/producto/$id"
                   params={{ id: producto.id }}
@@ -111,7 +111,7 @@ export function CartSidebar() {
                     src={producto.imagen}
                     alt={producto.nombre}
                     loading="lazy"
-                    className="size-20 object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="size-16 sm:size-20 object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 </Link>
 
@@ -121,38 +121,38 @@ export function CartSidebar() {
                       to="/producto/$id"
                       params={{ id: producto.id }}
                       onClick={cerrarCarrito}
-                      className="font-display font-semibold text-base leading-snug line-clamp-1 hover:text-brand-brown/80 transition-colors"
+                      className="font-display font-semibold text-sm sm:text-base leading-snug line-clamp-1 hover:text-brand-brown/80 transition-colors"
                     >
                       {producto.nombre}
                     </Link>
                     <button
                       onClick={() => quitar(producto.id)}
-                      className="text-muted-foreground hover:text-destructive p-1 rounded-md transition-colors"
+                      className="text-muted-foreground hover:text-destructive p-1 rounded-md transition-colors cursor-pointer"
                       aria-label={`Eliminar ${producto.nombre}`}
                     >
-                      <Trash2 className="size-4" />
+                      <Trash2 className="size-3.5 sm:size-4" />
                     </button>
                   </div>
 
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground mt-0.5">
+                  <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground mt-0.5">
                     {producto.categoria}
                   </p>
 
-                  <div className="mt-2.5 flex items-center justify-between gap-2">
+                  <div className="mt-2 flex items-center justify-between gap-2">
                     <div>
-                      <p className="font-bold text-sm text-foreground" suppressHydrationWarning>
+                      <p className="font-bold text-xs sm:text-sm text-foreground" suppressHydrationWarning>
                         {formatUSD(producto.precioUSD * cantidad)}
                       </p>
-                      <p className="text-[11px] text-muted-foreground" suppressHydrationWarning>
+                      <p className="text-[10px] sm:text-[11px] text-muted-foreground truncate" suppressHydrationWarning>
                         {formatVES(producto.precioUSD * cantidad, tasaBCV)}
                       </p>
                     </div>
 
-                    {/* Stepper */}
-                    <div className="flex items-center gap-1.5 rounded-full border border-border bg-card p-0.5 shadow-xs">
+                    {/* Stepper con botones táctiles cómodos */}
+                    <div className="flex items-center gap-1 rounded-full border border-border bg-card p-0.5 shadow-xs">
                       <button
                         onClick={() => cambiarCantidad(producto.id, cantidad - 1)}
-                        className="flex size-6 items-center justify-center rounded-full hover:bg-brand-yellow/60 transition-colors"
+                        className="flex size-7 items-center justify-center rounded-full hover:bg-brand-yellow/60 transition-colors cursor-pointer"
                         aria-label="Disminuir cantidad"
                       >
                         <Minus className="size-3" />
@@ -160,7 +160,7 @@ export function CartSidebar() {
                       <span className="w-5 text-center text-xs font-semibold">{cantidad}</span>
                       <button
                         onClick={() => cambiarCantidad(producto.id, cantidad + 1)}
-                        className="flex size-6 items-center justify-center rounded-full hover:bg-brand-yellow/60 transition-colors"
+                        className="flex size-7 items-center justify-center rounded-full hover:bg-brand-yellow/60 transition-colors cursor-pointer"
                         aria-label="Aumentar cantidad"
                       >
                         <Plus className="size-3" />
@@ -175,7 +175,7 @@ export function CartSidebar() {
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="border-t border-border bg-card/60 p-6 backdrop-blur">
+          <div className="border-t border-border bg-card/60 p-4 sm:p-6 backdrop-blur">
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>Subtotal</span>

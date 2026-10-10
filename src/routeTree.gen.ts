@@ -10,12 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccesoriosRouteImport } from './routes/accesorios'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CarritoRouteImport } from './routes/carrito'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactoRouteImport } from './routes/contacto'
 import { Route as CuentaRouteImport } from './routes/cuenta'
+import { Route as MaquillajeRouteImport } from './routes/maquillaje'
 import { Route as NosotrosRouteImport } from './routes/nosotros'
 import { Route as TiendaRouteImport } from './routes/tienda'
 import { Route as ProductoIdRouteImport } from './routes/producto.$id'
@@ -23,6 +25,11 @@ import { Route as ProductoIdRouteImport } from './routes/producto.$id'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccesoriosRoute = AccesoriosRouteImport.update({
+  id: '/accesorios',
+  path: '/accesorios',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -55,6 +62,11 @@ const CuentaRoute = CuentaRouteImport.update({
   path: '/cuenta',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MaquillajeRoute = MaquillajeRouteImport.update({
+  id: '/maquillaje',
+  path: '/maquillaje',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NosotrosRoute = NosotrosRouteImport.update({
   id: '/nosotros',
   path: '/nosotros',
@@ -73,24 +85,28 @@ const ProductoIdRoute = ProductoIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/accesorios': typeof AccesoriosRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/carrito': typeof CarritoRoute
   '/checkout': typeof CheckoutRoute
   '/contacto': typeof ContactoRoute
   '/cuenta': typeof CuentaRoute
+  '/maquillaje': typeof MaquillajeRoute
   '/nosotros': typeof NosotrosRoute
   '/tienda': typeof TiendaRoute
   '/producto/$id': typeof ProductoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/accesorios': typeof AccesoriosRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/carrito': typeof CarritoRoute
   '/checkout': typeof CheckoutRoute
   '/contacto': typeof ContactoRoute
   '/cuenta': typeof CuentaRoute
+  '/maquillaje': typeof MaquillajeRoute
   '/nosotros': typeof NosotrosRoute
   '/tienda': typeof TiendaRoute
   '/producto/$id': typeof ProductoIdRoute
@@ -98,12 +114,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/accesorios': typeof AccesoriosRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/carrito': typeof CarritoRoute
   '/checkout': typeof CheckoutRoute
   '/contacto': typeof ContactoRoute
   '/cuenta': typeof CuentaRoute
+  '/maquillaje': typeof MaquillajeRoute
   '/nosotros': typeof NosotrosRoute
   '/tienda': typeof TiendaRoute
   '/producto/$id': typeof ProductoIdRoute
@@ -112,36 +130,42 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/accesorios'
     | '/admin'
     | '/auth'
     | '/carrito'
     | '/checkout'
     | '/contacto'
     | '/cuenta'
+    | '/maquillaje'
     | '/nosotros'
     | '/tienda'
     | '/producto/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/accesorios'
     | '/admin'
     | '/auth'
     | '/carrito'
     | '/checkout'
     | '/contacto'
     | '/cuenta'
+    | '/maquillaje'
     | '/nosotros'
     | '/tienda'
     | '/producto/$id'
   id:
     | '__root__'
     | '/'
+    | '/accesorios'
     | '/admin'
     | '/auth'
     | '/carrito'
     | '/checkout'
     | '/contacto'
     | '/cuenta'
+    | '/maquillaje'
     | '/nosotros'
     | '/tienda'
     | '/producto/$id'
@@ -149,12 +173,14 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccesoriosRoute: typeof AccesoriosRoute
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   CarritoRoute: typeof CarritoRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactoRoute: typeof ContactoRoute
   CuentaRoute: typeof CuentaRoute
+  MaquillajeRoute: typeof MaquillajeRoute
   NosotrosRoute: typeof NosotrosRoute
   TiendaRoute: typeof TiendaRoute
   ProductoIdRoute: typeof ProductoIdRoute
@@ -167,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accesorios': {
+      id: '/accesorios'
+      path: '/accesorios'
+      fullPath: '/accesorios'
+      preLoaderRoute: typeof AccesoriosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -211,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CuentaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/maquillaje': {
+      id: '/maquillaje'
+      path: '/maquillaje'
+      fullPath: '/maquillaje'
+      preLoaderRoute: typeof MaquillajeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/nosotros': {
       id: '/nosotros'
       path: '/nosotros'
@@ -237,12 +277,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccesoriosRoute: AccesoriosRoute,
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   CarritoRoute: CarritoRoute,
   CheckoutRoute: CheckoutRoute,
   ContactoRoute: ContactoRoute,
   CuentaRoute: CuentaRoute,
+  MaquillajeRoute: MaquillajeRoute,
   NosotrosRoute: NosotrosRoute,
   TiendaRoute: TiendaRoute,
   ProductoIdRoute: ProductoIdRoute,

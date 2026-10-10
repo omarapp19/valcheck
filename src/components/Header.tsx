@@ -7,31 +7,32 @@ import { DepartmentSwitcher } from "@/components/DepartmentSwitcher";
 
 import { useDepartment } from "@/lib/department";
 
-const links = [
-  { to: "/", label: "Inicio" },
-  { to: "/tienda", label: "Tienda" },
-  { to: "/nosotros", label: "Nosotros" },
-  { to: "/contacto", label: "Contacto" },
-] as const;
-
 export function Header() {
   const { totalItems, abrirCarrito } = useCart();
   const { user, isLoggedIn, isAdmin } = useAuth();
   const { department } = useDepartment();
   const [open, setOpen] = useState(false);
 
+  const homeUrl = department === "maquillaje" ? "/maquillaje" : "/accesorios";
+  const links = [
+    { to: homeUrl, label: "Inicio" },
+    { to: "/tienda", label: "Tienda" },
+    { to: "/nosotros", label: "Nosotros" },
+    { to: "/contacto", label: "Contacto" },
+  ];
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-3 sm:px-4">
         <Link
-          to="/"
-          className="flex items-center gap-2 transition-transform hover:scale-[1.02] active:scale-[0.99]"
+          to={homeUrl}
+          className="flex items-center gap-1.5 transition-transform hover:scale-[1.02] active:scale-[0.99] shrink-0"
           aria-label="ValCheck Inicio"
         >
           <img
             src={department === "maquillaje" ? "/logo-prin-maq.png" : "/logo-prin.png"}
             alt="ValCheck — Belleza Verificada"
-            className="h-8 sm:h-9.5 md:h-10 w-auto object-contain transition-all duration-300"
+            className="h-7 sm:h-9 md:h-10 max-w-[115px] sm:max-w-none w-auto object-contain transition-all duration-300"
             loading="eager"
             width={180}
             height={40}
@@ -51,9 +52,10 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-1.5 sm:gap-2.5">
+        <div className="flex items-center gap-1 sm:gap-2">
           {/* Switch interactivo de Departamentos (Accesorios / Maquillaje) */}
           <DepartmentSwitcher />
+
           {/* Badge o botón Admin */}
           {isAdmin && (
             <Link
@@ -68,23 +70,23 @@ export function Header() {
           {/* Icono de Usuario / Mi Cuenta / Auth */}
           <Link
             to={isLoggedIn ? (isAdmin ? "/admin" : "/cuenta") : "/auth"}
-            className="flex size-10 items-center justify-center rounded-full transition-colors hover:bg-brand-yellow/60 text-foreground"
+            className="flex size-9 sm:size-10 items-center justify-center rounded-full transition-colors hover:bg-brand-yellow/60 text-foreground"
             title={isLoggedIn ? `Mi Cuenta (${user?.nombre})` : "Iniciar Sesión o Registrarse"}
             aria-label="Cuenta de usuario"
           >
-            <UserIcon className="size-5" />
+            <UserIcon className="size-4.5 sm:size-5" />
           </Link>
 
           {/* Carrito */}
           <button
             type="button"
             onClick={abrirCarrito}
-            className="relative flex size-10 items-center justify-center rounded-full transition-colors hover:bg-brand-yellow/60 cursor-pointer"
+            className="relative flex size-9 sm:size-10 items-center justify-center rounded-full transition-colors hover:bg-brand-yellow/60 cursor-pointer"
             aria-label="Abrir carrito de compras"
           >
-            <ShoppingBag className="size-5" />
+            <ShoppingBag className="size-4.5 sm:size-5" />
             {totalItems > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground animate-in zoom-in-50 duration-200">
+              <span className="absolute -right-0.5 -top-0.5 flex size-4.5 sm:size-5 items-center justify-center rounded-full bg-primary text-[10px] sm:text-[11px] font-bold text-primary-foreground animate-in zoom-in-50 duration-200">
                 {totalItems}
               </span>
             )}
@@ -92,7 +94,7 @@ export function Header() {
 
           {/* Menú móvil */}
           <button
-            className="flex size-10 items-center justify-center rounded-full hover:bg-brand-yellow/60 md:hidden"
+            className="flex size-9 sm:size-10 items-center justify-center rounded-full hover:bg-brand-yellow/60 md:hidden"
             onClick={() => setOpen(!open)}
             aria-label="Menú"
           >

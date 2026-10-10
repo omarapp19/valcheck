@@ -23,19 +23,21 @@ export function ProductCard({ producto }: { producto: Producto }) {
           />
         </div>
       </Link>
-      <div className="p-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <div className="p-3 sm:p-4">
+        <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           {producto.categoria}
         </p>
         <Link to="/producto/$id" params={{ id: producto.id }}>
-          <h3 className="mt-1 font-display text-lg font-semibold leading-tight">
+          <h3 className="mt-1 font-display text-sm sm:text-base md:text-lg font-semibold leading-tight line-clamp-2 hover:text-primary transition-colors">
             {producto.nombre}
           </h3>
         </Link>
-        <div className="mt-2 flex items-end justify-between gap-2">
-          <div>
-            <p className="text-lg font-bold" suppressHydrationWarning>{formatUSD(producto.precioUSD)}</p>
-            <p className="text-xs text-muted-foreground" suppressHydrationWarning>{formatVES(producto.precioUSD, tasaBCV)}</p>
+        <div className="mt-2 flex items-end justify-between gap-1.5 sm:gap-2">
+          <div className="min-w-0 flex-1">
+            <p className="text-sm sm:text-lg font-bold" suppressHydrationWarning>{formatUSD(producto.precioUSD)}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground truncate" title={formatVES(producto.precioUSD, tasaBCV)} suppressHydrationWarning>
+              {formatVES(producto.precioUSD, tasaBCV)}
+            </p>
           </div>
           <button
             onClick={() => {
@@ -48,10 +50,10 @@ export function ProductCard({ producto }: { producto: Producto }) {
                 },
               });
             }}
-            className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform hover:scale-110"
+            className="flex size-8.5 sm:size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform hover:scale-110 active:scale-95 cursor-pointer"
             aria-label={`Agregar ${producto.nombre} al carrito`}
           >
-            <Plus className="size-5" />
+            <Plus className="size-4 sm:size-5" />
           </button>
         </div>
       </div>

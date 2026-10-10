@@ -257,18 +257,19 @@ function CuentaPage() {
       {/* SECCIÓN 1: HISTORIAL DE PEDIDOS */}
       {seccionActiva === "pedidos" && (
         <div className="mt-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h2 className="font-display text-2xl font-bold">Mis Pedidos y Compras</h2>
+              <h2 className="font-display text-xl sm:text-2xl font-bold">Mis Pedidos y Compras</h2>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Consulta en tiempo real el estatus de tus pagos y encomiendas
               </p>
             </div>
             <Link
               to="/tienda"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline self-start sm:self-auto"
             >
-              Seguir comprando <ArrowRight className="size-3.5" />
+              <span>Seguir comprando</span>
+              <ArrowRight className="size-3.5" />
             </Link>
           </div>
 

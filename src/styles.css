@@ -130,6 +130,15 @@ html[data-theme="maquillaje"],
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Desplazamiento táctil fluido sin barra visible */
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 /* ========================================================

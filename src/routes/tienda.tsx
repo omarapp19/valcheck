@@ -71,7 +71,7 @@ function Tienda() {
             {isMaquillaje ? <Palette className="size-3.5" /> : <Gem className="size-3.5" />}
             {isMaquillaje ? "Línea de Maquillaje" : "Línea de Accesorios"}
           </span>
-          <h1 className="mt-3 text-4xl font-semibold md:text-5xl font-display">
+          <h1 className="mt-3 text-3xl sm:text-4xl md:text-5xl font-semibold font-display">
             {isMaquillaje ? "Maquillaje & Cosmética" : "Joyería & Accesorios"}
           </h1>
           <p className="mt-2 max-w-xl text-sm md:text-base text-muted-foreground">
@@ -88,7 +88,7 @@ function Tienda() {
             setFiltro("Todas");
             setDepartment(isMaquillaje ? "accesorios" : "maquillaje");
           }}
-          className="self-start md:self-auto inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-bold transition-all hover:scale-105 shadow-xs"
+          className="self-start md:self-auto inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 sm:px-4 py-2 text-xs font-bold transition-all hover:scale-105 shadow-xs"
         >
           {isMaquillaje ? (
             <>
@@ -104,13 +104,13 @@ function Tienda() {
         </button>
       </div>
 
-      {/* Pestañas de categorías */}
-      <div className="mt-8 flex flex-wrap gap-2">
+      {/* Pestañas de categorías (Deslizables horizontalmente en móvil, envueltas en escritorio) */}
+      <div className="mt-6 sm:mt-8 flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap scrollbar-none">
         {["Todas", ...categoriasActivas].map((cat) => (
           <button
             key={cat}
             onClick={() => setFiltro(cat)}
-            className={`rounded-full border-2 border-primary px-5 py-2 text-sm font-semibold transition-all ${
+            className={`shrink-0 rounded-full border-2 border-primary px-4 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
               filtro === cat
                 ? "bg-primary text-primary-foreground shadow-xs"
                 : "bg-card/70 hover:bg-brand-yellow/50"
@@ -123,7 +123,7 @@ function Tienda() {
 
       {/* Listado de Productos o Estado Vacío */}
       {visibles.length > 0 ? (
-        <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 md:gap-6">
+        <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 md:gap-6">
           {visibles.map((p) => (
             <ProductCard key={p.id} producto={p} />
           ))}

@@ -43,55 +43,60 @@ function Carrito() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12">
-      <h1 className="text-4xl font-semibold">Tu carrito</h1>
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:py-12">
+      <h1 className="text-3xl sm:text-4xl font-semibold">Tu carrito</h1>
 
-      <div className="mt-8 space-y-4">
+      <div className="mt-6 sm:mt-8 space-y-3 sm:space-y-4">
         {items.map(({ producto, cantidad }) => (
           <div
             key={producto.id}
-            className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4"
+            className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 rounded-2xl border border-border bg-card p-3.5 sm:p-4"
           >
-            <img
-              src={producto.imagen}
-              alt={producto.nombre}
-              loading="lazy"
-              width={912}
-              height={912}
-              className="size-20 rounded-xl object-cover"
-            />
-            <div className="min-w-0 flex-1">
-              <p className="font-display text-lg font-semibold leading-tight">
-                {producto.nombre}
-              </p>
-              <p className="text-sm text-muted-foreground" suppressHydrationWarning>
-                {formatUSD(producto.precioUSD)} · {formatVES(producto.precioUSD, tasaBCV)}
-              </p>
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <img
+                src={producto.imagen}
+                alt={producto.nombre}
+                loading="lazy"
+                width={912}
+                height={912}
+                className="size-16 sm:size-20 rounded-xl object-cover shrink-0"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="font-display text-base sm:text-lg font-semibold leading-tight line-clamp-2">
+                  {producto.nombre}
+                </p>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5" suppressHydrationWarning>
+                  {formatUSD(producto.precioUSD)} · {formatVES(producto.precioUSD, tasaBCV)}
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
+
+            <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/50">
+              <div className="flex items-center gap-1.5 rounded-full border border-border bg-background p-0.5">
+                <button
+                  onClick={() => cambiarCantidad(producto.id, cantidad - 1)}
+                  className="flex size-7 items-center justify-center rounded-full hover:bg-brand-yellow/60 transition-colors cursor-pointer"
+                  aria-label="Disminuir cantidad"
+                >
+                  <Minus className="size-3" />
+                </button>
+                <span className="w-6 text-center text-xs sm:text-sm font-semibold">{cantidad}</span>
+                <button
+                  onClick={() => cambiarCantidad(producto.id, cantidad + 1)}
+                  className="flex size-7 items-center justify-center rounded-full hover:bg-brand-yellow/60 transition-colors cursor-pointer"
+                  aria-label="Aumentar cantidad"
+                >
+                  <Plus className="size-3" />
+                </button>
+              </div>
               <button
-                onClick={() => cambiarCantidad(producto.id, cantidad - 1)}
-                className="flex size-8 items-center justify-center rounded-full border border-border hover:bg-brand-yellow/60"
-                aria-label="Disminuir cantidad"
+                onClick={() => quitar(producto.id)}
+                className="flex size-8 items-center justify-center rounded-full text-destructive hover:bg-destructive/10 cursor-pointer"
+                aria-label={`Quitar ${producto.nombre}`}
               >
-                <Minus className="size-4" />
-              </button>
-              <span className="w-6 text-center font-semibold">{cantidad}</span>
-              <button
-                onClick={() => cambiarCantidad(producto.id, cantidad + 1)}
-                className="flex size-8 items-center justify-center rounded-full border border-border hover:bg-brand-yellow/60"
-                aria-label="Aumentar cantidad"
-              >
-                <Plus className="size-4" />
+                <Trash2 className="size-4" />
               </button>
             </div>
-            <button
-              onClick={() => quitar(producto.id)}
-              className="flex size-9 items-center justify-center rounded-full text-destructive hover:bg-destructive/10"
-              aria-label={`Quitar ${producto.nombre}`}
-            >
-              <Trash2 className="size-4" />
-            </button>
           </div>
         ))}
       </div>

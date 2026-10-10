@@ -1,5 +1,12 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react";
-import { productos as productosIniciales, type Producto, type Categoria, setTasaBCVActual } from "./products";
+import {
+  productos as productosIniciales,
+  type Producto,
+  type Categoria,
+  type Departamento,
+  categoriasMaquillaje,
+  setTasaBCVActual,
+} from "./products";
 import { EmpresaEnvio, MetodoPago } from "./checkout";
 import { supabase, isSupabaseConfigured } from "./supabase";
 import { consultarTasaBCVOficial, getCachedBcvRate, TASA_BCV_FALLBACK } from "./bcv";
@@ -140,7 +147,7 @@ interface AdminStoreContextValue {
 
 const AdminStoreContext = createContext<AdminStoreContextValue | null>(null);
 
-const STORAGE_PRODUCTS_KEY = "valcheck_catalog_products_v3";
+const STORAGE_PRODUCTS_KEY = "valcheck_catalog_products_v4";
 const STORAGE_ORDERS_KEY = "valcheck_all_orders";
 const STORAGE_PAYMENT_KEY = "valcheck_payment_settings";
 
@@ -377,6 +384,7 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
                 precio: Number(d.precio_usd || d.precio || 0),
                 precioAnterior: d.precio_anterior ? Number(d.precio_anterior) : undefined,
                 categoria: (d.categoria as Categoria) || "Anillos",
+                departamento: ((categoriasMaquillaje as readonly string[]).includes(d.categoria) ? "maquillaje" : "accesorios") as Departamento,
                 imagen: d.imagen,
                 imagenes: Array.isArray(d.imagenes) ? d.imagenes : undefined,
                 descripcion: d.descripcion || "",
