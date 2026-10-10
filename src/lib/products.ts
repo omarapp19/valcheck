@@ -1,9 +1,13 @@
-export type Categoria = "Pulseras" | "Collares" | "Aretes" | "Anillos" | "Sets";
+export type CategoriaAccesorios = "Pulseras" | "Collares" | "Aretes" | "Anillos" | "Sets";
+export type CategoriaMaquillaje = "Labiales" | "Rostro & Bases" | "Ojos & Sombras" | "Skincare" | "Brochas & Sets";
+export type Categoria = CategoriaAccesorios | CategoriaMaquillaje | (string & {});
+export type Departamento = "accesorios" | "maquillaje";
 
 export interface Producto {
   id: string;
   nombre: string;
   categoria: Categoria;
+  departamento?: Departamento | undefined;
   descripcion: string;
   precioUSD: number;
   precio?: number | undefined;
@@ -37,7 +41,16 @@ export const formatVES = (n: number, tasaPersonalizada?: number) => {
   return `Bs. ${new Intl.NumberFormat("es-VE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n * tasaUsar)}`;
 };
 
-export const categorias: Categoria[] = ["Pulseras", "Collares", "Aretes", "Anillos", "Sets"];
+export const categoriasAccesorios: CategoriaAccesorios[] = ["Pulseras", "Collares", "Aretes", "Anillos", "Sets"];
+export const categoriasMaquillaje: CategoriaMaquillaje[] = ["Labiales", "Rostro & Bases", "Ojos & Sombras", "Skincare", "Brochas & Sets"];
+export const categorias: Categoria[] = [...categoriasAccesorios, ...categoriasMaquillaje];
+
+export function getDepartamentoProducto(p: Producto): Departamento {
+  if (p.departamento === "maquillaje") return "maquillaje";
+  if (p.departamento === "accesorios") return "accesorios";
+  if ((categoriasMaquillaje as readonly string[]).includes(p.categoria as string)) return "maquillaje";
+  return "accesorios";
+}
 
 export const productos: Producto[] = [
   {

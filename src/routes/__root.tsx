@@ -4,18 +4,20 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { CartProvider } from "@/lib/cart";
 import { AuthProvider } from "@/lib/auth";
 import { AdminStoreProvider } from "@/lib/admin-store";
+import { DepartmentProvider } from "@/lib/department";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CartSidebar } from "@/components/CartSidebar";
@@ -91,7 +93,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/logo-web.png", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/logo-web.png" },
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,500;1,600;1,700&display=swap",
@@ -124,22 +127,26 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isHome = pathname === "/";
 
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <AdminStoreProvider>
-          <CartProvider>
-            <div className="flex min-h-screen flex-col">
-              <Header />
-              <main className="flex-1">
-                <Outlet />
-              </main>
-              <Footer />
-            </div>
-            <CartSidebar />
-            <Toaster position="bottom-right" richColors />
-          </CartProvider>
+          <DepartmentProvider>
+            <CartProvider>
+              <div className="flex min-h-screen flex-col">
+                {!isHome && <Header />}
+                <main className="flex-1 flex flex-col">
+                  <Outlet />
+                </main>
+                {!isHome && <Footer />}
+              </div>
+              <CartSidebar />
+              <Toaster />
+            </CartProvider>
+          </DepartmentProvider>
         </AdminStoreProvider>
       </AuthProvider>
     </QueryClientProvider>

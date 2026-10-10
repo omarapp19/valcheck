@@ -1,8 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingBag, Menu, X, Check, User as UserIcon, ShieldCheck } from "lucide-react";
+import { ShoppingBag, Menu, X, User as UserIcon, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
+import { DepartmentSwitcher } from "@/components/DepartmentSwitcher";
+
+import { useDepartment } from "@/lib/department";
 
 const links = [
   { to: "/", label: "Inicio" },
@@ -14,18 +17,25 @@ const links = [
 export function Header() {
   const { totalItems, abrirCarrito } = useCart();
   const { user, isLoggedIn, isAdmin } = useAuth();
+  const { department } = useDepartment();
   const [open, setOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-        <Link to="/" className="flex items-center gap-1.5">
-          <span className="flex size-7 items-center justify-center rounded-full bg-brand-yellow">
-            <Check className="size-4 text-brand-brown" strokeWidth={3.5} />
-          </span>
-          <span className="font-display text-xl font-semibold">
-            Val<span className="not-italic text-brand-brown/70">✓</span>Check
-          </span>
+        <Link
+          to="/"
+          className="flex items-center gap-2 transition-transform hover:scale-[1.02] active:scale-[0.99]"
+          aria-label="ValCheck Inicio"
+        >
+          <img
+            src={department === "maquillaje" ? "/logo-prin-maq.png" : "/logo-prin.png"}
+            alt="ValCheck — Belleza Verificada"
+            className="h-8 sm:h-9.5 md:h-10 w-auto object-contain transition-all duration-300"
+            loading="eager"
+            width={180}
+            height={40}
+          />
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
@@ -41,7 +51,9 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2.5">
+          {/* Switch interactivo de Departamentos (Accesorios / Maquillaje) */}
+          <DepartmentSwitcher />
           {/* Badge o botón Admin */}
           {isAdmin && (
             <Link

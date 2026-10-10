@@ -269,11 +269,10 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
   const [ajustesPago, setAjustesPago] = useState<AjustesPago>(AJUSTES_PAGO_DEFAULT);
   const [hydrated, setHydrated] = useState(false);
 
-  // Estado reactivo de la Tasa BCV Oficial
-  const cacheInicial = getCachedBcvRate();
-  const [tasaBCV, setTasaBCV] = useState<number>(cacheInicial.tasa);
-  const [tasaBCVFecha, setTasaBCVFecha] = useState<string>(cacheInicial.fecha);
-  const [tasaBCVFuente, setTasaBCVFuente] = useState<string>(cacheInicial.fuente);
+  // Estado reactivo de la Tasa BCV Oficial (inicia con fallback idéntico en SSR y cliente)
+  const [tasaBCV, setTasaBCV] = useState<number>(TASA_BCV_FALLBACK);
+  const [tasaBCVFecha, setTasaBCVFecha] = useState<string>("Tasa Oficial BCV");
+  const [tasaBCVFuente, setTasaBCVFuente] = useState<string>("Banco Central de Venezuela (BCV)");
   const [tasaBCVCargando, setTasaBCVCargando] = useState<boolean>(false);
 
   // Función para consultar la tasa BCV oficial
@@ -301,7 +300,16 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
 
   // Sincronización automática de Tasa BCV
   useEffect(() => {
-    // Consulta inicial al abrir la aplicación
+    // 1. Cargar caché inmediatamente tras montar en el cliente
+    const cache = getCachedBcvRate();
+    if (cache.tasa && cache.tasa > 0) {
+      setTasaBCV(cache.tasa);
+      if (cache.fecha) setTasaBCVFecha(cache.fecha);
+      if (cache.fuente) setTasaBCVFuente(cache.fuente);
+      setTasaBCVActual(cache.tasa);
+    }
+
+    // 2. Consulta en tiempo real de la tasa oficial
     actualizarTasaBCV();
 
     // Actualización periódica automática cada 15 minutos
@@ -343,7 +351,7 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
         setAjustesPago({
           ...AJUSTES_PAGO_DEFAULT,
           ...parsed,
-          tasaCambioUSD: cacheInicial.tasa || parsed.tasaCambioUSD || TASA_BCV_FALLBACK,
+          tasaCambioUSD: parsed.tasaCambioUSD || TASA_BCV_FALLBACK,
         });
       }
     } catch {
@@ -359,23 +367,31 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
         .select("*")
         .order("created_at", { ascending: false })
         .then(({ data, error }) => {
-          if (!error && data && data.length > 0) {
-            const mapped: Producto[] = data.map((d: any) => ({
-              id: d.id,
-              nombre: d.nombre,
-              precioUSD: Number(d.precio_usd || d.precio || 0),
-              precio: Number(d.precio_usd || d.precio || 0),
-              precioAnterior: d.precio_anterior ? Number(d.precio_anterior) : undefined,
-              categoria: (d.categoria as Categoria) || "Bolsos",
-              imagen: d.imagen,
-              imagenes: Array.isArray(d.imagenes) ? d.imagenes : undefined,
-              descripcion: d.descripcion || "",
-              stock: d.stock ?? 10,
-              calificacion: Number(d.calificacion ?? 5.0),
-              totalResenas: d.resenas_count ?? 12,
-            }));
-            setProductos(mapped);
-            localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(mapped));
+          if (!error && data) {
+            const validData = data.filter((d: any) => !["prod-1", "prod-2", "prod-3", "prod-4"].includes(d.id));
+            if (validData.length > 0) {
+              const mapped: Producto[] = validData.map((d: any) => ({
+                id: d.id,
+                nombre: d.nombre,
+                precioUSD: Number(d.precio_usd || d.precio || 0),
+                precio: Number(d.precio_usd || d.precio || 0),
+                precioAnterior: d.precio_anterior ? Number(d.precio_anterior) : undefined,
+                categoria: (d.categoria as Categoria) || "Anillos",
+                imagen: d.imagen,
+                imagenes: Array.isArray(d.imagenes) ? d.imagenes : undefined,
+                descripcion: d.descripcion || "",
+                stock: d.stock ?? 10,
+                destacado: Boolean(d.destacado),
+                calificacion: Number(d.calificacion ?? 5.0),
+                totalResenas: d.resenas_count ?? 12,
+              }));
+              setProductos(mapped);
+              localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(mapped));
+            } else {
+              // Si la base de datos está vacía de productos reales, usar el catálogo de joyería original
+              setProductos(productosIniciales);
+              localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(productosIniciales));
+            }
           }
         });
 
@@ -490,6 +506,22 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
 
   const restablecerCatalogo = () => {
     persistProductos(productosIniciales);
+    if (isSupabaseConfigured && supabase) {
+      const mapped = productosIniciales.map((p) => ({
+        id: p.id,
+        nombre: p.nombre,
+        precio_usd: p.precioUSD,
+        categoria: p.categoria,
+        imagen: p.imagen,
+        descripcion: p.descripcion || "",
+        stock: p.stock ?? 10,
+        destacado: Boolean(p.destacado),
+        precio_anterior: p.precioAnterior ?? null,
+        calificacion: p.calificacion ?? 5.0,
+        resenas_count: p.totalResenas ?? 12,
+      }));
+      supabase.from("productos").upsert(mapped).then();
+    }
   };
 
   const crearPedido = (data: {

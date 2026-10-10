@@ -2,10 +2,12 @@ import { Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { formatUSD, formatVES, type Producto } from "@/lib/products";
 import { useCart } from "@/lib/cart";
+import { useAdminStore } from "@/lib/admin-store";
 import { toast } from "sonner";
 
 export function ProductCard({ producto }: { producto: Producto }) {
-  const { agregar } = useCart();
+  const { agregar, abrirCarrito } = useCart();
+  const { tasaBCV } = useAdminStore();
 
   return (
     <div className="group overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md">
@@ -32,13 +34,19 @@ export function ProductCard({ producto }: { producto: Producto }) {
         </Link>
         <div className="mt-2 flex items-end justify-between gap-2">
           <div>
-            <p className="text-lg font-bold">{formatUSD(producto.precioUSD)}</p>
-            <p className="text-xs text-muted-foreground">{formatVES(producto.precioUSD)}</p>
+            <p className="text-lg font-bold" suppressHydrationWarning>{formatUSD(producto.precioUSD)}</p>
+            <p className="text-xs text-muted-foreground" suppressHydrationWarning>{formatVES(producto.precioUSD, tasaBCV)}</p>
           </div>
           <button
             onClick={() => {
               agregar(producto.id);
-              toast.success(`${producto.nombre} agregado al carrito`);
+              toast.success(`${producto.nombre}`, {
+                description: "Agregado exitosamente a tu bolsa",
+                action: {
+                  label: "Ver bolsa",
+                  onClick: () => abrirCarrito(),
+                },
+              });
             }}
             className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform hover:scale-110"
             aria-label={`Agregar ${producto.nombre} al carrito`}

@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, BadgeCheck, ShoppingBag } from "lucide-react";
 import { formatUSD, formatVES, productos } from "@/lib/products";
 import { useCart } from "@/lib/cart";
+import { useAdminStore } from "@/lib/admin-store";
 import { ProductCard } from "@/components/ProductCard";
 import { toast } from "sonner";
 
@@ -35,7 +36,8 @@ export const Route = createFileRoute("/producto/$id")({
 
 function ProductoPage() {
   const { producto } = Route.useLoaderData();
-  const { agregar } = useCart();
+  const { agregar, abrirCarrito } = useCart();
+  const { tasaBCV } = useAdminStore();
   const relacionados = productos
     .filter((p) => p.categoria === producto.categoria && p.id !== producto.id)
     .slice(0, 4);
@@ -67,16 +69,22 @@ function ProductoPage() {
           <p className="mt-4 text-lg text-muted-foreground">{producto.descripcion}</p>
 
           <div className="mt-6 rounded-2xl bg-brand-yellow/60 p-5">
-            <p className="text-3xl font-bold">{formatUSD(producto.precioUSD)}</p>
-            <p className="mt-1 text-sm font-medium text-foreground/70">
-              {formatVES(producto.precioUSD)} (Tasa BCV oficial)
+            <p className="text-3xl font-bold" suppressHydrationWarning>{formatUSD(producto.precioUSD)}</p>
+            <p className="mt-1 text-sm font-medium text-foreground/70" suppressHydrationWarning>
+              {formatVES(producto.precioUSD, tasaBCV)} (Tasa BCV oficial)
             </p>
           </div>
 
           <button
             onClick={() => {
               agregar(producto.id);
-              toast.success(`${producto.nombre} agregado al carrito`);
+              toast.success(`${producto.nombre}`, {
+                description: "Agregado exitosamente a tu bolsa",
+                action: {
+                  label: "Ver bolsa",
+                  onClick: () => abrirCarrito(),
+                },
+              });
             }}
             className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
           >

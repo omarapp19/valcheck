@@ -10,14 +10,14 @@ export interface BcvRateInfo {
 const STORAGE_BCV_KEY = "valcheck_bcv_cache";
 export const TASA_BCV_FALLBACK = 874.73;
 
-// Cargar tasa en caché inicial si existe
+// Cargar tasa en caché inicial si existe (función pura sin efectos secundarios en render)
 export function getCachedBcvRate(): BcvRateInfo {
   if (typeof window === "undefined") {
     return {
       tasa: TASA_BCV_FALLBACK,
-      fecha: new Date().toLocaleDateString("es-VE"),
+      fecha: "Tasa Oficial",
       fuente: "Banco Central de Venezuela (BCV)",
-      ultimaConsulta: new Date().toISOString(),
+      ultimaConsulta: "",
     };
   }
 
@@ -26,7 +26,6 @@ export function getCachedBcvRate(): BcvRateInfo {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed.tasa === "number" && parsed.tasa > 0) {
-        setTasaBCVActual(parsed.tasa);
         return parsed;
       }
     }
@@ -34,12 +33,11 @@ export function getCachedBcvRate(): BcvRateInfo {
     /* ignore */
   }
 
-  setTasaBCVActual(TASA_BCV_FALLBACK);
   return {
     tasa: TASA_BCV_FALLBACK,
-    fecha: new Date().toLocaleDateString("es-VE"),
+    fecha: "Tasa Oficial",
     fuente: "Banco Central de Venezuela (BCV)",
-    ultimaConsulta: new Date().toISOString(),
+    ultimaConsulta: "",
   };
 }
 

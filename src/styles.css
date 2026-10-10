@@ -75,6 +75,31 @@
   --ring: var(--brand-brown);
 }
 
+/* ========================================================
+   TEMA INVERTIDO — MAQUILLAJE (Fondo Marrón & Botones/Acentos Amarillos)
+   ======================================================== */
+html[data-theme="maquillaje"],
+.theme-maquillaje {
+  --background: oklch(0.20 0.052 41.5);        /* Marrón chocolate de lujo */
+  --foreground: oklch(0.97 0.04 95);           /* Crema claro luminoso */
+  --card: oklch(0.25 0.05 41.5);               /* Tarjetas marrón profundo sedoso */
+  --card-foreground: oklch(0.97 0.04 95);
+  --popover: oklch(0.25 0.05 41.5);
+  --popover-foreground: oklch(0.97 0.04 95);
+  --primary: var(--brand-yellow);              /* Invertido: Botón principal amarillo claro */
+  --primary-foreground: var(--brand-brown);    /* Invertido: Texto marrón en botón */
+  --secondary: oklch(0.32 0.05 41.5);
+  --secondary-foreground: var(--brand-yellow);
+  --muted: oklch(0.27 0.04 41.5);
+  --muted-foreground: oklch(0.82 0.03 90);
+  --accent: var(--brand-yellow);
+  --accent-foreground: var(--brand-brown);
+  --border: oklch(0.35 0.045 41.5);
+  --input: oklch(0.35 0.045 41.5);
+  --ring: var(--brand-yellow);
+  --brand-beige: oklch(0.24 0.05 41.5);        /* Contenedores secundarios invertidos */
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
@@ -84,6 +109,7 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-body);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   h1, h2, h3, .font-display {
@@ -104,4 +130,142 @@
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* ========================================================
+   SISTEMA DE NOTIFICACIONES VALCHECK (Boutique & Editorial)
+   ======================================================== */
+[data-sonner-toaster] {
+  font-family: var(--font-body) !important;
+  --border-radius: 1.125rem !important;
+  --normal-bg: #fffdfa;
+  --normal-border: #ede4d3;
+  --normal-text: var(--brand-brown);
+  --success-bg: #fffef8;
+  --success-border: #ebd9b0;
+  --success-text: var(--brand-brown);
+  --error-bg: #fff6f5;
+  --error-border: #f6cfc7;
+  --error-text: #6b1d16;
+  --info-bg: #fdfbf5;
+  --info-border: #ebdcb9;
+  --info-text: var(--brand-brown);
+  --warning-bg: #fffdf2;
+  --warning-border: #f6e5ad;
+  --warning-text: #593508;
+}
+
+[data-sonner-toast] {
+  font-family: var(--font-body) !important;
+  border-radius: 1.125rem !important;
+  box-shadow: 0 16px 38px -8px rgba(63, 23, 13, 0.16), 0 4px 14px -2px rgba(63, 23, 13, 0.08) !important;
+  padding: 13px 16px !important;
+  gap: 12px !important;
+  background: #fffdfa !important;
+  border: 1px solid #ede4d3 !important;
+  color: var(--brand-brown) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-sonner-toast] [data-content] {
+  gap: 2px !important;
+}
+
+[data-sonner-toast] [data-title] {
+  font-family: var(--font-body) !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  color: var(--brand-brown) !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.35 !important;
+}
+
+[data-sonner-toast] [data-description] {
+  font-family: var(--font-body) !important;
+  font-weight: 400 !important;
+  font-size: 0.785rem !important;
+  color: oklch(0.42 0.05 45) !important;
+  line-height: 1.4 !important;
+  margin-top: 1px !important;
+}
+
+/* Tipos específicos con sutil tinte de marca */
+[data-sonner-toast][data-type="success"] {
+  background: #fffdf7 !important;
+  border-color: #ebdcb9 !important;
+}
+
+[data-sonner-toast][data-type="error"] {
+  background: #fff6f5 !important;
+  border-color: #f6cfc7 !important;
+}
+
+[data-sonner-toast][data-type="error"] [data-title] {
+  color: #6b1d16 !important;
+}
+
+[data-sonner-toast][data-type="error"] [data-description] {
+  color: #8c322b !important;
+}
+
+[data-sonner-toast][data-type="info"] {
+  background: #fdfbf5 !important;
+  border-color: #ede2c8 !important;
+}
+
+[data-sonner-toast][data-type="warning"] {
+  background: #fffdf2 !important;
+  border-color: #f6e5ad !important;
+}
+
+/* Botón de acción (ej. "Ver bolsa", "Abrir carrito") */
+[data-sonner-toast] [data-button][data-action] {
+  height: auto !important;
+  padding: 6px 14px !important;
+  border-radius: 9999px !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  background: var(--brand-brown) !important;
+  color: var(--brand-yellow) !important;
+  border: 1px solid rgba(63, 23, 13, 0.12) !important;
+  box-shadow: 0 2px 8px rgba(63, 23, 13, 0.16) !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-sonner-toast] [data-button][data-action]:hover {
+  transform: scale(1.04) !important;
+  opacity: 0.95 !important;
+}
+
+/* Botón cancelar */
+[data-sonner-toast] [data-button][data-cancel] {
+  height: auto !important;
+  padding: 6px 12px !important;
+  background: rgba(63, 23, 13, 0.06) !important;
+  color: var(--brand-brown) !important;
+  border-radius: 9999px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+}
+
+/* Botón de cerrar sutil */
+[data-sonner-toast] [data-close-button] {
+  top: 10px !important;
+  right: 10px !important;
+  background: var(--brand-beige) !important;
+  color: var(--brand-brown) !important;
+  border: 1px solid #e5dbca !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 1px 3px rgba(63, 23, 13, 0.08) !important;
+  transition: all 0.15s ease !important;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  background: var(--brand-yellow) !important;
+  color: var(--brand-brown) !important;
+  transform: scale(1.08) !important;
 }

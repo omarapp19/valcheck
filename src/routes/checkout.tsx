@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
+  Clock,
   Copy,
   CreditCard,
   FileCheck2,
@@ -95,7 +96,7 @@ export const Route = createFileRoute("/checkout")({
 
 function CheckoutPage() {
   const { items, totalUSD, vaciar } = useCart();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isLoggedIn } = useAuth();
   const { crearPedido, ajustesPago, tasaBCV } = useAdminStore();
   const navigate = useNavigate();
 
@@ -288,7 +289,7 @@ function CheckoutPage() {
         imagen: i.producto.imagen,
       })),
       totalUSD,
-      totalVES: formatVES(totalUSD),
+      totalVES: formatVES(totalUSD, tasaBCV),
     });
 
     const mensajeEncoded = construirMensajeWhatsApp({
@@ -310,8 +311,9 @@ function CheckoutPage() {
     });
 
     vaciar();
-    window.open(whatsappUrl, "_blank");
-    toast.success("¡Pedido registrado! Abriendo conversación en WhatsApp...");
+    toast.success("¡Tu pedido ha sido enviado con éxito!", {
+      description: "En un lapso de 48 horas nos contactaremos contigo.",
+    });
   };
 
   // Estado vacío
@@ -340,72 +342,103 @@ function CheckoutPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-12">
         <div className="rounded-[2.5rem] border-2 border-primary bg-card p-6 shadow-xl md:p-10 text-center">
-          <span className="mx-auto flex size-20 items-center justify-center rounded-full bg-brand-yellow text-brand-brown">
-            <FileCheck2 className="size-10" />
+          <span className="mx-auto flex size-20 items-center justify-center rounded-full bg-brand-yellow text-brand-brown shadow-sm ring-4 ring-brand-yellow/30">
+            <Check className="size-10 stroke-[3]" />
           </span>
 
-          <span className="mt-4 inline-block rounded-full bg-brand-yellow/60 px-4 py-1 text-xs font-bold uppercase tracking-wider text-brand-brown">
-            Pedido Generado con Éxito
+          <span className="mt-5 inline-block rounded-full bg-brand-yellow/80 px-4 py-1 text-xs font-bold uppercase tracking-wider text-brand-brown">
+            Pedido Recibido con Éxito
           </span>
 
-          <h1 className="mt-3 font-display text-3xl font-bold md:text-4xl">
-            ¡Gracias por tu pedido, {pedidoConfirmado.envio.nombreCompleto.split(" ")[0]}!
+          <h1 className="mt-3 font-display text-3xl font-bold md:text-4xl text-foreground">
+            ¡Tu pedido ha sido enviado!
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Número de orden asignada:{" "}
-            <strong className="text-foreground">#{pedidoConfirmado.numero}</strong>
+            <strong className="text-foreground font-mono">#{pedidoConfirmado.numero}</strong>
           </p>
 
-          <div className="mt-6 rounded-2xl bg-brand-yellow/40 p-5 text-left border border-border">
-            <div className="flex items-start gap-3">
-              <ShieldCheck className="size-6 text-brand-brown shrink-0 mt-0.5" />
+          {/* Mensaje de 48 horas */}
+          <div className="mt-6 rounded-2xl bg-brand-yellow/40 p-6 text-left border border-border shadow-xs">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-brown text-brand-yellow mt-0.5">
+                <Clock className="size-5" />
+              </span>
               <div>
                 <p className="font-semibold text-brand-brown text-base">
-                  {pedidoConfirmado.pago.metodo === "whatsapp"
-                    ? "Atención y acuerdo directo por WhatsApp"
-                    : "Verificación y gestión en 24 a 48 horas"}
+                  En un lapso de 48 horas nos contactaremos contigo
                 </p>
-                <p className="text-xs text-foreground/80 mt-1 leading-relaxed">
-                  {pedidoConfirmado.pago.metodo === "whatsapp"
-                    ? `Te atenderemos de inmediato por WhatsApp para coordinar tu método de pago y preparar tu paquete con destino a ${pedidoConfirmado.envio.ciudad} por ${pedidoConfirmado.envio.empresa}.`
-                    : `En el transcurso de 24 a 48 horas hábiles verificamos tu pago (${labelMetodoPago(pedidoConfirmado.pago.metodo)}) y procesamos la guía de envío por ${pedidoConfirmado.envio.empresa} hacia ${pedidoConfirmado.envio.ciudad}.`}
+                <p className="text-xs md:text-sm text-foreground/80 mt-1.5 leading-relaxed">
+                  Tu pedido ha sido recibido correctamente. Nuestro equipo verificará tu pago ({labelMetodoPago(pedidoConfirmado.pago.metodo)}) y se pondrá en contacto contigo a tu teléfono <strong>{pedidoConfirmado.envio.telefono}</strong> para confirmar los datos y coordinar el despacho hacia <strong>{pedidoConfirmado.envio.ciudad}</strong> por <strong>{pedidoConfirmado.envio.empresa}</strong>.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="mt-6 space-y-3">
-            <a
-              href={pedidoConfirmado.whatsappUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="flex w-full items-center justify-center gap-2.5 rounded-full bg-primary py-4 text-sm font-bold text-primary-foreground shadow-md transition-transform hover:scale-[1.01]"
-            >
-              <MessageCircle className="size-5 text-brand-yellow" />
-              Reabrir o enviar pedido por WhatsApp
-            </a>
-
-            {comprobanteFile && (
-              <p className="text-xs text-muted-foreground">
-                Recuerda adjuntar la foto o captura del comprobante (
-                <em>{comprobanteFile.name}</em>) en el chat de WhatsApp.
-              </p>
-            )}
+          {/* Resumen conciso */}
+          <div className="mt-6 rounded-2xl bg-background/60 p-5 border border-border text-xs text-left grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <span className="text-muted-foreground block text-[11px] font-medium uppercase tracking-wider">Cliente</span>
+              <p className="font-semibold text-foreground mt-0.5">{pedidoConfirmado.envio.nombreCompleto}</p>
+              <p className="text-muted-foreground">C.I. {pedidoConfirmado.envio.cedula}</p>
+            </div>
+            <div>
+              <span className="text-muted-foreground block text-[11px] font-medium uppercase tracking-wider">Destino & Encomienda</span>
+              <p className="font-semibold text-foreground mt-0.5">{pedidoConfirmado.envio.ciudad}, {pedidoConfirmado.envio.estado}</p>
+              <p className="text-muted-foreground">{pedidoConfirmado.envio.empresa} · {pedidoConfirmado.envio.agenciaDestino}</p>
+            </div>
+            <div>
+              <span className="text-muted-foreground block text-[11px] font-medium uppercase tracking-wider">Total</span>
+              <p className="font-semibold text-foreground mt-0.5">{formatUSD(pedidoConfirmado.totalUSD)}</p>
+              <p className="text-muted-foreground" suppressHydrationWarning>{formatVES(pedidoConfirmado.totalUSD, tasaBCV)}</p>
+            </div>
+            <div>
+              <span className="text-muted-foreground block text-[11px] font-medium uppercase tracking-wider">Método de Pago</span>
+              <p className="font-semibold text-foreground mt-0.5">{labelMetodoPago(pedidoConfirmado.pago.metodo)}</p>
+              {pedidoConfirmado.pago.referencia && (
+                <p className="text-muted-foreground font-mono">Ref: {pedidoConfirmado.pago.referencia}</p>
+              )}
+            </div>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row justify-center gap-4">
+          {/* Acciones de navegación */}
+          <div className="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row justify-center gap-3">
             <Link
               to="/tienda"
-              className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:scale-105"
+              className="rounded-full bg-primary px-8 py-3.5 text-sm font-semibold text-primary-foreground shadow-md transition-all hover:scale-105"
             >
               Volver a la tienda
             </Link>
             <Link
               to="/"
-              className="rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
+              className="rounded-full border border-border px-6 py-3.5 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
             >
               Ir al inicio
             </Link>
+            {isLoggedIn && (
+              <Link
+                to="/cuenta"
+                className="rounded-full border border-border bg-brand-yellow/30 px-6 py-3.5 text-sm font-semibold text-brand-brown hover:bg-brand-yellow/50 transition-colors"
+              >
+                Ver mis pedidos
+              </Link>
+            )}
+          </div>
+
+          {/* Enlace opcional a soporte */}
+          <div className="mt-6 pt-4 text-center">
+            <p className="text-[11px] text-muted-foreground">
+              ¿Tienes alguna duda sobre tu compra?{" "}
+              <a
+                href={pedidoConfirmado.whatsappUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="font-medium text-brand-brown underline hover:opacity-80 inline-flex items-center gap-1"
+              >
+                <MessageCircle className="size-3" />
+                Contactar a soporte por WhatsApp
+              </a>
+            </p>
           </div>
         </div>
       </div>
@@ -533,8 +566,8 @@ function CheckoutPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-sm text-foreground">Pago Móvil</p>
                     <p className="text-xs text-muted-foreground mt-0.5">Bolívares (Tasa oficial BCV)</p>
-                    <span className="inline-block mt-2 text-[11px] font-semibold text-brand-brown">
-                      {formatVES(totalUSD)}
+                    <span className="inline-block mt-2 text-[11px] font-semibold text-brand-brown" suppressHydrationWarning>
+                      {formatVES(totalUSD, tasaBCV)}
                     </span>
                   </div>
                   {metodoPago === "pago_movil" && (
@@ -614,8 +647,8 @@ function CheckoutPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-sm text-foreground">Cuenta Bancaria</p>
                     <p className="text-xs text-muted-foreground mt-0.5">Transferencia corriente nacional (Bs)</p>
-                    <span className="inline-block mt-2 text-[11px] font-semibold text-brand-brown">
-                      {formatVES(totalUSD)}
+                    <span className="inline-block mt-2 text-[11px] font-semibold text-brand-brown" suppressHydrationWarning>
+                      {formatVES(totalUSD, tasaBCV)}
                     </span>
                   </div>
                   {metodoPago === "transferencia" && (
@@ -636,8 +669,8 @@ function CheckoutPage() {
                         <span className="text-xs font-bold uppercase tracking-wider text-brand-brown">
                           Datos oficiales para Pago Móvil
                         </span>
-                        <span className="text-lg font-bold text-brand-brown">
-                          {formatVES(totalUSD)}
+                        <span className="text-lg font-bold text-brand-brown" suppressHydrationWarning>
+                          {formatVES(totalUSD, tasaBCV)}
                         </span>
                       </div>
 
@@ -890,8 +923,8 @@ function CheckoutPage() {
                         <span className="text-xs font-bold uppercase tracking-wider text-brand-brown">
                           Cuenta Corriente Nacional
                         </span>
-                        <span className="text-lg font-bold text-brand-brown">
-                          {formatVES(totalUSD)}
+                        <span className="text-lg font-bold text-brand-brown" suppressHydrationWarning>
+                          {formatVES(totalUSD, tasaBCV)}
                         </span>
                       </div>
 
@@ -1314,7 +1347,7 @@ function CheckoutPage() {
                 <div className="rounded-2xl bg-brand-yellow/40 p-4 border border-border text-xs leading-relaxed text-brand-brown flex items-start gap-2.5">
                   <ShieldCheck className="size-4 shrink-0 mt-0.5" />
                   <span>
-                    Al presionar el botón inferior se generará tu orden oficial y se abrirá WhatsApp con todos los datos estructurados para su atención y despacho.
+                    Al presionar el botón inferior se procesará y registrará tu orden de forma segura. En un lapso de 48 horas nos pondremos en contacto contigo para coordinar la entrega y despacho.
                   </span>
                 </div>
               </div>
@@ -1326,8 +1359,8 @@ function CheckoutPage() {
                   onClick={handleConfirmarPedido}
                   className="flex w-full items-center justify-center gap-3 rounded-full bg-primary py-4 text-sm font-bold text-primary-foreground shadow-md transition-all hover:opacity-95 hover:shadow-lg active:scale-[0.99] cursor-pointer"
                 >
-                  <MessageCircle className="size-5 text-brand-yellow" />
-                  <span>Confirmar y Enviar Pedido a WhatsApp</span>
+                  <Check className="size-5 text-brand-yellow" strokeWidth={3} />
+                  <span>Confirmar y Enviar Pedido</span>
                 </button>
 
                 <div className="flex justify-between items-center pt-2">

@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Minus, Plus, ShoppingBag, Trash2, ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
+import { useAdminStore } from "@/lib/admin-store";
 import { formatUSD, formatVES } from "@/lib/products";
 import {
   Sheet,
@@ -23,6 +24,7 @@ export function CartSidebar() {
     cerrarCarrito,
   } = useCart();
   const { isAdmin } = useAuth();
+  const { tasaBCV } = useAdminStore();
   const navigate = useNavigate();
 
   const handleCheckout = () => {
@@ -138,11 +140,11 @@ export function CartSidebar() {
 
                   <div className="mt-2.5 flex items-center justify-between gap-2">
                     <div>
-                      <p className="font-bold text-sm text-foreground">
+                      <p className="font-bold text-sm text-foreground" suppressHydrationWarning>
                         {formatUSD(producto.precioUSD * cantidad)}
                       </p>
-                      <p className="text-[11px] text-muted-foreground">
-                        {formatVES(producto.precioUSD * cantidad)}
+                      <p className="text-[11px] text-muted-foreground" suppressHydrationWarning>
+                        {formatVES(producto.precioUSD * cantidad, tasaBCV)}
                       </p>
                     </div>
 
@@ -177,16 +179,16 @@ export function CartSidebar() {
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>Subtotal</span>
-                <span>{formatUSD(totalUSD)}</span>
+                <span suppressHydrationWarning>{formatUSD(totalUSD)}</span>
               </div>
               <div className="flex items-baseline justify-between pt-1">
                 <span className="font-display text-lg font-bold">Total estimado</span>
                 <div className="text-right">
-                  <span className="text-2xl font-bold text-foreground">
+                  <span className="text-2xl font-bold text-foreground" suppressHydrationWarning>
                     {formatUSD(totalUSD)}
                   </span>
-                  <p className="text-xs font-medium text-muted-foreground">
-                    {formatVES(totalUSD)}
+                  <p className="text-xs font-medium text-muted-foreground" suppressHydrationWarning>
+                    {formatVES(totalUSD, tasaBCV)}
                   </p>
                 </div>
               </div>

@@ -175,12 +175,7 @@ END;
 
 
 -- ==============================================================================
--- 4. CATÁLOGO INICIAL DE PRODUCTOS (SI ESTÁ VACÍO)
+-- 4. LIMPIEZA DE PRODUCTOS DE DEMOSTRACIÓN GENÉRICOS (SI EXISTÍAN)
 -- ==============================================================================
-INSERT INTO public.productos (id, nombre, precio_usd, categoria, imagen, descripcion, stock, destacado)
-VALUES
-('prod-1', 'Bolso Tote Clásico Caramelo', 38.00, 'Bolsos', 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800', 'Bolso tote espacioso fabricado en cuero sintético premium de alta resistencia, con herrajes dorados inoxidables.', 15, true),
-('prod-2', 'Billetera Minimalista con Monedero', 16.50, 'Billeteras', 'https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&q=80&w=800', 'Billetera compacta con protección RFID y múltiples ranuras para tarjetas bancarias.', 25, true),
-('prod-3', 'Cinturón Reversible Doble Faz', 14.00, 'Cinturones', 'https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&q=80&w=800', 'Cinturón en tono café oscuro y negro con hebilla giratoria premium de acabado mate.', 20, false),
-('prod-4', 'Crossbody Urbana Black Edition', 29.00, 'Bolsos', 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&q=80&w=800', 'Bandolera moderna y ligera con correa ajustable estampada, múltiples bolsillos con cierre antirrobo.', 10, true)
-ON CONFLICT (id) DO NOTHING;
+DELETE FROM public.productos WHERE id IN ('prod-1', 'prod-2', 'prod-3', 'prod-4');
+

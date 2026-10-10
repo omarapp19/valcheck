@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
+import { useAdminStore } from "@/lib/admin-store";
 import { formatUSD, formatVES } from "@/lib/products";
 
 export const Route = createFileRoute("/carrito")({
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/carrito")({
 function Carrito() {
   const { items, cambiarCantidad, quitar, totalUSD } = useCart();
   const { isAdmin } = useAuth();
+  const { tasaBCV } = useAdminStore();
 
   if (items.length === 0) {
     return (
@@ -62,8 +64,8 @@ function Carrito() {
               <p className="font-display text-lg font-semibold leading-tight">
                 {producto.nombre}
               </p>
-              <p className="text-sm text-muted-foreground">
-                {formatUSD(producto.precioUSD)} · {formatVES(producto.precioUSD)}
+              <p className="text-sm text-muted-foreground" suppressHydrationWarning>
+                {formatUSD(producto.precioUSD)} · {formatVES(producto.precioUSD, tasaBCV)}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -98,8 +100,8 @@ function Carrito() {
         <div className="flex items-end justify-between">
           <span className="text-lg font-semibold">Total</span>
           <div className="text-right">
-            <p className="text-3xl font-bold">{formatUSD(totalUSD)}</p>
-            <p className="text-sm opacity-80">{formatVES(totalUSD)}</p>
+            <p className="text-3xl font-bold" suppressHydrationWarning>{formatUSD(totalUSD)}</p>
+            <p className="text-sm opacity-80" suppressHydrationWarning>{formatVES(totalUSD, tasaBCV)}</p>
           </div>
         </div>
         {isAdmin ? (

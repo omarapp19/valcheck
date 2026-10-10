@@ -1,9 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { Check, Instagram } from "lucide-react";
 import { useCart } from "@/lib/cart";
+import { useDepartment } from "@/lib/department";
 
 export function Footer() {
   const { abrirCarrito } = useCart();
+  const { department } = useDepartment();
+  const esMaquillaje = department === "maquillaje";
   return (
     <footer className="mt-20 bg-primary text-primary-foreground">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 md:grid-cols-3">
@@ -15,7 +18,9 @@ export function Footer() {
             <span className="font-display text-xl font-semibold">Val✓Check</span>
           </div>
           <p className="mt-3 text-sm opacity-80">
-            Belleza Verificada. Accesorios que celebran tu autenticidad y tu valor.
+            {esMaquillaje
+              ? "Belleza Verificada. Cosméticos y maquillaje que celebran tu autenticidad y tu confianza."
+              : "Belleza Verificada. Accesorios que celebran tu autenticidad y tu valor."}
           </p>
           <a
             href="https://instagram.com/valcheck.ve"

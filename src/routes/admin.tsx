@@ -28,24 +28,26 @@ import {
   XCircle,
   LogOut,
   RefreshCw,
+  Palette,
+  Gem,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { useAdminStore, Order, EstadoPedido, AJUSTES_PAGO_DEFAULT } from "@/lib/admin-store";
-import { formatUSD, formatVES, type Categoria, type Producto } from "@/lib/products";
+import {
+  formatUSD,
+  formatVES,
+  categoriasAccesorios,
+  categoriasMaquillaje,
+  getDepartamentoProducto,
+  type Categoria,
+  type Producto,
+  type Departamento,
+} from "@/lib/products";
 import { labelMetodoPago } from "@/lib/checkout";
 
-const PRESET_IMAGENES = [
-  { nombre: "Bolso Tote Caramelo", url: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800" },
-  { nombre: "Crossbody Urbana Black", url: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&q=80&w=800" },
-  { nombre: "Billetera Minimalista", url: "https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&q=80&w=800" },
-  { nombre: "Cinturón Reversible Doble", url: "https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&q=80&w=800" },
-  { nombre: "Collar Cadena Dorada", url: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=800" },
-  { nombre: "Aretes Perlas Elegantes", url: "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=800" },
-  { nombre: "Reloj Correa Cuero", url: "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&q=80&w=800" },
-  { nombre: "Brazalete Bañado en Oro", url: "https://images.unsplash.com/photo-1611591475841-865660851897?auto=format&fit=crop&q=80&w=800" },
-];
+
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -103,11 +105,13 @@ function AdminPage() {
 
   // Formulario de producto
   const [prodNombre, setProdNombre] = useState("");
+  const [prodDepartamento, setProdDepartamento] = useState<Departamento>("accesorios");
   const [prodCategoria, setProdCategoria] = useState<Categoria>("Pulseras");
   const [prodPrecioUSD, setProdPrecioUSD] = useState(15);
   const [prodDescripcion, setProdDescripcion] = useState("");
   const [prodImagen, setProdImagen] = useState("");
   const [prodDestacado, setProdDestacado] = useState(false);
+  const [adminFiltroDept, setAdminFiltroDept] = useState<"todos" | "accesorios" | "maquillaje">("todos");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Formulario de Ajustes de Métodos de Pago
@@ -356,6 +360,7 @@ function AdminPage() {
     agregarProducto({
       nombre: prodNombre.trim(),
       categoria: prodCategoria,
+      departamento: prodDepartamento,
       precioUSD: Number(prodPrecioUSD) || 10,
       descripcion: prodDescripcion.trim() || "Pieza exclusiva verificada por ValCheck.",
       imagen: prodImagen.trim() || fallbackImg,
@@ -375,6 +380,7 @@ function AdminPage() {
     editarProducto(modalEditarProducto.id, {
       nombre: prodNombre.trim(),
       categoria: prodCategoria,
+      departamento: prodDepartamento,
       precioUSD: Number(prodPrecioUSD),
       descripcion: prodDescripcion.trim(),
       imagen: prodImagen.trim() || modalEditarProducto.imagen,
@@ -387,6 +393,7 @@ function AdminPage() {
   const abrirEdicion = (p: Producto) => {
     setModalEditarProducto(p);
     setProdNombre(p.nombre);
+    setProdDepartamento(getDepartamentoProducto(p));
     setProdCategoria(p.categoria);
     setProdPrecioUSD(p.precioUSD);
     setProdDescripcion(p.descripcion);
@@ -972,7 +979,9 @@ function AdminPage() {
                 type="button"
                 onClick={() => {
                   setProdNombre("");
-                  setProdCategoria("Pulseras");
+                  const deptDefault = adminFiltroDept === "maquillaje" ? "maquillaje" : "accesorios";
+                  setProdDepartamento(deptDefault);
+                  setProdCategoria(deptDefault === "maquillaje" ? (categoriasMaquillaje[0] || "Labiales") : (categoriasAccesorios[0] || "Pulseras"));
                   setProdPrecioUSD(18);
                   setProdDescripcion("");
                   setProdImagen("");
@@ -987,8 +996,47 @@ function AdminPage() {
             </div>
           </div>
 
+          {/* Filtros de departamento en el catálogo de administración */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            <button
+              type="button"
+              onClick={() => setAdminFiltroDept("todos")}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-all ${
+                adminFiltroDept === "todos"
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "bg-card border border-border text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Todos ({productos.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setAdminFiltroDept("accesorios")}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all ${
+                adminFiltroDept === "accesorios"
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "bg-card border border-border text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Gem className="size-3.5" /> Accesorios ({productos.filter((p) => getDepartamentoProducto(p) === "accesorios").length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setAdminFiltroDept("maquillaje")}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all ${
+                adminFiltroDept === "maquillaje"
+                  ? "bg-brand-yellow text-brand-brown font-bold shadow-xs"
+                  : "bg-card border border-border text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Palette className="size-3.5" /> Maquillaje ({productos.filter((p) => getDepartamentoProducto(p) === "maquillaje").length})
+            </button>
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {productos.map((prod) => (
+            {productos
+              .filter((p) => adminFiltroDept === "todos" || getDepartamentoProducto(p) === adminFiltroDept)
+              .map((prod) => (
               <div
                 key={prod.id}
                 className="overflow-hidden rounded-2xl border-2 border-primary/20 bg-card p-3 shadow-xs flex flex-col justify-between"
@@ -1000,11 +1048,24 @@ function AdminPage() {
                       alt={prod.nombre}
                       className="size-full object-cover"
                     />
-                    {prod.destacado && (
-                      <span className="absolute top-2 left-2 rounded-full bg-brand-yellow px-2 py-0.5 text-[10px] font-bold text-brand-brown">
-                        Destacado
+                    <div className="absolute top-2 left-2 flex flex-col gap-1">
+                      {prod.destacado && (
+                        <span className="rounded-full bg-brand-yellow px-2 py-0.5 text-[10px] font-bold text-brand-brown shadow-xs">
+                          Destacado
+                        </span>
+                      )}
+                      <span className="rounded-full bg-card/90 backdrop-blur px-2 py-0.5 text-[9px] font-bold text-foreground shadow-xs flex items-center gap-1">
+                        {getDepartamentoProducto(prod) === "maquillaje" ? (
+                          <>
+                            <Palette className="size-2.5 text-brand-yellow" /> Maquillaje
+                          </>
+                        ) : (
+                          <>
+                            <Gem className="size-2.5 text-primary" /> Accesorios
+                          </>
+                        )}
                       </span>
-                    )}
+                    </div>
                   </div>
                   <div className="mt-3">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
@@ -1602,13 +1663,57 @@ function AdminPage() {
 
             <form onSubmit={handleGuardarNuevoProducto} className="mt-4 space-y-3.5 text-xs">
               <div>
+                <label className="font-bold uppercase text-foreground">Departamento *</label>
+                <div className="mt-1.5 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProdDepartamento("accesorios");
+                      if (!categoriasAccesorios.includes(prodCategoria as any)) {
+                        setProdCategoria(categoriasAccesorios[0] || "Pulseras");
+                      }
+                    }}
+                    className={`flex items-center justify-center gap-1.5 rounded-xl border-2 py-2 px-3 font-bold transition-all cursor-pointer ${
+                      prodDepartamento === "accesorios"
+                        ? "border-primary bg-primary/10 text-foreground"
+                        : "border-border bg-card text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Gem className="size-3.5 text-primary" />
+                    Accesorios
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProdDepartamento("maquillaje");
+                      if (!categoriasMaquillaje.includes(prodCategoria as any)) {
+                        setProdCategoria(categoriasMaquillaje[0] || "Labiales");
+                      }
+                    }}
+                    className={`flex items-center justify-center gap-1.5 rounded-xl border-2 py-2 px-3 font-bold transition-all cursor-pointer ${
+                      prodDepartamento === "maquillaje"
+                        ? "border-brand-yellow bg-brand-yellow/20 text-foreground"
+                        : "border-border bg-card text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Palette className="size-3.5 text-brand-yellow" />
+                    Maquillaje
+                  </button>
+                </div>
+              </div>
+
+              <div>
                 <label className="font-bold uppercase text-foreground">Nombre del Producto *</label>
                 <input
                   type="text"
                   required
                   value={prodNombre}
                   onChange={(e) => setProdNombre(e.target.value)}
-                  placeholder="Ej. Gargantilla de Perlas"
+                  placeholder={
+                    prodDepartamento === "maquillaje"
+                      ? "Ej. Labial Mate Larga Duración"
+                      : "Ej. Gargantilla de Perlas"
+                  }
                   className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
@@ -1621,11 +1726,11 @@ function AdminPage() {
                     onChange={(e) => setProdCategoria(e.target.value as Categoria)}
                     className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
                   >
-                    <option value="Pulseras">Pulseras</option>
-                    <option value="Collares">Collares</option>
-                    <option value="Aretes">Aretes</option>
-                    <option value="Anillos">Anillos</option>
-                    <option value="Sets">Sets</option>
+                    {(prodDepartamento === "maquillaje" ? categoriasMaquillaje : categoriasAccesorios).map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -1699,34 +1804,6 @@ function AdminPage() {
                     </div>
                   </div>
                 </div>
-
-                {/* Galería Rápida de Presets de Accesorios */}
-                <div>
-                  <span className="text-[10px] text-muted-foreground block mb-1">
-                    O selecciona una foto de muestra en 1 clic:
-                  </span>
-                  <div className="grid grid-cols-4 gap-1.5">
-                    {PRESET_IMAGENES.slice(0, 4).map((preset) => (
-                      <button
-                        key={preset.nombre}
-                        type="button"
-                        onClick={() => setProdImagen(preset.url)}
-                        className={`group relative h-10 overflow-hidden rounded-lg border text-left transition-all ${
-                          prodImagen === preset.url
-                            ? "border-primary ring-2 ring-primary"
-                            : "border-border hover:border-primary/50"
-                        }`}
-                        title={preset.nombre}
-                      >
-                        <img
-                          src={preset.url}
-                          alt={preset.nombre}
-                          className="size-full object-cover group-hover:scale-110 transition-transform"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </div>
 
               <div>
@@ -1777,6 +1854,46 @@ function AdminPage() {
 
             <form onSubmit={handleGuardarEdicionProducto} className="mt-4 space-y-3.5 text-xs">
               <div>
+                <label className="font-bold uppercase text-foreground">Departamento *</label>
+                <div className="mt-1.5 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProdDepartamento("accesorios");
+                      if (!categoriasAccesorios.includes(prodCategoria as any)) {
+                        setProdCategoria(categoriasAccesorios[0] || "Pulseras");
+                      }
+                    }}
+                    className={`flex items-center justify-center gap-1.5 rounded-xl border-2 py-2 px-3 font-bold transition-all cursor-pointer ${
+                      prodDepartamento === "accesorios"
+                        ? "border-primary bg-primary/10 text-foreground"
+                        : "border-border bg-card text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Gem className="size-3.5 text-primary" />
+                    Accesorios
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProdDepartamento("maquillaje");
+                      if (!categoriasMaquillaje.includes(prodCategoria as any)) {
+                        setProdCategoria(categoriasMaquillaje[0] || "Labiales");
+                      }
+                    }}
+                    className={`flex items-center justify-center gap-1.5 rounded-xl border-2 py-2 px-3 font-bold transition-all cursor-pointer ${
+                      prodDepartamento === "maquillaje"
+                        ? "border-brand-yellow bg-brand-yellow/20 text-foreground"
+                        : "border-border bg-card text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Palette className="size-3.5 text-brand-yellow" />
+                    Maquillaje
+                  </button>
+                </div>
+              </div>
+
+              <div>
                 <label className="font-bold uppercase text-foreground">Nombre</label>
                 <input
                   type="text"
@@ -1795,11 +1912,11 @@ function AdminPage() {
                     onChange={(e) => setProdCategoria(e.target.value as Categoria)}
                     className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
                   >
-                    <option value="Pulseras">Pulseras</option>
-                    <option value="Collares">Collares</option>
-                    <option value="Aretes">Aretes</option>
-                    <option value="Anillos">Anillos</option>
-                    <option value="Sets">Sets</option>
+                    {(prodDepartamento === "maquillaje" ? categoriasMaquillaje : categoriasAccesorios).map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -1871,34 +1988,6 @@ function AdminPage() {
                         Subir desde equipo
                       </button>
                     </div>
-                  </div>
-                </div>
-
-                {/* Galería Rápida de Presets de Accesorios */}
-                <div>
-                  <span className="text-[10px] text-muted-foreground block mb-1">
-                    Cambiar imagen rápidamente:
-                  </span>
-                  <div className="grid grid-cols-4 gap-1.5">
-                    {PRESET_IMAGENES.map((preset) => (
-                      <button
-                        key={preset.nombre}
-                        type="button"
-                        onClick={() => setProdImagen(preset.url)}
-                        className={`group relative h-10 overflow-hidden rounded-lg border text-left transition-all ${
-                          prodImagen === preset.url
-                            ? "border-primary ring-2 ring-primary"
-                            : "border-border hover:border-primary/50"
-                        }`}
-                        title={preset.nombre}
-                      >
-                        <img
-                          src={preset.url}
-                          alt={preset.nombre}
-                          className="size-full object-cover group-hover:scale-110 transition-transform"
-                        />
-                      </button>
-                    ))}
                   </div>
                 </div>
               </div>
