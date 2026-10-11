@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BadgeCheck, Heart, Sparkles } from "lucide-react";
+import { BadgeCheck, Heart, Gem } from "lucide-react";
 
 export const Route = createFileRoute("/nosotros")({
   head: () => ({
@@ -39,7 +39,7 @@ function Nosotros() {
 
       <div className="mt-12 grid gap-4 md:grid-cols-3">
         <div className="rounded-2xl border-2 border-primary bg-card p-6">
-          <Sparkles className="size-7 text-brand-brown" />
+          <Gem className="size-7 text-primary" />
           <h2 className="mt-3 font-display text-xl font-semibold">Misión</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Acompañar a las personas con cercanía, honestidad y criterio real,
@@ -48,17 +48,17 @@ function Nosotros() {
           </p>
         </div>
         <div className="rounded-2xl border-2 border-primary bg-card p-6">
-          <BadgeCheck className="size-7 text-brand-brown" />
+          <BadgeCheck className="size-7 text-primary" />
           <h2 className="mt-3 font-display text-xl font-semibold">Visión</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Consolidarse como un referente integral y confiable que inspira a su
             comunidad a proyectar su mejor versión en cada faceta de su vida.
           </p>
         </div>
-        <div className="rounded-2xl border-2 border-primary bg-brand-yellow p-6">
+        <div className="rounded-2xl border-2 border-primary bg-brand-yellow p-6 text-brand-brown">
           <Heart className="size-7 text-brand-brown" />
-          <h2 className="mt-3 font-display text-xl font-semibold">Promesa</h2>
-          <p className="mt-2 text-sm text-foreground/80">
+          <h2 className="mt-3 font-display text-xl font-semibold text-brand-brown">Promesa</h2>
+          <p className="mt-2 text-sm text-brand-brown/90 font-medium">
             Productos originales, verificados y respaldados por un compromiso
             real. La confianza es tu mejor accesorio.
           </p>
@@ -72,7 +72,7 @@ function Nosotros() {
         <p className="mt-2 text-sm opacity-70">Prov 15:13</p>
         <Link
           to="/tienda"
-          className="mt-6 inline-block rounded-full bg-brand-yellow px-6 py-3 text-sm font-bold text-brand-brown transition-transform hover:scale-105"
+          className="mt-6 inline-block rounded-full bg-primary-foreground px-6 py-3 text-sm font-bold text-primary transition-transform hover:scale-105"
         >
           Descubre la colección
         </Link>

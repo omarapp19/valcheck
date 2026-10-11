@@ -1,84 +1,50 @@
-import { Sparkles, Palette } from "lucide-react";
+import { Gem, Palette, ArrowLeftRight } from "lucide-react";
 import { useDepartment } from "@/lib/department";
-import { useState } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 
 export function DepartmentSwitcher() {
-  const { department, setDepartment, isMaquillaje } = useDepartment();
-  const [isHovered, setIsHovered] = useState(false);
+  const { setDepartment, isMaquillaje } = useDepartment();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  const switchDept = (newDept: "accesorios" | "maquillaje") => {
-    setDepartment(newDept);
-    if (pathname === "/accesorios" && newDept === "maquillaje") {
+  const handleToggle = () => {
+    const nextDept = isMaquillaje ? "accesorios" : "maquillaje";
+    setDepartment(nextDept);
+    if (pathname === "/accesorios" && nextDept === "maquillaje") {
       navigate({ to: "/maquillaje" });
-    } else if (pathname === "/maquillaje" && newDept === "accesorios") {
+    } else if (pathname === "/maquillaje" && nextDept === "accesorios") {
       navigate({ to: "/accesorios" });
     }
   };
 
   return (
-    <div
-      className="relative flex items-center"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+    <button
+      type="button"
+      onClick={handleToggle}
+      className={`group inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-all duration-200 cursor-pointer active:scale-95 ${
+        isMaquillaje
+          ? "border-border/50 bg-background/50 hover:bg-card/90 text-foreground/80 hover:text-foreground hover:border-border"
+          : "border-border/50 bg-background/50 hover:bg-card/90 text-foreground/80 hover:text-foreground hover:border-border"
+      }`}
+      aria-label={isMaquillaje ? "Cambiar a Accesorios" : "Cambiar a Maquillaje"}
+      title={isMaquillaje ? "Cambiar a Joyería & Accesorios" : "Cambiar a Maquillaje"}
     >
-      {/* Contenedor del switch con efecto expansivo al pasar el mouse */}
-      <div
-        className={`flex items-center rounded-full border border-border p-0.5 sm:p-1 shadow-xs transition-all duration-300 ease-out ${
-          isMaquillaje
-            ? "bg-card border-brand-yellow/30 text-foreground"
-            : "bg-card/90 border-border text-foreground"
-        }`}
-      >
-        {/* Opción 1: Accesorios */}
-        <button
-          type="button"
-          onClick={() => switchDept("accesorios")}
-          className={`flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-[11px] sm:text-xs font-semibold transition-all duration-300 cursor-pointer ${
-            !isMaquillaje
-              ? "bg-primary text-primary-foreground shadow-xs scale-[1.02]"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-          aria-label="Ir a sección de Accesorios"
-          title="Ver colección de Joyería y Accesorios"
-        >
-          <Sparkles className="size-3 sm:size-3.5 shrink-0" />
-          <span
-            className={`transition-all duration-300 whitespace-nowrap text-[11px] sm:text-xs ${
-              !isMaquillaje || isHovered ? "inline-block" : "hidden sm:inline-block"
-            }`}
-          >
-            Accesorios
-          </span>
-        </button>
+      <ArrowLeftRight className="size-3 text-muted-foreground/70 transition-transform duration-300 group-hover:rotate-180 shrink-0" />
 
-        {/* Separador sutil si no está expandido */}
-        <span className="h-3 w-px bg-border/60 mx-0.5" />
-
-        {/* Opción 2: Maquillaje */}
-        <button
-          type="button"
-          onClick={() => switchDept("maquillaje")}
-          className={`flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-[11px] sm:text-xs font-semibold transition-all duration-300 cursor-pointer ${
-            isMaquillaje
-              ? "bg-brand-yellow text-brand-brown font-bold shadow-xs scale-[1.02]"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-          aria-label="Ir a sección de Maquillaje"
-          title="Ver colección de Maquillaje y Cosméticos"
-        >
-          <Palette className="size-3 sm:size-3.5 shrink-0" />
-          <span
-            className={`transition-all duration-300 whitespace-nowrap text-[11px] sm:text-xs ${
-              isMaquillaje || isHovered ? "inline-block" : "hidden sm:inline-block"
-            }`}
-          >
-            Maquillaje
-          </span>
-        </button>
-      </div>
-    </div>
+      <span className="flex items-center gap-1 whitespace-nowrap">
+        {isMaquillaje ? (
+          <>
+            <Gem className="size-3 text-primary shrink-0" />
+            <span>Accesorios</span>
+          </>
+        ) : (
+          <>
+            <Palette className="size-3 text-brand-yellow shrink-0" />
+            <span>Maquillaje</span>
+          </>
+        )}
+      </span>
+    </button>
   );
 }
+

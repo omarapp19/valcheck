@@ -10,7 +10,7 @@ import { useAdminStore } from "@/lib/admin-store";
 import { useDepartment } from "@/lib/department";
 import { useAuth } from "@/lib/auth";
 import { ProductCard } from "@/components/ProductCard";
-import { Palette, Sparkles, Gem, PlusCircle, ArrowLeft } from "lucide-react";
+import { Palette, Gem, PlusCircle, ArrowLeft } from "lucide-react";
 
 type Search = { categoria?: Categoria | undefined };
 
@@ -92,7 +92,7 @@ function Tienda() {
         >
           {isMaquillaje ? (
             <>
-              <Sparkles className="size-3.5 text-brand-yellow" />
+              <Gem className="size-3.5 text-brand-yellow" />
               Ver colección de Accesorios
             </>
           ) : (
@@ -132,7 +132,7 @@ function Tienda() {
         /* Empty State para Maquillaje o Categoría sin productos */
         <div className="mt-12 rounded-[2.5rem] border-2 border-border/70 bg-card p-10 md:p-16 text-center shadow-xs">
           <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-brand-yellow/30 text-brand-brown">
-            {isMaquillaje ? <Palette className="size-10" /> : <Sparkles className="size-10" />}
+            {isMaquillaje ? <Palette className="size-10" /> : <Gem className="size-10" />}
           </div>
 
           <h2 className="mt-6 font-display text-2xl sm:text-3xl font-semibold">
@@ -154,7 +154,7 @@ function Tienda() {
                 onClick={() => setDepartment("accesorios")}
                 className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-md transition-transform hover:scale-105"
               >
-                <Sparkles className="size-4" />
+                <Gem className="size-4" />
                 Explorar Accesorios mientras tanto
               </button>
             )}

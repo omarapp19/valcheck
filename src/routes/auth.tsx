@@ -15,7 +15,6 @@ import {
   MapPin,
   Phone,
   Send,
-  Sparkles,
   User as UserIcon,
   UserPlus,
 } from "lucide-react";

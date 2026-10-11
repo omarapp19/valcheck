@@ -1,5 +1,14 @@
-import { Link } from "@tanstack/react-router";
-import { ShoppingBag, Menu, X, User as UserIcon, ShieldCheck } from "lucide-react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import {
+  ShoppingBag,
+  Menu,
+  X,
+  User as UserIcon,
+  ShieldCheck,
+  Gem,
+  Palette,
+  ArrowLeftRight,
+} from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
@@ -10,8 +19,21 @@ import { useDepartment } from "@/lib/department";
 export function Header() {
   const { totalItems, abrirCarrito } = useCart();
   const { user, isLoggedIn, isAdmin } = useAuth();
-  const { department } = useDepartment();
+  const { department, setDepartment, isMaquillaje } = useDepartment();
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  const cambiarDepartamento = () => {
+    const nextDept = department === "maquillaje" ? "accesorios" : "maquillaje";
+    setDepartment(nextDept);
+    setOpen(false);
+    if (pathname === "/accesorios" && nextDept === "maquillaje") {
+      navigate({ to: "/maquillaje" });
+    } else if (pathname === "/maquillaje" && nextDept === "accesorios") {
+      navigate({ to: "/accesorios" });
+    }
+  };
 
   const homeUrl = department === "maquillaje" ? "/maquillaje" : "/accesorios";
   const links = [
@@ -45,7 +67,11 @@ export function Header() {
               key={l.to}
               to={l.to}
               className="text-sm font-medium text-foreground/80 transition-colors hover:text-foreground"
-              activeProps={{ className: "text-foreground underline underline-offset-8 decoration-brand-brown decoration-4" }}
+              activeProps={{
+                className: `text-foreground underline underline-offset-8 decoration-4 ${
+                  isMaquillaje ? "decoration-brand-yellow" : "decoration-brand-brown"
+                }`,
+              }}
             >
               {l.label}
             </Link>
@@ -53,7 +79,7 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-1 sm:gap-2">
-          {/* Switch interactivo de Departamentos (Accesorios / Maquillaje) */}
+          {/* Botón sutil de cambio de departamento (Accesorios / Maquillaje) */}
           <DepartmentSwitcher />
 
           {/* Badge o botón Admin */}
@@ -110,11 +136,40 @@ export function Header() {
               key={l.to}
               to={l.to}
               onClick={() => setOpen(false)}
-              className="block rounded-lg px-3 py-2 text-sm font-medium hover:bg-brand-yellow/50"
+              className="block rounded-lg px-3 py-2 text-sm font-medium hover:bg-brand-yellow/50 transition-colors"
+              activeProps={{
+                className: isMaquillaje
+                  ? "bg-brand-yellow/15 text-brand-yellow font-semibold"
+                  : "bg-brand-yellow/40 text-brand-brown font-semibold",
+              }}
             >
               {l.label}
             </Link>
           ))}
+
+          {/* Botón sutil para cambiar departamento dentro del menú móvil */}
+          <div className="border-t border-border/60 pt-2 mt-2">
+            <button
+              type="button"
+              onClick={cambiarDepartamento}
+              className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium hover:bg-brand-yellow/50 text-foreground transition-colors cursor-pointer"
+            >
+              <span className="flex items-center gap-2">
+                {department === "maquillaje" ? (
+                  <>
+                    <Gem className="size-4 text-primary" />
+                    <span>Cambiar a Joyería & Accesorios</span>
+                  </>
+                ) : (
+                  <>
+                    <Palette className="size-4 text-brand-yellow" />
+                    <span>Cambiar a Maquillaje</span>
+                  </>
+                )}
+              </span>
+              <ArrowLeftRight className="size-3.5 text-muted-foreground" />
+            </button>
+          </div>
 
           <div className="border-t border-border/60 pt-2 mt-2">
             {isAdmin ? (

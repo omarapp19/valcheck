@@ -89,7 +89,7 @@ function Contacto() {
         >
           <h2 className="font-display text-2xl font-semibold">Envíanos un mensaje</h2>
           {enviado ? (
-            <p className="mt-4 rounded-xl bg-brand-yellow/60 p-4 text-sm font-medium">
+            <p className="mt-4 rounded-xl bg-brand-yellow/60 p-4 text-sm font-medium text-brand-brown">
               ¡Gracias por escribirnos! Te contactaremos muy pronto. ✓
             </p>
           ) : (

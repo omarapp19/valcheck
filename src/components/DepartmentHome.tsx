@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, BadgeCheck, Heart, Sparkles, Truck, Palette, Gem } from "lucide-react";
+import { ArrowRight, BadgeCheck, Heart, Truck, Palette, Gem } from "lucide-react";
 import heroImg from "@/assets/hero.jpg";
 import {
   categoriasAccesorios,
@@ -52,7 +52,7 @@ export function DepartmentHome({ departamento }: DepartmentHomeProps) {
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-8 md:grid-cols-2 md:py-16">
           <div>
             <span className="stamp inline-flex items-center gap-2 px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
-              {isMaquillaje ? <Palette className="size-3.5 text-brand-yellow" /> : <Sparkles className="size-3.5 text-brand-yellow" />}
+              {isMaquillaje ? <Palette className="size-3.5 text-brand-yellow" /> : <Gem className="size-3.5 text-brand-yellow" />}
               {isMaquillaje ? "Línea Cosmética Verificada" : "Belleza Verificada"}
             </span>
 
@@ -189,7 +189,7 @@ export function DepartmentHome({ departamento }: DepartmentHomeProps) {
         >
           <div className="space-y-1.5 text-center sm:text-left">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-0.5 text-[11px] font-bold uppercase tracking-wider text-primary">
-              {isMaquillaje ? "✨ Línea de Joyería" : "💄 Línea Cosmética"}
+              {isMaquillaje ? "💎 Línea de Joyería" : "💄 Línea Cosmética"}
             </span>
             <h3 className="font-display text-lg sm:text-xl md:text-2xl font-bold">
               {isMaquillaje

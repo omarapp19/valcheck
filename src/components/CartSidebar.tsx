@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Minus, Plus, ShoppingBag, Trash2, ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Trash2, ArrowRight, ShieldCheck } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { useAdminStore } from "@/lib/admin-store";
@@ -93,7 +93,7 @@ export function CartSidebar() {
               onClick={handleIrATienda}
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-xs sm:text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer"
             >
-              <Sparkles className="size-4" />
+              <ArrowRight className="size-4" />
               Explorar la tienda
             </button>
           </div>
