@@ -13,11 +13,18 @@ export interface Producto {
   precio?: number | undefined;
   precioAnterior?: number | undefined;
   stock?: number | undefined;
+  activo?: boolean | undefined;
   calificacion?: number | undefined;
   totalResenas?: number | undefined;
   imagen: string;
   imagenes?: string[] | undefined;
   destacado?: boolean | undefined;
+}
+
+export function isProductoDisponible(p: Producto): boolean {
+  if (p.activo === false) return false;
+  const stock = p.stock ?? 10;
+  return stock > 0;
 }
 
 /** Tasa Oficial BCV activa y sincronizada en tiempo real */

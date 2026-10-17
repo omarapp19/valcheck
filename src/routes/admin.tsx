@@ -8,6 +8,7 @@ import {
   DollarSign,
   Edit,
   Eye,
+  EyeOff,
   Filter,
   Image as ImageIcon,
   LogIn,
@@ -69,9 +70,12 @@ function AdminPage() {
     agregarProducto,
     editarProducto,
     eliminarProducto,
+    toggleActivoProducto,
     aprobarPago,
     rechazarPago,
     marcarEnviado,
+    eliminarPedido,
+    vaciarPedidos,
     restablecerCatalogo,
     tasaBCV,
     tasaBCVFecha,
@@ -98,6 +102,9 @@ function AdminPage() {
   const [numeroGuiaTexto, setNumeroGuiaTexto] = useState("");
 
   const [modalDetallePedido, setModalDetallePedido] = useState<Order | null>(null);
+  const [modalEliminarPedido, setModalEliminarPedido] = useState<string | null>(null);
+  const [modalVaciarPedidos, setModalVaciarPedidos] = useState(false);
+  const [modalComprobante, setModalComprobante] = useState<{ url: string; nombre: string; pedidoId: string } | null>(null);
 
   // Modales de productos
   const [modalNuevoProducto, setModalNuevoProducto] = useState(false);
@@ -108,6 +115,8 @@ function AdminPage() {
   const [prodDepartamento, setProdDepartamento] = useState<Departamento>("accesorios");
   const [prodCategoria, setProdCategoria] = useState<Categoria>("Pulseras");
   const [prodPrecioUSD, setProdPrecioUSD] = useState(15);
+  const [prodStock, setProdStock] = useState<number>(10);
+  const [prodActivo, setProdActivo] = useState<boolean>(true);
   const [prodDescripcion, setProdDescripcion] = useState("");
   const [prodImagen, setProdImagen] = useState("");
   const [prodDestacado, setProdDestacado] = useState(false);
@@ -233,21 +242,35 @@ function AdminPage() {
         <div className="mt-6 rounded-2xl border border-border bg-card p-5 text-left">
           <p className="text-xs font-bold uppercase text-muted-foreground">Acceso de Administrador:</p>
           <div className="mt-2 text-xs space-y-1">
-            <p><strong>Correo autorizado:</strong> omarapp1921@gmail.com</p>
+            <p><strong>Correos autorizados:</strong> omarapp1921@gmail.com, perezpandreav@gmail.com</p>
             <p><strong>Contraseña de prueba:</strong> admin123</p>
           </div>
-          <button
-            type="button"
-            onClick={async () => {
-              const res = await login("omarapp1921@gmail.com", "admin123");
-              if (res.ok) {
-                toast.success("Has ingresado como Administrador");
-              }
-            }}
-            className="mt-4 w-full rounded-full bg-primary py-3 text-xs font-bold text-primary-foreground hover:scale-105 transition-transform"
-          >
-            Entrar como Administrador
-          </button>
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={async () => {
+                const res = await login("omarapp1921@gmail.com", "admin123");
+                if (res.ok) {
+                  toast.success("Has ingresado como Administrador (Omar)");
+                }
+              }}
+              className="rounded-full bg-primary py-2.5 px-3 text-xs font-bold text-primary-foreground hover:scale-105 transition-transform text-center"
+            >
+              Entrar como Omar
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                const res = await login("perezpandreav@gmail.com", "admin123");
+                if (res.ok) {
+                  toast.success("Has ingresado como Administradora (Andrea)");
+                }
+              }}
+              className="rounded-full border border-primary text-primary py-2.5 px-3 text-xs font-bold hover:bg-primary/10 transition-colors text-center"
+            >
+              Entrar como Andrea
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -325,6 +348,12 @@ function AdminPage() {
   const handleConfirmarRechazo = (e: React.FormEvent) => {
     e.preventDefault();
     if (!modalRechazar) return;
+    const pedido = pedidos.find((p) => p.id === modalRechazar.id);
+    if (pedido?.estado === "enviado" || pedido?.estado === "completado") {
+      toast.error("No se puede rechazar el pago: este pedido ya fue enviado y la compra está cerrada.");
+      setModalRechazar(null);
+      return;
+    }
     if (!motivoRechazoTexto.trim()) {
       toast.error("Indica un motivo de rechazo");
       return;
@@ -362,6 +391,8 @@ function AdminPage() {
       categoria: prodCategoria,
       departamento: prodDepartamento,
       precioUSD: Number(prodPrecioUSD) || 10,
+      stock: Number(prodStock) >= 0 ? Number(prodStock) : 0,
+      activo: prodActivo,
       descripcion: prodDescripcion.trim() || "Pieza exclusiva verificada por ValCheck.",
       imagen: prodImagen.trim() || fallbackImg,
       destacado: prodDestacado,
@@ -371,6 +402,8 @@ function AdminPage() {
     setProdNombre("");
     setProdDescripcion("");
     setProdImagen("");
+    setProdStock(10);
+    setProdActivo(true);
   };
 
   // Guardar Edición Producto
@@ -382,6 +415,8 @@ function AdminPage() {
       categoria: prodCategoria,
       departamento: prodDepartamento,
       precioUSD: Number(prodPrecioUSD),
+      stock: Number(prodStock) >= 0 ? Number(prodStock) : 0,
+      activo: prodActivo,
       descripcion: prodDescripcion.trim(),
       imagen: prodImagen.trim() || modalEditarProducto.imagen,
       destacado: prodDestacado,
@@ -396,6 +431,8 @@ function AdminPage() {
     setProdDepartamento(getDepartamentoProducto(p));
     setProdCategoria(p.categoria);
     setProdPrecioUSD(p.precioUSD);
+    setProdStock(p.stock !== undefined ? p.stock : 10);
+    setProdActivo(p.activo !== false);
     setProdDescripcion(p.descripcion);
     setProdImagen(p.imagen);
     setProdDestacado(!!p.destacado);
@@ -655,17 +692,30 @@ function AdminPage() {
               )}
             </button>
 
-            <button
-              type="button"
-              onClick={() => setSeccionPedidos("todos")}
-              className={`flex items-center gap-1.5 rounded-2xl px-3.5 py-2.5 text-xs font-bold transition-all cursor-pointer ml-auto ${
-                seccionPedidos === "todos"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
-            >
-              Historial General ({pedidos.length})
-            </button>
+            <div className="flex items-center gap-2 ml-auto">
+              {pedidos.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setModalVaciarPedidos(true)}
+                  className="inline-flex items-center gap-1.5 rounded-2xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs font-bold text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all cursor-pointer"
+                  title="Eliminar todos los pedidos registrados"
+                >
+                  <Trash2 className="size-3.5" />
+                  Vaciar Pedidos
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setSeccionPedidos("todos")}
+                className={`flex items-center gap-1.5 rounded-2xl px-3.5 py-2.5 text-xs font-bold transition-all cursor-pointer ${
+                  seccionPedidos === "todos"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                Historial General ({pedidos.length})
+              </button>
+            </div>
           </div>
 
           {/* Barra de Filtros y Búsqueda */}
@@ -865,10 +915,30 @@ function AdminPage() {
                       {ped.pago.bancoOrigen && (
                         <p className="text-muted-foreground">Banco: {ped.pago.bancoOrigen}</p>
                       )}
-                      {ped.pago.comprobanteNombre && (
-                        <p className="text-brand-brown font-medium truncate mt-0.5" title={ped.pago.comprobanteNombre}>
-                          📎 {ped.pago.comprobanteNombre}
-                        </p>
+                      {(ped.pago.comprobanteUrl || ped.pago.comprobanteNombre) && (
+                        <div className="mt-1.5">
+                          {ped.pago.comprobanteUrl || ped.pago.comprobanteNombre?.startsWith("data:") || ped.pago.comprobanteNombre?.startsWith("http") ? (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setModalComprobante({
+                                  url: ped.pago.comprobanteUrl || ped.pago.comprobanteNombre!,
+                                  nombre: ped.pago.comprobanteNombre || `Pedido #${ped.id}`,
+                                  pedidoId: ped.id,
+                                })
+                              }
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-brand-yellow/80 bg-brand-yellow/30 px-2.5 py-1 text-[11px] font-bold text-brand-brown hover:bg-brand-yellow/50 transition-colors cursor-pointer"
+                              title="Ver captura o foto del comprobante"
+                            >
+                              <ImageIcon className="size-3 text-brand-brown" />
+                              <span>Ver captura adjunta</span>
+                            </button>
+                          ) : (
+                            <p className="text-brand-brown font-medium truncate text-[11px]" title={ped.pago.comprobanteNombre}>
+                              📎 {ped.pago.comprobanteNombre} <span className="text-muted-foreground text-[10px]">(nombre registrado)</span>
+                            </p>
+                          )}
+                        </div>
                       )}
                     </div>
 
@@ -902,47 +972,65 @@ function AdminPage() {
                     </button>
 
                     <div className="flex flex-wrap items-center gap-2">
-                      {/* Botón Aprobar Pago */}
-                      {ped.estado !== "aprobado" && ped.estado !== "enviado" && (
-                        <button
-                          type="button"
-                          onClick={() => handleAprobar(ped.id)}
-                          className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition-colors cursor-pointer"
-                        >
-                          <Check className="size-3.5" />
-                          Aprobar Pago
-                        </button>
+                      {/* Si el pedido ya fue enviado, la compra está cerrada y ya no se puede rechazar el pago */}
+                      {ped.estado === "enviado" ? (
+                        <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-xs font-bold text-blue-700">
+                          <CheckCircle2 className="size-3.5" />
+                          <span>Compra cerrada (Enviado)</span>
+                        </div>
+                      ) : (
+                        <>
+                          {/* Botón Aprobar Pago */}
+                          {ped.estado !== "aprobado" && (
+                            <button
+                              type="button"
+                              onClick={() => handleAprobar(ped.id)}
+                              className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition-colors cursor-pointer"
+                            >
+                              <Check className="size-3.5" />
+                              Aprobar Pago
+                            </button>
+                          )}
+
+                          {/* Botón Marcar Enviado */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setModalGuia({ id: ped.id, empresa: ped.envio.empresa });
+                              setNumeroGuiaTexto(ped.envio.numeroGuia || "");
+                            }}
+                            className="inline-flex items-center gap-1 rounded-full bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition-colors cursor-pointer"
+                          >
+                            <Truck className="size-3.5" />
+                            Marcar Enviado
+                          </button>
+
+                          {/* Botón Rechazar Pago: Solo se puede rechazar ANTES de ser enviado */}
+                          {ped.estado !== "rechazado" && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setModalRechazar({ id: ped.id });
+                                setMotivoRechazoTexto("");
+                              }}
+                              className="inline-flex items-center gap-1 rounded-full border border-rose-300 text-rose-700 hover:bg-rose-50 px-3 py-1.5 text-xs font-bold transition-colors cursor-pointer"
+                            >
+                              <X className="size-3.5" />
+                              Rechazar Pago
+                            </button>
+                          )}
+                        </>
                       )}
 
-                      {/* Botón Marcar Enviado */}
-                      {ped.estado !== "enviado" && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setModalGuia({ id: ped.id, empresa: ped.envio.empresa });
-                            setNumeroGuiaTexto(ped.envio.numeroGuia || "");
-                          }}
-                          className="inline-flex items-center gap-1 rounded-full bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition-colors cursor-pointer"
-                        >
-                          <Truck className="size-3.5" />
-                          Marcar Enviado
-                        </button>
-                      )}
-
-                      {/* Botón Rechazar Pago */}
-                      {ped.estado !== "rechazado" && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setModalRechazar({ id: ped.id });
-                            setMotivoRechazoTexto("");
-                          }}
-                          className="inline-flex items-center gap-1 rounded-full border border-rose-300 text-rose-700 hover:bg-rose-50 px-3 py-1.5 text-xs font-bold transition-colors cursor-pointer"
-                        >
-                          <X className="size-3.5" />
-                          Rechazar Pago
-                        </button>
-                      )}
+                      {/* Botón Eliminar Pedido Individual */}
+                      <button
+                        type="button"
+                        onClick={() => setModalEliminarPedido(ped.id)}
+                        className="inline-flex items-center gap-1 rounded-full border border-border text-muted-foreground hover:text-destructive hover:border-destructive hover:bg-destructive/10 px-2.5 py-1.5 text-xs font-medium transition-colors cursor-pointer"
+                        title={`Eliminar pedido #${ped.id}`}
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1039,16 +1127,22 @@ function AdminPage() {
               .map((prod) => (
               <div
                 key={prod.id}
-                className="overflow-hidden rounded-2xl border-2 border-primary/20 bg-card p-3 shadow-xs flex flex-col justify-between"
+                className={`overflow-hidden rounded-2xl border-2 bg-card p-3 shadow-xs flex flex-col justify-between transition-all ${
+                  prod.activo === false || (prod.stock ?? 10) <= 0
+                    ? "border-muted-foreground/30 bg-muted/20"
+                    : "border-primary/20"
+                }`}
               >
                 <div>
                   <div className="relative aspect-square overflow-hidden rounded-xl bg-brand-beige">
                     <img
                       src={prod.imagen}
                       alt={prod.nombre}
-                      className="size-full object-cover"
+                      className={`size-full object-cover transition-opacity ${
+                        prod.activo === false ? "opacity-60 grayscale-[40%]" : ""
+                      }`}
                     />
-                    <div className="absolute top-2 left-2 flex flex-col gap-1">
+                    <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
                       {prod.destacado && (
                         <span className="rounded-full bg-brand-yellow px-2 py-0.5 text-[10px] font-bold text-brand-brown shadow-xs">
                           Destacado
@@ -1057,7 +1151,7 @@ function AdminPage() {
                       <span className="rounded-full bg-card/90 backdrop-blur px-2 py-0.5 text-[9px] font-bold text-foreground shadow-xs flex items-center gap-1">
                         {getDepartamentoProducto(prod) === "maquillaje" ? (
                           <>
-                            <Palette className="size-2.5 text-brand-yellow" /> Maquillaje
+                            <Palette className="size-2.5 text-amber-600" /> Maquillaje
                           </>
                         ) : (
                           <>
@@ -1065,6 +1159,28 @@ function AdminPage() {
                           </>
                         )}
                       </span>
+                    </div>
+
+                    <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
+                      {prod.activo === false ? (
+                        <span className="rounded-full bg-zinc-900/90 text-zinc-100 backdrop-blur px-2 py-0.5 text-[9px] font-bold shadow-xs flex items-center gap-1 border border-zinc-700">
+                          <EyeOff className="size-2.5" /> Desactivado
+                        </span>
+                      ) : (
+                        <span className="rounded-full bg-emerald-700/90 text-white backdrop-blur px-2 py-0.5 text-[9px] font-bold shadow-xs flex items-center gap-1">
+                          <Eye className="size-2.5" /> En Tienda
+                        </span>
+                      )}
+
+                      {(prod.stock ?? 10) <= 0 ? (
+                        <span className="rounded-full bg-red-600 text-white px-2 py-0.5 text-[9px] font-bold shadow-xs">
+                          Sin Stock (0)
+                        </span>
+                      ) : (
+                        <span className="rounded-full bg-background/90 text-foreground backdrop-blur px-2 py-0.5 text-[9px] font-bold shadow-xs border border-border">
+                          Stock: {prod.stock ?? 10}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="mt-3">
@@ -1082,32 +1198,71 @@ function AdminPage() {
                         {formatVES(prod.precioUSD)}
                       </span>
                     </div>
+
+                    <div className="mt-2 flex items-center justify-between text-[11px] rounded-lg bg-muted/60 px-2 py-1">
+                      <span className="text-muted-foreground">
+                        Stock disponible:
+                      </span>
+                      <span className={`font-bold ${(prod.stock ?? 10) <= 0 ? "text-destructive" : "text-foreground"}`}>
+                        {prod.stock ?? 10} unidades
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={() => abrirEdicion(prod)}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground"
-                  >
-                    <Edit className="size-3.5" />
-                    Editar
-                  </button>
-
+                <div className="mt-3 pt-3 border-t border-border flex items-center justify-between gap-1">
                   <button
                     type="button"
                     onClick={() => {
-                      if (confirm(`¿Eliminar "${prod.nombre}" del catálogo?`)) {
-                        eliminarProducto(prod.id);
-                        toast.info("Producto eliminado");
-                      }
+                      toggleActivoProducto(prod.id);
+                      toast.success(
+                        prod.activo === false
+                          ? `"${prod.nombre}" activado y visible en la tienda`
+                          : `"${prod.nombre}" desactivado y retirado de la tienda`
+                      );
                     }}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-destructive hover:opacity-80"
+                    className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-lg border transition-all ${
+                      prod.activo === false
+                        ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/25"
+                        : "bg-amber-500/15 border-amber-500/40 text-amber-800 dark:text-amber-400 hover:bg-amber-500/25"
+                    }`}
+                    title={prod.activo === false ? "Activar en la tienda" : "Desactivar de la tienda"}
                   >
-                    <Trash2 className="size-3.5" />
-                    Eliminar
+                    {prod.activo === false ? (
+                      <>
+                        <Eye className="size-3" /> Activar
+                      </>
+                    ) : (
+                      <>
+                        <EyeOff className="size-3" /> Desactivar
+                      </>
+                    )}
                   </button>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => abrirEdicion(prod)}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground"
+                    >
+                      <Edit className="size-3.5" />
+                      Editar
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (confirm(`¿Eliminar "${prod.nombre}" del catálogo?`)) {
+                          eliminarProducto(prod.id);
+                          toast.info("Producto eliminado");
+                        }
+                      }}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-destructive hover:opacity-80"
+                    >
+                      <Trash2 className="size-3.5" />
+                      Eliminar
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -1518,6 +1673,121 @@ function AdminPage() {
         </div>
       )}
 
+      {/* MODAL ELIMINAR PEDIDO INDIVIDUAL */}
+      {modalEliminarPedido && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-sm rounded-3xl bg-background border-2 border-destructive p-6 shadow-2xl">
+            <h3 className="font-display text-lg font-bold text-destructive">¿Eliminar Pedido #{modalEliminarPedido}?</h3>
+            <p className="text-xs text-muted-foreground mt-2">
+              Esta acción eliminará permanentemente este pedido del historial.
+            </p>
+            <div className="flex justify-end gap-2 mt-5">
+              <button
+                type="button"
+                onClick={() => setModalEliminarPedido(null)}
+                className="rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  eliminarPedido(modalEliminarPedido);
+                  toast.success(`Pedido #${modalEliminarPedido} eliminado`);
+                  setModalEliminarPedido(null);
+                }}
+                className="rounded-full bg-destructive px-5 py-2 text-xs font-bold text-destructive-foreground hover:opacity-90"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL VACIAR TODOS LOS PEDIDOS */}
+      {modalVaciarPedidos && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-sm rounded-3xl bg-background border-2 border-destructive p-6 shadow-2xl">
+            <h3 className="font-display text-lg font-bold text-destructive">¿Eliminar todos los pedidos?</h3>
+            <p className="text-xs text-muted-foreground mt-2">
+              Se eliminarán todos los pedidos ({pedidos.length}) registrados para empezar desde cero.
+            </p>
+            <div className="flex justify-end gap-2 mt-5">
+              <button
+                type="button"
+                onClick={() => setModalVaciarPedidos(false)}
+                className="rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  vaciarPedidos();
+                  toast.success("Todos los pedidos han sido eliminados correctamente");
+                  setModalVaciarPedidos(false);
+                }}
+                className="rounded-full bg-destructive px-5 py-2 text-xs font-bold text-destructive-foreground hover:opacity-90"
+              >
+                Confirmar y Vaciar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL LIGHTBOX: VER COMPROBANTE DE PAGO */}
+      {modalComprobante && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-2xl rounded-3xl bg-background border-2 border-primary p-5 shadow-2xl flex flex-col max-h-[92vh]">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div>
+                <h3 className="font-display text-lg font-bold">
+                  Comprobante de Pago — Pedido #{modalComprobante.pedidoId}
+                </h3>
+                <p className="text-xs text-muted-foreground truncate max-w-md">{modalComprobante.nombre}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setModalComprobante(null)}
+                className="text-muted-foreground hover:text-foreground text-sm font-bold p-1 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-auto p-2 my-2 flex items-center justify-center bg-muted/40 rounded-2xl min-h-[300px]">
+              <img
+                src={modalComprobante.url}
+                alt={`Comprobante pedido #${modalComprobante.pedidoId}`}
+                className="max-h-[65vh] w-auto max-w-full rounded-xl object-contain shadow-md"
+              />
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-border">
+              <a
+                href={modalComprobante.url}
+                target="_blank"
+                rel="noreferrer"
+                download={`comprobante-${modalComprobante.pedidoId}.jpg`}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs font-semibold hover:bg-muted transition-colors"
+              >
+                <UploadCloud className="size-3.5 rotate-180" />
+                Abrir imagen completa
+              </a>
+              <button
+                type="button"
+                onClick={() => setModalComprobante(null)}
+                className="rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground hover:scale-105 transition-transform cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MODAL 2: MARCAR ENVIADO CON GUÍA */}
       {modalGuia && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
@@ -1631,10 +1901,53 @@ function AdminPage() {
                 {modalDetallePedido.pago.referencia && (
                   <p className="font-mono text-xs">Ref: {modalDetallePedido.pago.referencia}</p>
                 )}
-                {modalDetallePedido.pago.comprobanteNombre && (
-                  <p className="text-brand-brown font-medium mt-1">
-                    Comprobante adjunto: {modalDetallePedido.pago.comprobanteNombre}
-                  </p>
+                {(modalDetallePedido.pago.comprobanteUrl || modalDetallePedido.pago.comprobanteNombre) && (
+                  <div className="mt-2 pt-2 border-t border-border/50">
+                    <p className="text-muted-foreground text-[11px] font-bold">Comprobante Adjunto:</p>
+                    {modalDetallePedido.pago.comprobanteUrl ||
+                    modalDetallePedido.pago.comprobanteNombre?.startsWith("data:") ||
+                    modalDetallePedido.pago.comprobanteNombre?.startsWith("http") ? (
+                      <div className="mt-1 space-y-2">
+                        <div
+                          onClick={() =>
+                            setModalComprobante({
+                              url: modalDetallePedido.pago.comprobanteUrl || modalDetallePedido.pago.comprobanteNombre!,
+                              nombre: modalDetallePedido.pago.comprobanteNombre || `Pedido #${modalDetallePedido.id}`,
+                              pedidoId: modalDetallePedido.id,
+                            })
+                          }
+                          className="relative group cursor-pointer overflow-hidden rounded-xl border border-primary/40 bg-muted/30 p-1 hover:border-primary transition-all max-w-xs"
+                        >
+                          <img
+                            src={modalDetallePedido.pago.comprobanteUrl || modalDetallePedido.pago.comprobanteNombre}
+                            alt="Comprobante"
+                            className="max-h-40 w-auto rounded-lg object-contain mx-auto"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1 rounded-lg">
+                            <Eye className="size-4" /> Clic para ampliar
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setModalComprobante({
+                              url: modalDetallePedido.pago.comprobanteUrl || modalDetallePedido.pago.comprobanteNombre!,
+                              nombre: modalDetallePedido.pago.comprobanteNombre || `Pedido #${modalDetallePedido.id}`,
+                              pedidoId: modalDetallePedido.id,
+                            })
+                          }
+                          className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-[11px] font-bold text-foreground hover:bg-muted cursor-pointer"
+                        >
+                          <ImageIcon className="size-3.5 text-primary" />
+                          Ampliar comprobante
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-brand-brown font-medium mt-0.5">
+                        📎 {modalDetallePedido.pago.comprobanteNombre}
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -1673,13 +1986,13 @@ function AdminPage() {
                         setProdCategoria(categoriasAccesorios[0] || "Pulseras");
                       }
                     }}
-                    className={`flex items-center justify-center gap-1.5 rounded-xl border-2 py-2 px-3 font-bold transition-all cursor-pointer ${
+                    className={`flex items-center justify-center gap-1.5 rounded-xl border-2 py-2.5 px-3 font-bold transition-all cursor-pointer ${
                       prodDepartamento === "accesorios"
-                        ? "border-primary bg-primary/10 text-foreground"
+                        ? "border-primary bg-primary text-primary-foreground shadow-xs font-bold"
                         : "border-border bg-card text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    <Gem className="size-3.5 text-primary" />
+                    <Gem className={`size-4 ${prodDepartamento === "accesorios" ? "text-primary-foreground" : "text-primary"}`} />
                     Accesorios
                   </button>
                   <button
@@ -1690,13 +2003,13 @@ function AdminPage() {
                         setProdCategoria(categoriasMaquillaje[0] || "Labiales");
                       }
                     }}
-                    className={`flex items-center justify-center gap-1.5 rounded-xl border-2 py-2 px-3 font-bold transition-all cursor-pointer ${
+                    className={`flex items-center justify-center gap-1.5 rounded-xl border-2 py-2.5 px-3 font-bold transition-all cursor-pointer ${
                       prodDepartamento === "maquillaje"
-                        ? "border-brand-yellow bg-brand-yellow/20 text-foreground"
+                        ? "border-amber-600 bg-amber-400 text-amber-950 shadow-xs font-bold"
                         : "border-border bg-card text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    <Palette className="size-3.5 text-brand-yellow" />
+                    <Palette className={`size-4 ${prodDepartamento === "maquillaje" ? "text-amber-950" : "text-amber-600"}`} />
                     Maquillaje
                   </button>
                 </div>
@@ -1718,13 +2031,13 @@ function AdminPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="font-bold uppercase text-foreground">Categoría *</label>
                   <select
                     value={prodCategoria}
                     onChange={(e) => setProdCategoria(e.target.value as Categoria)}
-                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-medium"
                   >
                     {(prodDepartamento === "maquillaje" ? categoriasMaquillaje : categoriasAccesorios).map((cat) => (
                       <option key={cat} value={cat}>
@@ -1735,14 +2048,28 @@ function AdminPage() {
                 </div>
 
                 <div>
-                  <label className="font-bold uppercase text-foreground">Precio en USD *</label>
+                  <label className="font-bold uppercase text-foreground">Precio USD *</label>
                   <input
                     type="number"
                     required
                     min={1}
+                    step={0.5}
                     value={prodPrecioUSD}
                     onChange={(e) => setProdPrecioUSD(Number(e.target.value))}
-                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-bold uppercase text-foreground">Stock *</label>
+                  <input
+                    type="number"
+                    required
+                    min={0}
+                    value={prodStock}
+                    onChange={(e) => setProdStock(Math.max(0, parseInt(e.target.value) || 0))}
+                    placeholder="Ej. 10"
+                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-bold"
                   />
                 </div>
               </div>
@@ -1817,6 +2144,32 @@ function AdminPage() {
                 />
               </div>
 
+              <div className="rounded-2xl border border-border bg-card p-3 space-y-1.5">
+                <label className="flex items-center justify-between cursor-pointer">
+                  <div className="space-y-0.5">
+                    <span className="font-bold text-xs text-foreground block">
+                      Producto Activo en Tienda
+                    </span>
+                    <span className="text-[11px] text-muted-foreground block">
+                      {prodActivo
+                        ? "Visible en la tienda pública (se oculta automáticamente si el stock llega a 0)"
+                        : "Desactivado: no aparecerá en el catálogo de clientes"}
+                    </span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={prodActivo}
+                    onChange={(e) => setProdActivo(e.target.checked)}
+                    className="size-4.5 rounded accent-primary cursor-pointer"
+                  />
+                </label>
+                {prodStock === 0 && prodActivo && (
+                  <p className="text-[11px] text-destructive font-medium bg-destructive/10 p-2 rounded-lg">
+                    ⚠️ Atención: El stock es 0 unidades, por lo que el producto quedará oculto en la tienda hasta que agregues existencias.
+                  </p>
+                )}
+              </div>
+
               <label className="flex items-center gap-2 cursor-pointer text-muted-foreground">
                 <input
                   type="checkbox"
@@ -1864,13 +2217,13 @@ function AdminPage() {
                         setProdCategoria(categoriasAccesorios[0] || "Pulseras");
                       }
                     }}
-                    className={`flex items-center justify-center gap-1.5 rounded-xl border-2 py-2 px-3 font-bold transition-all cursor-pointer ${
+                    className={`flex items-center justify-center gap-1.5 rounded-xl border-2 py-2.5 px-3 font-bold transition-all cursor-pointer ${
                       prodDepartamento === "accesorios"
-                        ? "border-primary bg-primary/10 text-foreground"
+                        ? "border-primary bg-primary text-primary-foreground shadow-xs font-bold"
                         : "border-border bg-card text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    <Gem className="size-3.5 text-primary" />
+                    <Gem className={`size-4 ${prodDepartamento === "accesorios" ? "text-primary-foreground" : "text-primary"}`} />
                     Accesorios
                   </button>
                   <button
@@ -1881,13 +2234,13 @@ function AdminPage() {
                         setProdCategoria(categoriasMaquillaje[0] || "Labiales");
                       }
                     }}
-                    className={`flex items-center justify-center gap-1.5 rounded-xl border-2 py-2 px-3 font-bold transition-all cursor-pointer ${
+                    className={`flex items-center justify-center gap-1.5 rounded-xl border-2 py-2.5 px-3 font-bold transition-all cursor-pointer ${
                       prodDepartamento === "maquillaje"
-                        ? "border-brand-yellow bg-brand-yellow/20 text-foreground"
+                        ? "border-amber-600 bg-amber-400 text-amber-950 shadow-xs font-bold"
                         : "border-border bg-card text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    <Palette className="size-3.5 text-brand-yellow" />
+                    <Palette className={`size-4 ${prodDepartamento === "maquillaje" ? "text-amber-950" : "text-amber-600"}`} />
                     Maquillaje
                   </button>
                 </div>
@@ -1904,13 +2257,13 @@ function AdminPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="font-bold uppercase text-foreground">Categoría</label>
                   <select
                     value={prodCategoria}
                     onChange={(e) => setProdCategoria(e.target.value as Categoria)}
-                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-medium"
                   >
                     {(prodDepartamento === "maquillaje" ? categoriasMaquillaje : categoriasAccesorios).map((cat) => (
                       <option key={cat} value={cat}>
@@ -1926,9 +2279,22 @@ function AdminPage() {
                     type="number"
                     required
                     min={1}
+                    step={0.5}
                     value={prodPrecioUSD}
                     onChange={(e) => setProdPrecioUSD(Number(e.target.value))}
-                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-bold uppercase text-foreground">Stock *</label>
+                  <input
+                    type="number"
+                    required
+                    min={0}
+                    value={prodStock}
+                    onChange={(e) => setProdStock(Math.max(0, parseInt(e.target.value) || 0))}
+                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-bold"
                   />
                 </div>
               </div>
@@ -2001,6 +2367,41 @@ function AdminPage() {
                   className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
+
+              <div className="rounded-2xl border border-border bg-card p-3 space-y-1.5">
+                <label className="flex items-center justify-between cursor-pointer">
+                  <div className="space-y-0.5">
+                    <span className="font-bold text-xs text-foreground block">
+                      Producto Activo en Tienda
+                    </span>
+                    <span className="text-[11px] text-muted-foreground block">
+                      {prodActivo
+                        ? "Visible para clientes (se oculta automáticamente si el stock llega a 0)"
+                        : "Desactivado: retirado de la tienda pública"}
+                    </span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={prodActivo}
+                    onChange={(e) => setProdActivo(e.target.checked)}
+                    className="size-4.5 rounded accent-primary cursor-pointer"
+                  />
+                </label>
+                {prodStock === 0 && prodActivo && (
+                  <p className="text-[11px] text-destructive font-medium bg-destructive/10 p-2 rounded-lg">
+                    ⚠️ Advertencia: El stock es 0, por lo que este producto está oculto de la tienda hasta que agregues existencias.
+                  </p>
+                )}
+              </div>
+
+              <label className="flex items-center gap-2 cursor-pointer text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={prodDestacado}
+                  onChange={(e) => setProdDestacado(e.target.checked)}
+                />
+                <span>Marcar como producto destacado en el inicio</span>
+              </label>
 
               <div className="flex justify-end gap-2 pt-2">
                 <button

@@ -1,50 +1,28 @@
 import { Link } from "@tanstack/react-router";
-import { Plus, Camera } from "lucide-react";
-import { useState } from "react";
-import { formatUSD, formatVES, type Producto, getDepartamentoProducto } from "@/lib/products";
+import { Plus } from "lucide-react";
+import { formatUSD, formatVES, type Producto } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 import { useAdminStore } from "@/lib/admin-store";
-import { VirtualTryOnModal } from "@/components/VirtualTryOnModal";
 import { toast } from "sonner";
 
 export function ProductCard({ producto }: { producto: Producto }) {
   const { agregar, abrirCarrito } = useCart();
   const { tasaBCV } = useAdminStore();
-  const [tryOnOpen, setTryOnOpen] = useState(false);
-  const isAccesorio = getDepartamentoProducto(producto) === "accesorios";
 
   return (
-    <>
-      <div className="group overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md">
-        <div className="relative aspect-square overflow-hidden bg-brand-beige">
-          <Link to="/producto/$id" params={{ id: producto.id }} className="block size-full">
-            <img
-              src={producto.imagen}
-              alt={producto.nombre}
-              loading="lazy"
-              width={912}
-              height={912}
-              className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          </Link>
-
-          {/* Botón flotante para probar accesorio rápido */}
-          {isAccesorio && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setTryOnOpen(true);
-              }}
-              className="absolute top-2 right-2 flex size-7 sm:size-8 items-center justify-center rounded-full bg-card/90 backdrop-blur-md text-foreground shadow-sm hover:scale-110 hover:bg-brand-yellow hover:text-brand-brown transition-all cursor-pointer opacity-90 sm:opacity-0 sm:group-hover:opacity-100"
-              title="Probar en mi foto (Probador Virtual)"
-              aria-label={`Probar ${producto.nombre} en mi foto`}
-            >
-              <Camera className="size-3.5 sm:size-4" />
-            </button>
-          )}
-        </div>
+    <div className="group overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md">
+      <div className="relative aspect-square overflow-hidden bg-brand-beige">
+        <Link to="/producto/$id" params={{ id: producto.id }} className="block size-full">
+          <img
+            src={producto.imagen}
+            alt={producto.nombre}
+            loading="lazy"
+            width={912}
+            height={912}
+            className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        </Link>
+      </div>
       <div className="p-3 sm:p-4">
         <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           {producto.categoria}
@@ -80,15 +58,6 @@ export function ProductCard({ producto }: { producto: Producto }) {
         </div>
       </div>
     </div>
-
-    {/* Modal de Probador Virtual */}
-    {isAccesorio && tryOnOpen && (
-      <VirtualTryOnModal
-        producto={producto}
-        isOpen={tryOnOpen}
-        onClose={() => setTryOnOpen(false)}
-      />
-    )}
-  </>
   );
 }
+

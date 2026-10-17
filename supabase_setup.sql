@@ -139,7 +139,7 @@ BEGIN
     COALESCE(NEW.raw_user_meta_data->>'nombre', split_part(NEW.email, '@', 1)),
     NEW.email,
     CASE 
-      WHEN LOWER(NEW.email) = 'omarapp1921@gmail.com' THEN 'admin' 
+      WHEN LOWER(NEW.email) IN ('omarapp1921@gmail.com', 'perezpandreav@gmail.com') THEN 'admin' 
       ELSE 'cliente' 
     END,
     COALESCE(NEW.raw_user_meta_data->>'telefono', ''),
@@ -150,7 +150,7 @@ BEGIN
     nombre = EXCLUDED.nombre,
     email = EXCLUDED.email,
     rol = CASE 
-      WHEN LOWER(EXCLUDED.email) = 'omarapp1921@gmail.com' THEN 'admin' 
+      WHEN LOWER(EXCLUDED.email) IN ('omarapp1921@gmail.com', 'perezpandreav@gmail.com') THEN 'admin' 
       ELSE 'cliente' 
     END,
     telefono = COALESCE(EXCLUDED.telefono, profiles.telefono),
@@ -166,10 +166,10 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT OR UPDATE ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- Actualizar perfiles existentes para garantizar que solo omarapp1921@gmail.com sea admin
+-- Actualizar perfiles existentes para garantizar que omarapp1921@gmail.com y perezpandreav@gmail.com sean admin
 UPDATE public.profiles
 SET rol = CASE 
-  WHEN LOWER(email) = 'omarapp1921@gmail.com' THEN 'admin' 
+  WHEN LOWER(email) IN ('omarapp1921@gmail.com', 'perezpandreav@gmail.com') THEN 'admin' 
   ELSE 'cliente' 
 END;
 

@@ -59,6 +59,7 @@ export interface DatosPago {
   referencia?: string | undefined;
   telefonoOrigen?: string | undefined;
   comprobanteNombre?: string | undefined;
+  comprobanteUrl?: string | undefined;
   idTransaccionBinance?: string | undefined;
 }
 

@@ -4,6 +4,7 @@ import {
   categoriasAccesorios,
   categoriasMaquillaje,
   getDepartamentoProducto,
+  isProductoDisponible,
   type Categoria,
 } from "@/lib/products";
 import { useAdminStore } from "@/lib/admin-store";
@@ -51,9 +52,9 @@ function Tienda() {
     return isMaquillaje ? categoriasMaquillaje : categoriasAccesorios;
   }, [isMaquillaje]);
 
-  // Productos filtrados por departamento activo
+  // Productos filtrados por departamento activo y disponibles (con stock y activos)
   const productosDepartamento = useMemo(() => {
-    return productos.filter((p) => getDepartamentoProducto(p) === department);
+    return productos.filter((p) => getDepartamentoProducto(p) === department && isProductoDisponible(p));
   }, [productos, department]);
 
   // Productos visibles según filtro de categoría seleccionado

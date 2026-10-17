@@ -61,11 +61,17 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 const USERS_STORAGE_KEY = "valcheck_users";
 const SESSION_STORAGE_KEY = "valcheck_session_user";
 
-export const ADMIN_EMAIL = "omarapp1921@gmail.com";
+export const ADMIN_EMAILS = [
+  "omarapp1921@gmail.com",
+  "perezpandreav@gmail.com",
+];
+
+export const ADMIN_EMAIL = ADMIN_EMAILS[0];
 
 export function esEmailAdmin(email?: string | null): boolean {
   if (!email) return false;
-  return email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  const clean = email.trim().toLowerCase();
+  return ADMIN_EMAILS.some((admin) => admin.toLowerCase() === clean);
 }
 
 const CUENTAS_INICIALES: StoredAccount[] = [
@@ -74,9 +80,19 @@ const CUENTAS_INICIALES: StoredAccount[] = [
     nombre: "Omar (Administrador)",
     email: "omarapp1921@gmail.com",
     rol: "admin",
-    telefono: "0414-0000000",
-    cedula: "V-28.000.000",
+    telefono: "0424-6434673",
+    cedula: "V-30.058.526",
     fechaRegistro: "2026-01-01",
+    passwordHash: "admin123",
+  },
+  {
+    id: "user-admin-2",
+    nombre: "Andrea Pérez (Administradora)",
+    email: "perezpandreav@gmail.com",
+    rol: "admin",
+    telefono: "0412-6582286",
+    cedula: "V-32.025.727",
+    fechaRegistro: "2026-10-17",
     passwordHash: "admin123",
   },
   {
@@ -136,7 +152,7 @@ async function fetchUserProfile(sbUser: any): Promise<User> {
     }
   }
 
-  // Únicamente omarapp1921@gmail.com es administrador, todos los demás son clientes
+  // Los correos en ADMIN_EMAILS son administradores, todos los demás son clientes
   const emailVerificar = sbUser.email || profileRow?.email;
   const rol: UserRole = esEmailAdmin(emailVerificar) ? "admin" : "cliente";
 
@@ -334,7 +350,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     esAdmin?: boolean;
   }): Promise<RegisterResult> => {
     const cleanEmail = data.email.trim().toLowerCase();
-    // Todos los usuarios son cliente; solo omarapp1921@gmail.com es administrador
+    // Solo los correos autorizados en ADMIN_EMAILS son administradores
     const rol: UserRole = esEmailAdmin(cleanEmail) ? "admin" : "cliente";
 
     // 1. Registro directo en Supabase Auth

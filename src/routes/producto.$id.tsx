@@ -1,11 +1,9 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft, BadgeCheck, Camera, ShoppingBag, Wand2 } from "lucide-react";
-import { useState } from "react";
-import { formatUSD, formatVES, productos, getDepartamentoProducto } from "@/lib/products";
+import { ArrowLeft, BadgeCheck, ShoppingBag, AlertTriangle, EyeOff } from "lucide-react";
+import { formatUSD, formatVES, isProductoDisponible, productos } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 import { useAdminStore } from "@/lib/admin-store";
 import { ProductCard } from "@/components/ProductCard";
-import { VirtualTryOnModal } from "@/components/VirtualTryOnModal";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/producto/$id")({
@@ -37,13 +35,17 @@ export const Route = createFileRoute("/producto/$id")({
 });
 
 function ProductoPage() {
-  const { producto } = Route.useLoaderData();
+  const { producto: initialProducto } = Route.useLoaderData();
   const { agregar, abrirCarrito } = useCart();
-  const { tasaBCV } = useAdminStore();
-  const [tryOnOpen, setTryOnOpen] = useState(false);
-  const isAccesorio = getDepartamentoProducto(producto) === "accesorios";
-  const relacionados = productos
-    .filter((p) => p.categoria === producto.categoria && p.id !== producto.id)
+  const { productos: adminProductos, tasaBCV } = useAdminStore();
+
+  const producto = adminProductos.find((p) => p.id === initialProducto.id) ?? initialProducto;
+  const disponible = isProductoDisponible(producto);
+  const stock = producto.stock ?? 10;
+  const activo = producto.activo !== false;
+
+  const relacionados = adminProductos
+    .filter((p) => p.categoria === producto.categoria && p.id !== producto.id && isProductoDisponible(p))
     .slice(0, 4);
 
   return (
@@ -64,24 +66,37 @@ function ProductoPage() {
             height={912}
             className="aspect-square w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
-
-          {/* Botón flotante para probar puesto directamente desde la foto (solo accesorios) */}
-          {isAccesorio && (
-            <button
-              type="button"
-              onClick={() => setTryOnOpen(true)}
-              className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-card/90 backdrop-blur-md px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold text-foreground border border-border shadow-lg hover:bg-brand-yellow/80 hover:scale-105 active:scale-95 transition-all cursor-pointer"
-            >
-              <Camera className="size-3.5 sm:size-4 text-primary" />
-              <span>Probarme con IA</span>
-            </button>
+          {!disponible && (
+            <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] flex items-center justify-center p-4">
+              <span className="rounded-full bg-destructive text-destructive-foreground px-4 py-2 text-sm font-bold shadow-lg flex items-center gap-1.5">
+                <AlertTriangle className="size-4" />
+                {stock <= 0 ? "Agotado temporalmente" : "No disponible"}
+              </span>
+            </div>
           )}
         </div>
 
         <div className="flex flex-col justify-center">
-          <p className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground">
-            {producto.categoria}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              {producto.categoria}
+            </p>
+            {stock <= 0 ? (
+              <span className="rounded-full bg-destructive/10 text-destructive border border-destructive/20 px-2 py-0.5 text-[10px] font-bold">
+                Sin Stock (0)
+              </span>
+            ) : stock <= 3 ? (
+              <span className="rounded-full bg-amber-500/15 text-amber-700 border border-amber-500/30 px-2 py-0.5 text-[10px] font-bold">
+                ¡Solo quedan {stock} unidades!
+              </span>
+            ) : null}
+            {!activo && (
+              <span className="rounded-full bg-muted text-muted-foreground border border-border px-2 py-0.5 text-[10px] font-bold flex items-center gap-1">
+                <EyeOff className="size-3" /> Pausado
+              </span>
+            )}
+          </div>
+
           <h1 className="mt-1.5 sm:mt-2 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight">{producto.nombre}</h1>
           <p className="mt-3 sm:mt-4 text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed">{producto.descripcion}</p>
 
@@ -94,7 +109,9 @@ function ProductoPage() {
 
           <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row gap-3">
             <button
+              disabled={!disponible}
               onClick={() => {
+                if (!disponible) return;
                 agregar(producto.id);
                 toast.success(`${producto.nombre}`, {
                   description: "Agregado exitosamente a tu bolsa",
@@ -104,22 +121,15 @@ function ProductoPage() {
                   },
                 });
               }}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-7 py-3.5 sm:py-4 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-95 cursor-pointer shadow-md"
+              className={`inline-flex flex-1 items-center justify-center gap-2 rounded-full px-7 py-3.5 sm:py-4 text-sm font-semibold transition-transform shadow-md ${
+                disponible
+                  ? "bg-primary text-primary-foreground hover:scale-[1.02] active:scale-95 cursor-pointer"
+                  : "bg-muted text-muted-foreground cursor-not-allowed opacity-70"
+              }`}
             >
-              <ShoppingBag className="size-4.5 sm:size-5" /> Agregar al carrito
+              <ShoppingBag className="size-4.5 sm:size-5" />
+              {stock <= 0 ? "Producto Agotado (Sin Stock)" : !activo ? "Producto No Disponible" : "Agregar al carrito"}
             </button>
-
-            {/* Botón Principal del Probador Virtual (solo accesorios) */}
-            {isAccesorio && (
-              <button
-                type="button"
-                onClick={() => setTryOnOpen(true)}
-                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-primary bg-card/80 hover:bg-brand-yellow/30 px-6 py-3.5 sm:py-4 text-sm font-bold text-foreground transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-sm"
-              >
-                <Camera className="size-4 text-primary" />
-                <span>Probar en mi foto</span>
-              </button>
-            )}
           </div>
 
           <p className="mt-4 flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
@@ -128,15 +138,6 @@ function ProductoPage() {
           </p>
         </div>
       </div>
-
-      {/* Modal Interactivo del Probador Virtual (solo accesorios) */}
-      {isAccesorio && (
-        <VirtualTryOnModal
-          producto={producto}
-          isOpen={tryOnOpen}
-          onClose={() => setTryOnOpen(false)}
-        />
-      )}
 
       {relacionados.length > 0 && (
         <section className="mt-12 sm:mt-16">

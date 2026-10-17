@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { productos, type Producto } from "./products";
+import { productos, isProductoDisponible, type Producto } from "./products";
+import { toast } from "sonner";
 
 export interface CartItem {
   producto: Producto;
@@ -27,7 +28,9 @@ const STORAGE_KEY = "valcheck-cart";
 function obtenerCatalogoCompleto(): Producto[] {
   if (typeof window !== "undefined") {
     try {
-      const raw = localStorage.getItem("valcheck_catalog_products");
+      const raw =
+        localStorage.getItem("valcheck_catalog_products_v4") ||
+        localStorage.getItem("valcheck_catalog_products");
       if (raw) return JSON.parse(raw);
     } catch {
       /* ignore */
@@ -77,9 +80,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const catalogo = obtenerCatalogoCompleto();
     const producto = catalogo.find((p) => p.id === id) ?? productos.find((p) => p.id === id);
     if (!producto) return;
+
+    if (!isProductoDisponible(producto)) {
+      toast.error("Este producto está agotado o no está disponible actualmente.");
+      return;
+    }
+
+    const maxStock = producto.stock ?? 10;
+
     setItems((prev) => {
       const existing = prev.find((i) => i.producto.id === id);
       if (existing) {
+        if (existing.cantidad >= maxStock) {
+          toast.warning(`Solo hay ${maxStock} unidades disponibles en stock.`);
+          return prev;
+        }
         return prev.map((i) =>
           i.producto.id === id ? { ...i, cantidad: i.cantidad + 1 } : i,
         );
@@ -96,8 +111,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const cambiarCantidad = (id: string, cantidad: number) => {
     if (cantidad <= 0) return quitar(id);
+    const catalogo = obtenerCatalogoCompleto();
+    const producto = catalogo.find((p) => p.id === id) ?? productos.find((p) => p.id === id);
+    const maxStock = producto?.stock ?? 10;
+    const finalCantidad = Math.min(cantidad, maxStock);
+    if (cantidad > maxStock) {
+      toast.warning(`Solo hay ${maxStock} unidades disponibles en stock.`);
+    }
     setItems((prev) =>
-      prev.map((i) => (i.producto.id === id ? { ...i, cantidad } : i)),
+      prev.map((i) => (i.producto.id === id ? { ...i, cantidad: finalCantidad } : i)),
     );
   };
 

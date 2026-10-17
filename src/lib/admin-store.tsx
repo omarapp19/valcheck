@@ -46,6 +46,7 @@ export interface Order {
     referencia?: string | undefined;
     telefonoOrigen?: string | undefined;
     comprobanteNombre?: string | undefined;
+    comprobanteUrl?: string | undefined;
     idBinance?: string | undefined;
   };
   items: OrderItem[];
@@ -122,6 +123,7 @@ interface AdminStoreContextValue {
   agregarProducto: (p: Omit<Producto, "id">) => Producto;
   editarProducto: (id: string, p: Partial<Producto>) => void;
   eliminarProducto: (id: string) => void;
+  toggleActivoProducto: (id: string) => void;
   crearPedido: (data: {
     numeroPedido?: string | undefined;
     userId?: string | undefined;
@@ -136,6 +138,8 @@ interface AdminStoreContextValue {
   rechazarPago: (pedidoId: string, motivo: string) => void;
   marcarEnviado: (pedidoId: string, numeroGuia: string) => void;
   cambiarEstadoPedido: (pedidoId: string, nuevoEstado: EstadoPedido) => void;
+  eliminarPedido: (pedidoId: string) => void;
+  vaciarPedidos: () => void;
   obtenerPedidosUsuario: (emailOrPhoneOrId: string) => Order[];
   restablecerCatalogo: () => void;
   tasaBCV: number;
@@ -148,131 +152,23 @@ interface AdminStoreContextValue {
 const AdminStoreContext = createContext<AdminStoreContextValue | null>(null);
 
 const STORAGE_PRODUCTS_KEY = "valcheck_catalog_products_v4";
-const STORAGE_ORDERS_KEY = "valcheck_all_orders";
+const STORAGE_ORDERS_KEY = "valcheck_all_orders_v3";
 const STORAGE_PAYMENT_KEY = "valcheck_payment_settings";
 
-const PEDIDOS_DEMO: Order[] = [
-  {
-    id: "VC-784201",
-    fecha: "2026-10-07T14:30:00.000Z",
-    userId: "user-cliente-1",
-    cliente: {
-      nombre: "Valentina Romero",
-      cedula: "V-25.432.109",
-      telefono: "0412-9876543",
-      email: "cliente@valcheck.ve",
-    },
-    envio: {
-      empresa: "MRW",
-      estado: "Carabobo",
-      ciudad: "Valencia",
-      agencia: "Agencia MRW Los Sauces #0412",
-      notas: "Retiro en la tarde",
-    },
-    pago: {
-      metodo: "pago_movil",
-      bancoOrigen: "Banesco",
-      referencia: "094821",
-      telefonoOrigen: "0412-9876543",
-      comprobanteNombre: "capture-pago-094821.jpg",
-    },
-    items: [
-      {
-        id: productosIniciales[0]?.id || "earcuff",
-        nombre: productosIniciales[0]?.nombre || "Earcuff",
-        categoria: productosIniciales[0]?.categoria || "Aretes",
-        precioUSD: productosIniciales[0]?.precioUSD || 6,
-        cantidad: 1,
-        imagen: productosIniciales[0]?.imagen || "",
-      },
-      {
-        id: productosIniciales[1]?.id || "anillo-7-indiv",
-        nombre: productosIniciales[1]?.nombre || "Anillo #7 indiv",
-        categoria: productosIniciales[1]?.categoria || "Anillos",
-        precioUSD: productosIniciales[1]?.precioUSD || 2.5,
-        cantidad: 1,
-        imagen: productosIniciales[1]?.imagen || "",
-      },
-    ],
-    totalUSD: 8.5,
-    totalVES: "Bs. 7.435,21",
-    estado: "pendiente",
-    actualizadoEn: "2026-10-07T14:30:00.000Z",
-  },
-  {
-    id: "VC-652190",
-    fecha: "2026-10-06T10:15:00.000Z",
-    cliente: {
-      nombre: "Carlos Mendoza",
-      cedula: "V-19.876.543",
-      telefono: "0414-1122334",
-    },
-    envio: {
-      empresa: "ZOOM",
-      estado: "Distrito Capital",
-      ciudad: "Caracas",
-      agencia: "ZOOM Chacao Calle Pantin",
-      numeroGuia: "ZM-98471203",
-    },
-    pago: {
-      metodo: "binance",
-      idBinance: "847291048291",
-      comprobanteNombre: "binance-usdt-txid.png",
-    },
-    items: [
-      {
-        id: productosIniciales[3]?.id || "anillo-ajustable-con-textura",
-        nombre: productosIniciales[3]?.nombre || "Anillo ajustable con textura",
-        categoria: productosIniciales[3]?.categoria || "Anillos",
-        precioUSD: productosIniciales[3]?.precioUSD || 4,
-        cantidad: 2,
-        imagen: productosIniciales[3]?.imagen || "",
-      },
-    ],
-    totalUSD: 8,
-    totalVES: "Bs. 6.997,84",
-    estado: "enviado",
-    actualizadoEn: "2026-10-06T16:00:00.000Z",
-  },
-  {
-    id: "VC-519823",
-    fecha: "2026-10-05T09:00:00.000Z",
-    cliente: {
-      nombre: "Andrea Castillo",
-      cedula: "V-22.334.455",
-      telefono: "0424-5566778",
-    },
-    envio: {
-      empresa: "MRW",
-      estado: "Lara",
-      ciudad: "Barquisimeto",
-      agencia: "MRW Av. Lara Centro",
-    },
-    pago: {
-      metodo: "transferencia",
-      bancoOrigen: "Mercantil",
-      referencia: "002934",
-    },
-    items: [
-      {
-        id: productosIniciales[2]?.id || "anillo-8-indiv",
-        nombre: productosIniciales[2]?.nombre || "Anillo #8 indiv",
-        categoria: productosIniciales[2]?.categoria || "Anillos",
-        precioUSD: productosIniciales[2]?.precioUSD || 2.5,
-        cantidad: 2,
-        imagen: productosIniciales[2]?.imagen || "",
-      },
-    ],
-    totalUSD: 5,
-    totalVES: "Bs. 4.373,65",
-    estado: "aprobado",
-    actualizadoEn: "2026-10-05T12:00:00.000Z",
-  },
-];
+const DEMO_IDS = ["VC-784201", "VC-652190", "VC-519823"];
+export const esPedidoDemo = (o: any) => {
+  if (!o) return false;
+  const idMatch = DEMO_IDS.includes(o.id);
+  const nombre = (o.cliente?.nombre || o.cliente_nombre || "").toLowerCase().trim();
+  const nameMatch = ["valentina romero", "carlos mendoza", "andrea castillo"].includes(nombre);
+  return idMatch || nameMatch;
+};
+
+const PEDIDOS_DEMO: Order[] = [];
 
 export function AdminStoreProvider({ children }: { children: ReactNode }) {
   const [productos, setProductos] = useState<Producto[]>(productosIniciales);
-  const [pedidos, setPedidos] = useState<Order[]>(PEDIDOS_DEMO);
+  const [pedidos, setPedidos] = useState<Order[]>([]);
   const [ajustesPago, setAjustesPago] = useState<AjustesPago>(AJUSTES_PAGO_DEFAULT);
   const [hydrated, setHydrated] = useState(false);
 
@@ -345,11 +241,21 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
         localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(productosIniciales));
       }
 
+      localStorage.removeItem("valcheck_all_orders");
+      localStorage.removeItem("valcheck_all_orders_v2");
       const storedOrders = localStorage.getItem(STORAGE_ORDERS_KEY);
       if (storedOrders) {
-        setPedidos(JSON.parse(storedOrders));
+        try {
+          const parsed = JSON.parse(storedOrders);
+          const validOrders = Array.isArray(parsed) ? parsed.filter((o) => !esPedidoDemo(o)) : [];
+          setPedidos(validOrders);
+          localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(validOrders));
+        } catch {
+          setPedidos([]);
+        }
       } else {
-        localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(PEDIDOS_DEMO));
+        localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify([]));
+        setPedidos([]);
       }
 
       const storedPayment = localStorage.getItem(STORAGE_PAYMENT_KEY);
@@ -410,7 +316,9 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
         .order("created_at", { ascending: false })
         .then(({ data, error }) => {
           if (!error && data && data.length > 0) {
-            const mappedOrders: Order[] = data.map((o: any) => ({
+            const mappedOrders: Order[] = data
+              .filter((o: any) => !esPedidoDemo(o))
+              .map((o: any) => ({
               id: o.id,
               fecha: o.created_at,
               userId: o.user_id,
@@ -430,7 +338,8 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
               pago: {
                 metodo: (o.metodo_pago || "pago_movil") as MetodoPago,
                 referencia: o.referencia_pago,
-                comprobanteNombre: o.comprobante_url,
+                comprobanteNombre: o.comprobante_url ? (o.comprobante_url.startsWith("data:") ? "comprobante_pago.jpg" : o.comprobante_url) : undefined,
+                comprobanteUrl: o.comprobante_url,
               },
               items: Array.isArray(o.items) ? o.items : [],
               totalUSD: Number(o.total_usd || 0),
@@ -499,7 +408,19 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
       if (p.imagen !== undefined) updates.imagen = p.imagen;
       if (p.descripcion !== undefined) updates.descripcion = p.descripcion;
       if (p.stock !== undefined) updates.stock = p.stock;
+      if (p.activo !== undefined) updates.activo = p.activo;
       supabase.from("productos").update(updates).eq("id", id).then();
+    }
+  };
+
+  const toggleActivoProducto = (id: string) => {
+    const actualizados = productos.map((p) =>
+      p.id === id ? { ...p, activo: p.activo === false ? true : false } : p
+    );
+    persistProductos(actualizados);
+    if (isSupabaseConfigured && supabase) {
+      const prod = actualizados.find((p) => p.id === id);
+      supabase.from("productos").update({ activo: prod?.activo }).eq("id", id).then();
     }
   };
 
@@ -560,6 +481,18 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
     const actualizados = [nuevoPedido, ...pedidos];
     persistPedidos(actualizados);
 
+    // Descontar inventario/stock automáticamente de los productos comprados
+    const productosActualizados = productos.map((prod) => {
+      const comprado = data.items.find((it) => it.id === prod.id);
+      if (comprado) {
+        const stockActual = prod.stock ?? 10;
+        const nuevoStock = Math.max(0, stockActual - comprado.cantidad);
+        return { ...prod, stock: nuevoStock };
+      }
+      return prod;
+    });
+    persistProductos(productosActualizados);
+
     if (isSupabaseConfigured && supabase) {
       supabase.from("pedidos").insert({
         id,
@@ -572,7 +505,7 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
         total_usd: data.totalUSD,
         metodo_pago: data.pago.metodo,
         referencia_pago: data.pago.referencia || data.pago.idBinance || null,
-        comprobante_url: data.pago.comprobanteNombre || null,
+        comprobante_url: data.pago.comprobanteUrl || data.pago.comprobanteNombre || null,
         estado: "pendiente",
         empresa_envio: data.envio.empresa,
         direccion_entrega: `${data.envio.agencia} (${data.envio.ciudad}, ${data.envio.estado})`,
@@ -602,6 +535,12 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
   };
 
   const rechazarPago = (pedidoId: string, motivo: string) => {
+    const ped = pedidos.find((p) => p.id === pedidoId);
+    if (ped?.estado === "enviado" || ped?.estado === "completado") {
+      console.warn("No se puede rechazar el pago: el pedido ya ha sido enviado y la compra está cerrada.");
+      return;
+    }
+
     const actualizados = pedidos.map((p) =>
       p.id === pedidoId
         ? {
@@ -681,6 +620,23 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const eliminarPedido = (pedidoId: string) => {
+    const actualizados = pedidos.filter((p) => p.id !== pedidoId);
+    persistPedidos(actualizados);
+
+    if (isSupabaseConfigured && supabase) {
+      supabase.from("pedidos").delete().eq("id", pedidoId).then();
+    }
+  };
+
+  const vaciarPedidos = () => {
+    persistPedidos([]);
+
+    if (isSupabaseConfigured && supabase) {
+      supabase.from("pedidos").delete().neq("id", "none").then();
+    }
+  };
+
   return (
     <AdminStoreContext.Provider
       value={{
@@ -691,11 +647,14 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
         agregarProducto,
         editarProducto,
         eliminarProducto,
+        toggleActivoProducto,
         crearPedido,
         aprobarPago,
         rechazarPago,
         marcarEnviado,
         cambiarEstadoPedido,
+        eliminarPedido,
+        vaciarPedidos,
         obtenerPedidosUsuario,
         restablecerCatalogo,
         tasaBCV,

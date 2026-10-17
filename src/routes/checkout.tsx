@@ -147,6 +147,7 @@ function CheckoutPage() {
   const [idBinance, setIdBinance] = useState("");
   const [comprobanteFile, setComprobanteFile] = useState<File | null>(null);
   const [comprobantePreview, setComprobantePreview] = useState<string | null>(null);
+  const [comprobanteDataUrl, setComprobanteDataUrl] = useState<string | null>(null);
 
   // Paso 2: Datos de Envío (con auto-fill del usuario si está logueado)
   const [empresaEnvio, setEmpresaEnvio] = useState<EmpresaEnvio>("MRW");
@@ -187,8 +188,17 @@ function CheckoutPage() {
       if (file.type.startsWith("image/")) {
         const url = URL.createObjectURL(file);
         setComprobantePreview(url);
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (typeof reader.result === "string") {
+            setComprobanteDataUrl(reader.result);
+          }
+        };
+        reader.readAsDataURL(file);
       } else {
         setComprobantePreview(null);
+        setComprobanteDataUrl(null);
       }
       toast.success("Comprobante adjuntado");
     }
@@ -200,6 +210,7 @@ function CheckoutPage() {
     }
     setComprobanteFile(null);
     setComprobantePreview(null);
+    setComprobanteDataUrl(null);
   };
 
   // Validaciones antes de avanzar
@@ -259,6 +270,7 @@ function CheckoutPage() {
       referencia: metodoPago === "binance" ? idBinance : referencia,
       telefonoOrigen,
       comprobanteNombre: comprobanteFile ? comprobanteFile.name : undefined,
+      comprobanteUrl: comprobanteDataUrl || undefined,
       idTransaccionBinance: metodoPago === "binance" ? idBinance : undefined,
     };
 

@@ -36,11 +36,14 @@ describe("Supabase Auth Error Translation", () => {
 import { ADMIN_EMAIL, esEmailAdmin } from "@/lib/auth";
 
 describe("Admin Authorization Policy", () => {
-  it("only authorizes omarapp1921@gmail.com as administrator", () => {
+  it("authorizes designated administrator emails (omarapp1921@gmail.com and perezpandreav@gmail.com)", () => {
     expect(ADMIN_EMAIL).toBe("omarapp1921@gmail.com");
     expect(esEmailAdmin("omarapp1921@gmail.com")).toBe(true);
     expect(esEmailAdmin("OMARAPP1921@GMAIL.COM")).toBe(true);
     expect(esEmailAdmin(" omarapp1921@gmail.com ")).toBe(true);
+    expect(esEmailAdmin("perezpandreav@gmail.com")).toBe(true);
+    expect(esEmailAdmin("PEREZPANDREAV@GMAIL.COM")).toBe(true);
+    expect(esEmailAdmin(" perezpandreav@gmail.com ")).toBe(true);
   });
 
   it("denies administrator role for any other email", () => {

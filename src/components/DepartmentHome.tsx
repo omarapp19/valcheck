@@ -5,6 +5,7 @@ import {
   categoriasAccesorios,
   categoriasMaquillaje,
   getDepartamentoProducto,
+  isProductoDisponible,
   type Departamento,
 } from "@/lib/products";
 import { ProductCard } from "@/components/ProductCard";
@@ -33,7 +34,7 @@ export function DepartmentHome({ departamento }: DepartmentHomeProps) {
   const categoriasActivas = isMaquillaje ? categoriasMaquillaje : categoriasAccesorios;
 
   const productosDepto = useMemo(() => {
-    return productos.filter((p) => getDepartamentoProducto(p) === departamento);
+    return productos.filter((p) => getDepartamentoProducto(p) === departamento && isProductoDisponible(p));
   }, [productos, departamento]);
 
   const destacados = useMemo(() => {
