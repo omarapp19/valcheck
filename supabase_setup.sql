@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS public.productos (
   imagen TEXT NOT NULL,
   descripcion TEXT,
   stock INTEGER DEFAULT 10,
+  activo BOOLEAN DEFAULT true,
   destacado BOOLEAN DEFAULT false,
   precio_anterior NUMERIC,
   calificacion NUMERIC DEFAULT 5.0,
@@ -34,6 +35,7 @@ CREATE TABLE IF NOT EXISTS public.productos (
 );
 
 ALTER TABLE IF EXISTS public.productos 
+  ADD COLUMN IF NOT EXISTS activo BOOLEAN DEFAULT true,
   ADD COLUMN IF NOT EXISTS stock INTEGER DEFAULT 10,
   ADD COLUMN IF NOT EXISTS precio_anterior NUMERIC,
   ADD COLUMN IF NOT EXISTS calificacion NUMERIC DEFAULT 5.0,

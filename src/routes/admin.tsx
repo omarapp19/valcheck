@@ -1333,12 +1333,13 @@ function AdminPage() {
                 <div className="mt-2.5 pt-2 sm:mt-3 sm:pt-3 border-t border-border flex items-center justify-between gap-1">
                   <button
                     type="button"
-                    onClick={() => {
-                      toggleActivoProducto(prod.id);
+                    onClick={async () => {
+                      const yaInactivo = prod.activo === false;
+                      await toggleActivoProducto(prod.id);
                       toast.success(
-                        prod.activo === false
+                        yaInactivo
                           ? `"${prod.nombre}" activado y visible en la tienda`
-                          : `"${prod.nombre}" desactivado y retirado de la tienda`
+                          : `"${prod.nombre}" pausado y retirado de la tienda`
                       );
                     }}
                     className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold px-1.5 sm:px-2 py-1 rounded-lg border transition-all cursor-pointer ${
@@ -1374,10 +1375,10 @@ function AdminPage() {
 
                     <button
                       type="button"
-                      onClick={() => {
+                      onClick={async () => {
                         if (confirm(`¿Eliminar "${prod.nombre}" del catálogo?`)) {
-                          eliminarProducto(prod.id);
-                          toast.info("Producto eliminado");
+                          await eliminarProducto(prod.id);
+                          toast.info(`"${prod.nombre}" eliminado del catálogo`);
                         }
                       }}
                       className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-destructive hover:opacity-80 p-1 sm:p-0 cursor-pointer"

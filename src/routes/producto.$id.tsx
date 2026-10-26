@@ -9,15 +9,25 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/producto/$id")({
   loader: ({ params }) => {
     let catalogo = productos;
+    let tienePersistencia = false;
+    let deletedIds = new Set<string>();
     if (typeof window !== "undefined") {
       try {
+        const rawDel = localStorage.getItem("valcheck_deleted_product_ids_v2");
+        if (rawDel) deletedIds = new Set(JSON.parse(rawDel));
         const raw = localStorage.getItem("valcheck_catalog_products_v4") || localStorage.getItem("valcheck_catalog_products");
-        if (raw) catalogo = JSON.parse(raw);
+        if (raw) {
+          catalogo = JSON.parse(raw);
+          tienePersistencia = true;
+        }
       } catch {
         /* ignore */
       }
     }
-    const producto = catalogo.find((p) => p.id === params.id) ?? productos.find((p) => p.id === params.id);
+    if (deletedIds.has(params.id)) {
+      throw notFound();
+    }
+    const producto = catalogo.find((p) => p.id === params.id && !deletedIds.has(p.id)) ?? (!tienePersistencia ? productos.find((p) => p.id === params.id && !deletedIds.has(p.id)) : undefined);
     if (!producto) throw notFound();
     return { producto };
   },
@@ -39,7 +49,21 @@ function ProductoPage() {
   const { agregar, abrirCarrito } = useCart();
   const { productos: adminProductos, tasaBCV } = useAdminStore();
 
-  const producto = adminProductos.find((p) => p.id === initialProducto.id) ?? initialProducto;
+  const producto = adminProductos.find((p) => p.id === initialProducto.id);
+  if (!producto) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+        <h1 className="font-display text-2xl font-bold">Producto no disponible</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Este producto ha sido retirado del catálogo.</p>
+        <Link
+          to="/tienda"
+          className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground shadow-sm"
+        >
+          <ArrowLeft className="size-3.5" /> Volver a la tienda
+        </Link>
+      </div>
+    );
+  }
   const disponible = isProductoDisponible(producto);
   const stock = producto.stock ?? 10;
   const activo = producto.activo !== false;

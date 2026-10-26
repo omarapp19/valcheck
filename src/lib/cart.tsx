@@ -28,10 +28,16 @@ const STORAGE_KEY = "valcheck-cart";
 function obtenerCatalogoCompleto(): Producto[] {
   if (typeof window !== "undefined") {
     try {
+      const rawDel = localStorage.getItem("valcheck_deleted_product_ids_v2");
+      const deletedIds = rawDel ? new Set<string>(JSON.parse(rawDel)) : new Set<string>();
       const raw =
         localStorage.getItem("valcheck_catalog_products_v4") ||
         localStorage.getItem("valcheck_catalog_products");
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        const parsed: Producto[] = JSON.parse(raw);
+        return parsed.filter((p) => !deletedIds.has(p.id));
+      }
+      return productos.filter((p) => !deletedIds.has(p.id));
     } catch {
       /* ignore */
     }
@@ -53,7 +59,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setItems(
           parsed
             .map((p) => {
-              const producto = catalogo.find((pr) => pr.id === p.id) ?? productos.find((pr) => pr.id === p.id);
+              const producto = catalogo.find((pr) => pr.id === p.id);
               return producto ? { producto, cantidad: p.cantidad } : null;
             })
             .filter((i): i is CartItem => i !== null),

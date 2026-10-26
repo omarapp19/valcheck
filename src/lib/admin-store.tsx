@@ -141,7 +141,7 @@ interface AdminStoreContextValue {
   agregarProducto: (p: Omit<Producto, "id">) => Promise<Producto>;
   editarProducto: (id: string, p: Partial<Producto>) => Promise<void>;
   eliminarProducto: (id: string) => Promise<void>;
-  toggleActivoProducto: (id: string) => void;
+  toggleActivoProducto: (id: string) => Promise<void>;
   crearPedido: (data: {
     numeroPedido?: string | undefined;
     userId?: string | undefined;
@@ -172,6 +172,29 @@ const AdminStoreContext = createContext<AdminStoreContextValue | null>(null);
 const STORAGE_PRODUCTS_KEY = "valcheck_catalog_products_v4";
 const STORAGE_ORDERS_KEY = "valcheck_all_orders_v3";
 const STORAGE_PAYMENT_KEY = "valcheck_payment_settings";
+export const STORAGE_DELETED_KEY = "valcheck_deleted_product_ids_v2";
+
+export function getDeletedProductIds(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = localStorage.getItem(STORAGE_DELETED_KEY);
+    if (raw) return new Set(JSON.parse(raw));
+  } catch {
+    /* ignore */
+  }
+  return new Set();
+}
+
+export function saveDeletedProductId(id: string) {
+  if (typeof window === "undefined") return;
+  try {
+    const set = getDeletedProductIds();
+    set.add(id);
+    localStorage.setItem(STORAGE_DELETED_KEY, JSON.stringify(Array.from(set)));
+  } catch {
+    /* ignore */
+  }
+}
 
 const DEMO_IDS = ["VC-784201", "VC-652190", "VC-519823"];
 export const esPedidoDemo = (o: any) => {
@@ -185,7 +208,22 @@ export const esPedidoDemo = (o: any) => {
 const PEDIDOS_DEMO: Order[] = [];
 
 export function AdminStoreProvider({ children }: { children: ReactNode }) {
-  const [productos, setProductos] = useState<Producto[]>(productosIniciales);
+  const [productos, setProductos] = useState<Producto[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const deletedIds = getDeletedProductIds();
+        const storedProds = localStorage.getItem(STORAGE_PRODUCTS_KEY);
+        if (storedProds) {
+          const parsed: Producto[] = JSON.parse(storedProds);
+          return parsed.filter((p) => !deletedIds.has(p.id));
+        }
+        return productosIniciales.filter((p) => !deletedIds.has(p.id));
+      } catch {
+        /* ignore */
+      }
+    }
+    return productosIniciales;
+  });
   const [pedidos, setPedidos] = useState<Order[]>([]);
   const [ajustesPago, setAjustesPago] = useState<AjustesPago>(AJUSTES_PAGO_DEFAULT);
   const [hydrated, setHydrated] = useState(false);
@@ -252,11 +290,15 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
+      const deletedIds = getDeletedProductIds();
       const storedProds = localStorage.getItem(STORAGE_PRODUCTS_KEY);
       if (storedProds) {
-        setProductos(JSON.parse(storedProds));
+        const parsed: Producto[] = JSON.parse(storedProds);
+        setProductos(parsed.filter((p) => !deletedIds.has(p.id)));
       } else {
-        localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(productosIniciales));
+        const filtrados = productosIniciales.filter((p) => !deletedIds.has(p.id));
+        setProductos(filtrados);
+        localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(filtrados));
       }
 
       localStorage.removeItem("valcheck_all_orders");
@@ -350,6 +392,7 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
                 imagenes: Array.isArray(d.imagenes) ? d.imagenes : undefined,
                 descripcion: d.descripcion || "",
                 stock: d.stock ?? 10,
+                activo: d.activo !== undefined && d.activo !== null ? Boolean(d.activo) : true,
                 destacado: Boolean(d.destacado),
                 calificacion: Number(d.calificacion ?? 5.0),
                 totalResenas: d.resenas_count ?? 12,
@@ -360,7 +403,7 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
                 const localesNoEnSupabase = prev.filter(
                   (p) => !supabaseIds.has(p.id) && !productosIniciales.some((pi) => pi.id === p.id)
                 );
-                const combinados = [...localesNoEnSupabase, ...mapped];
+                const combinados = [...localesNoEnSupabase, ...mapped].filter((p) => !deletedIds.has(p.id));
                 try {
                   localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(combinados));
                 } catch {
@@ -369,9 +412,10 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
                 return combinados;
               });
             } else {
-              setProductos(productosIniciales);
+              const filtrados = productosIniciales.filter((p) => !deletedIds.has(p.id));
+              setProductos(filtrados);
               try {
-                localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(productosIniciales));
+                localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(filtrados));
               } catch {
                 /* ignore */
               }
@@ -468,6 +512,7 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
         imagen: nuevo.imagen,
         descripcion: nuevo.descripcion || "",
         stock: nuevo.stock ?? 10,
+        activo: nuevo.activo !== false,
         destacado: Boolean(nuevo.destacado),
       });
 
@@ -508,6 +553,7 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
       if (p.imagen !== undefined) updates.imagen = p.imagen;
       if (p.descripcion !== undefined) updates.descripcion = p.descripcion;
       if (p.stock !== undefined) updates.stock = p.stock;
+      if (p.activo !== undefined) updates.activo = Boolean(p.activo);
       if (p.destacado !== undefined) updates.destacado = Boolean(p.destacado);
 
       if (Object.keys(updates).length > 0) {
@@ -520,14 +566,26 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const toggleActivoProducto = (id: string) => {
+  const toggleActivoProducto = async (id: string): Promise<void> => {
     const actualizados = productos.map((p) =>
       p.id === id ? { ...p, activo: p.activo === false ? true : false } : p
     );
     persistProductos(actualizados);
+    if (isSupabaseConfigured && supabase) {
+      const prod = actualizados.find((p) => p.id === id);
+      try {
+        const { error } = await supabase.from("productos").update({ activo: prod?.activo !== false }).eq("id", id);
+        if (error) {
+          console.error("Error al actualizar visibilidad en Supabase:", error);
+        }
+      } catch (err) {
+        console.error("Excepción al actualizar visibilidad en Supabase:", err);
+      }
+    }
   };
 
   const eliminarProducto = async (id: string): Promise<void> => {
+    saveDeletedProductId(id);
     const actualizados = productos.filter((item) => item.id !== id);
     persistProductos(actualizados);
 
@@ -540,6 +598,13 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
   };
 
   const restablecerCatalogo = () => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem(STORAGE_DELETED_KEY);
+      } catch {
+        /* ignore */
+      }
+    }
     persistProductos(productosIniciales);
     if (isSupabaseConfigured && supabase) {
       const mapped = productosIniciales.map((p) => ({
@@ -550,6 +615,7 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
         imagen: p.imagen,
         descripcion: p.descripcion || "",
         stock: p.stock ?? 10,
+        activo: true,
         destacado: Boolean(p.destacado),
         precio_anterior: p.precioAnterior ?? null,
         calificacion: p.calificacion ?? 5.0,
