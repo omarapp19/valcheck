@@ -31,6 +31,11 @@ import {
   RefreshCw,
   Palette,
   Gem,
+  Instagram,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -146,6 +151,14 @@ function AdminPage() {
   const [wsFormato, setWsFormato] = useState(ajustesPago?.whatsapp?.numeroFormateado || "+58 412 000 0000");
   const [tasaUSD, setTasaUSD] = useState(ajustesPago?.tasaCambioUSD || 250);
 
+  // Formulario de Datos de Contacto y Redes
+  const [ctTelefono, setCtTelefono] = useState(ajustesPago?.contacto?.telefono || "+58 412 000 0000");
+  const [ctEmail, setCtEmail] = useState(ajustesPago?.contacto?.email || "hola@valcheck.ve");
+  const [ctInstagram, setCtInstagram] = useState(ajustesPago?.contacto?.instagram || "@valcheck.ve");
+  const [ctInstagramUrl, setCtInstagramUrl] = useState(ajustesPago?.contacto?.instagramUrl || "https://instagram.com/valcheck.ve");
+  const [ctDireccion, setCtDireccion] = useState(ajustesPago?.contacto?.direccion || "Venezuela · Envíos nacionales");
+  const [ctHorario, setCtHorario] = useState(ajustesPago?.contacto?.horario || "Lunes a Sábado: 8:30 AM - 6:30 PM");
+
   useEffect(() => {
     if (ajustesPago) {
       setPmBanco(ajustesPago.pagoMovil.banco);
@@ -169,6 +182,15 @@ function AdminPage() {
       setWsNumero(ajustesPago.whatsapp.numero);
       setWsFormato(ajustesPago.whatsapp.numeroFormateado);
       setTasaUSD(ajustesPago.tasaCambioUSD);
+
+      if (ajustesPago.contacto) {
+        setCtTelefono(ajustesPago.contacto.telefono || "+58 412 000 0000");
+        setCtEmail(ajustesPago.contacto.email || "hola@valcheck.ve");
+        setCtInstagram(ajustesPago.contacto.instagram || "@valcheck.ve");
+        setCtInstagramUrl(ajustesPago.contacto.instagramUrl || "https://instagram.com/valcheck.ve");
+        setCtDireccion(ajustesPago.contacto.direccion || "Venezuela · Envíos nacionales");
+        setCtHorario(ajustesPago.contacto.horario || "Lunes a Sábado: 8:30 AM - 6:30 PM");
+      }
     }
   }, [ajustesPago]);
 
@@ -217,14 +239,22 @@ function AdminPage() {
         numero: wsNumero,
         numeroFormateado: wsFormato,
       },
+      contacto: {
+        telefono: ctTelefono,
+        email: ctEmail,
+        instagram: ctInstagram,
+        instagramUrl: ctInstagramUrl,
+        direccion: ctDireccion,
+        horario: ctHorario,
+      },
       tasaCambioUSD: Number(tasaUSD) || 250,
     });
-    toast.success("¡Métodos de pago actualizados exitosamente! Ahora se muestran en el checkout.");
+    toast.success("¡Datos de contacto y cuentas actualizados exitosamente! Ahora se reflejan en la tienda, checkout y contacto.");
   };
 
   const handleRestablecerAjustesPago = () => {
     actualizarAjustesPago(AJUSTES_PAGO_DEFAULT);
-    toast.info("Métodos de pago restablecidos a los valores por defecto.");
+    toast.info("Datos de contacto y métodos de pago restablecidos a los valores por defecto.");
   };
 
   // Acceso de emergencia si no es admin
@@ -1274,27 +1304,27 @@ function AdminPage() {
       {/* SECCIÓN 3: DATOS Y CONFIGURACIÓN */}
       {/* ========================================================================= */}
       {tabActiva === "ajustes" && (
-        <form onSubmit={handleGuardarAjustesPago} className="mt-6 max-w-4xl space-y-6">
+        <form onSubmit={handleGuardarAjustesPago} className="mt-6 max-w-4xl space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
             <div>
-              <h2 className="font-display text-2xl font-bold">Gestión de Métodos de Pago y Cobro</h2>
+              <h2 className="font-display text-2xl font-bold">Datos de Contacto, Cuentas y Configuración</h2>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Edita los datos bancarios, cuentas de cobro y tasa de cambio que se muestran en el checkout.
+                Edita los canales de contacto (WhatsApp, teléfono, correo, Instagram, dirección) y las cuentas de cobro (Pago Móvil, Cuenta Bancaria, Binance Pay).
               </p>
             </div>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={handleRestablecerAjustesPago}
-                className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted"
+                className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted cursor-pointer"
               >
                 Valores por Defecto
               </button>
               <button
                 type="submit"
-                className="rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground hover:scale-105 transition-all shadow-md"
+                className="rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground hover:scale-105 transition-all shadow-md cursor-pointer"
               >
-                Guardar Métodos de Pago
+                Guardar Todos los Cambios
               </button>
             </div>
           </div>
@@ -1354,272 +1384,442 @@ function AdminPage() {
             </div>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* 1. PAGO MÓVIL */}
-            <div className="rounded-3xl border border-border bg-card p-5 shadow-xs space-y-3">
-              <div className="flex items-center gap-2.5 border-b border-border pb-3">
-                <span className="flex size-8 items-center justify-center rounded-full bg-brand-yellow text-brand-brown font-bold text-xs">
-                  PM
+          {/* ========================================================================= */}
+          {/* BLOQUE A: DATOS DE CONTACTO Y ATENCIÓN */}
+          {/* ========================================================================= */}
+          <div className="space-y-4">
+            <div className="border-b border-border/80 pb-2">
+              <div className="flex items-center gap-2">
+                <span className="flex size-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 font-bold">
+                  <MessageCircle className="size-4" />
                 </span>
-                <div>
-                  <h3 className="font-bold text-sm">Pago Móvil</h3>
-                  <p className="text-[11px] text-muted-foreground">Datos bancarios para transferencias móviles</p>
-                </div>
+                <h3 className="font-display text-lg font-bold">Canales de Contacto y Atención al Cliente</h3>
               </div>
-
-              <div className="space-y-2.5 text-xs">
-                <div>
-                  <label className="font-semibold text-muted-foreground block text-[11px]">Banco</label>
-                  <input
-                    type="text"
-                    required
-                    value={pmBanco}
-                    onChange={(e) => setPmBanco(e.target.value)}
-                    placeholder="Ej. Banesco, Mercantil, BDV"
-                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="font-semibold text-muted-foreground block text-[11px]">Código Banco</label>
-                    <input
-                      type="text"
-                      required
-                      value={pmCodigo}
-                      onChange={(e) => setPmCodigo(e.target.value)}
-                      placeholder="Ej. 0134"
-                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-mono"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-semibold text-muted-foreground block text-[11px]">Teléfono</label>
-                    <input
-                      type="text"
-                      required
-                      value={pmTelefono}
-                      onChange={(e) => setPmTelefono(e.target.value)}
-                      placeholder="0414-0000000"
-                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="font-semibold text-muted-foreground block text-[11px]">Cédula o RIF</label>
-                  <input
-                    type="text"
-                    required
-                    value={pmCedula}
-                    onChange={(e) => setPmCedula(e.target.value)}
-                    placeholder="V-28.000.000 o J-50123456-7"
-                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-mono"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-semibold text-muted-foreground block text-[11px]">Nombre del Titular</label>
-                  <input
-                    type="text"
-                    required
-                    value={pmTitular}
-                    onChange={(e) => setPmTitular(e.target.value)}
-                    placeholder="Nombre completo o razón social"
-                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Configura los números de WhatsApp, teléfonos, correo, Instagram y sede. Estos datos se reflejan en la página de Contacto, en el Footer y al finalizar la compra.
+              </p>
             </div>
 
-            {/* 2. BINANCE PAY */}
-            <div className="rounded-3xl border border-border bg-card p-5 shadow-xs space-y-3">
-              <div className="flex items-center gap-2.5 border-b border-border pb-3">
-                <span className="flex size-8 items-center justify-center rounded-full bg-yellow-400 text-yellow-950 font-bold text-xs">
-                  BN
-                </span>
-                <div>
-                  <h3 className="font-bold text-sm">Binance Pay (Cripto)</h3>
-                  <p className="text-[11px] text-muted-foreground">ID de pago y transferencias en USDT</p>
-                </div>
-              </div>
-
-              <div className="space-y-2.5 text-xs">
-                <div>
-                  <label className="font-semibold text-muted-foreground block text-[11px]">Binance Pay ID</label>
-                  <input
-                    type="text"
-                    required
-                    value={binPayId}
-                    onChange={(e) => setBinPayId(e.target.value)}
-                    placeholder="Ej. 847291034"
-                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-mono"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-semibold text-muted-foreground block text-[11px]">Correo Binance</label>
-                  <input
-                    type="email"
-                    required
-                    value={binCorreo}
-                    onChange={(e) => setBinCorreo(e.target.value)}
-                    placeholder="valcheck.pagos@gmail.com"
-                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-semibold text-muted-foreground block text-[11px]">Red Sugerida</label>
-                  <input
-                    type="text"
-                    required
-                    value={binRed}
-                    onChange={(e) => setBinRed(e.target.value)}
-                    placeholder="USDT (BEP-20 / TRC-20)"
-                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-semibold text-muted-foreground block text-[11px]">Nombre de Cuenta</label>
-                  <input
-                    type="text"
-                    required
-                    value={binTitular}
-                    onChange={(e) => setBinTitular(e.target.value)}
-                    placeholder="ValCheck Official"
-                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* 3. CUENTA BANCARIA NACIONAL */}
-            <div className="rounded-3xl border border-border bg-card p-5 shadow-xs space-y-3">
-              <div className="flex items-center gap-2.5 border-b border-border pb-3">
-                <span className="flex size-8 items-center justify-center rounded-full bg-blue-100 text-blue-900 font-bold text-xs">
-                  CB
-                </span>
-                <div>
-                  <h3 className="font-bold text-sm">Cuenta Bancaria Nacional</h3>
-                  <p className="text-[11px] text-muted-foreground">Transferencias corrientes en Bolívares</p>
-                </div>
-              </div>
-
-              <div className="space-y-2.5 text-xs">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="font-semibold text-muted-foreground block text-[11px]">Banco</label>
-                    <input
-                      type="text"
-                      required
-                      value={cbBanco}
-                      onChange={(e) => setCbBanco(e.target.value)}
-                      placeholder="Banesco"
-                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-semibold text-muted-foreground block text-[11px]">Tipo de Cuenta</label>
-                    <input
-                      type="text"
-                      required
-                      value={cbTipo}
-                      onChange={(e) => setCbTipo(e.target.value)}
-                      placeholder="Cuenta Corriente"
-                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="font-semibold text-muted-foreground block text-[11px]">Número de Cuenta (20 dígitos)</label>
-                  <input
-                    type="text"
-                    required
-                    value={cbNumero}
-                    onChange={(e) => setCbNumero(e.target.value)}
-                    placeholder="0134-0987-12-0001234567"
-                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-mono"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="font-semibold text-muted-foreground block text-[11px]">Titular</label>
-                    <input
-                      type="text"
-                      required
-                      value={cbTitular}
-                      onChange={(e) => setCbTitular(e.target.value)}
-                      placeholder="Nombre o Empresa"
-                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-semibold text-muted-foreground block text-[11px]">RIF / Cédula</label>
-                    <input
-                      type="text"
-                      required
-                      value={cbRif}
-                      onChange={(e) => setCbRif(e.target.value)}
-                      placeholder="J-50123456-7"
-                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-mono"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 4. WHATSAPP DE PEDIDOS */}
-            <div className="rounded-3xl border border-border bg-card p-5 shadow-xs space-y-3">
-              <div className="flex items-center gap-2.5 border-b border-border pb-3">
-                <span className="flex size-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs">
-                  WA
-                </span>
-                <div>
-                  <h3 className="font-bold text-sm">WhatsApp de Pedidos y Atención</h3>
-                  <p className="text-[11px] text-muted-foreground">Número al que llegan los pedidos y comprobantes</p>
-                </div>
-              </div>
-
-              <div className="space-y-2.5 text-xs">
-                <div>
-                  <label className="font-semibold text-muted-foreground block text-[11px]">Número Internacional (sin signos)</label>
-                  <input
-                    type="text"
-                    required
-                    value={wsNumero}
-                    onChange={(e) => setWsNumero(e.target.value)}
-                    placeholder="584120000000"
-                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-mono"
-                  />
-                  <span className="text-[10px] text-muted-foreground mt-0.5 block">
-                    Ejemplo para Venezuela: 584120000000 (código país 58 seguido de los 10 dígitos)
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* WhatsApp de Pedidos y Soporte */}
+              <div className="rounded-3xl border border-border bg-card p-5 shadow-xs space-y-3">
+                <div className="flex items-center gap-2.5 border-b border-border pb-3">
+                  <span className="flex size-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs">
+                    WA
                   </span>
+                  <div>
+                    <h4 className="font-bold text-sm">WhatsApp de Pedidos y Soporte</h4>
+                    <p className="text-[11px] text-muted-foreground">Número al que llegan los pedidos y comprobantes</p>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="font-semibold text-muted-foreground block text-[11px]">Formato Visible en Pantalla</label>
-                  <input
-                    type="text"
-                    required
-                    value={wsFormato}
-                    onChange={(e) => setWsFormato(e.target.value)}
-                    placeholder="+58 412 000 0000"
-                    className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
-                  />
+                <div className="space-y-2.5 text-xs">
+                  <div>
+                    <label className="font-semibold text-muted-foreground block text-[11px]">Número Internacional (sin signos ni espacios)</label>
+                    <input
+                      type="text"
+                      required
+                      value={wsNumero}
+                      onChange={(e) => setWsNumero(e.target.value)}
+                      placeholder="584120000000"
+                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-mono"
+                    />
+                    <span className="text-[10px] text-muted-foreground mt-0.5 block">
+                      Ejemplo para Venezuela: <strong>584120000000</strong> (código 58 + número de 10 dígitos)
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-muted-foreground block text-[11px]">Formato Visible para Clientes</label>
+                    <input
+                      type="text"
+                      required
+                      value={wsFormato}
+                      onChange={(e) => setWsFormato(e.target.value)}
+                      placeholder="+58 412 000 0000"
+                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+
+                  {wsNumero && (
+                    <div className="pt-1">
+                      <a
+                        href={`https://wa.me/${wsNumero.replace(/[^0-9]/g, "")}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 text-[11px] text-emerald-700 hover:underline font-semibold"
+                      >
+                        <MessageCircle className="size-3.5" />
+                        Probar enlace WhatsApp en una nueva pestaña ↗
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Teléfono Directo y Correo de Contacto */}
+              <div className="rounded-3xl border border-border bg-card p-5 shadow-xs space-y-3">
+                <div className="flex items-center gap-2.5 border-b border-border pb-3">
+                  <span className="flex size-8 items-center justify-center rounded-full bg-blue-100 text-blue-900 font-bold text-xs">
+                    <Phone className="size-4" />
+                  </span>
+                  <div>
+                    <h4 className="font-bold text-sm">Teléfono de Llamadas y Correo</h4>
+                    <p className="text-[11px] text-muted-foreground">Canales de atención directa para los clientes</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2.5 text-xs">
+                  <div>
+                    <label className="font-semibold text-muted-foreground block text-[11px]">Teléfono de Llamadas / Contacto</label>
+                    <input
+                      type="text"
+                      required
+                      value={ctTelefono}
+                      onChange={(e) => setCtTelefono(e.target.value)}
+                      placeholder="+58 412 000 0000 o 0412-0000000"
+                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-muted-foreground block text-[11px]">Correo Electrónico de Contacto</label>
+                    <input
+                      type="email"
+                      required
+                      value={ctEmail}
+                      onChange={(e) => setCtEmail(e.target.value)}
+                      placeholder="hola@valcheck.ve o soporte@valcheck.ve"
+                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Instagram y Redes Sociales */}
+              <div className="rounded-3xl border border-border bg-card p-5 shadow-xs space-y-3">
+                <div className="flex items-center gap-2.5 border-b border-border pb-3">
+                  <span className="flex size-8 items-center justify-center rounded-full bg-pink-100 text-pink-700 font-bold text-xs">
+                    <Instagram className="size-4" />
+                  </span>
+                  <div>
+                    <h4 className="font-bold text-sm">Instagram Oficial</h4>
+                    <p className="text-[11px] text-muted-foreground">Enlace y usuario mostrado en Footer y Contacto</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2.5 text-xs">
+                  <div>
+                    <label className="font-semibold text-muted-foreground block text-[11px]">Usuario de Instagram (@)</label>
+                    <input
+                      type="text"
+                      required
+                      value={ctInstagram}
+                      onChange={(e) => setCtInstagram(e.target.value)}
+                      placeholder="@valcheck.ve"
+                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-muted-foreground block text-[11px]">URL del Perfil de Instagram</label>
+                    <input
+                      type="url"
+                      required
+                      value={ctInstagramUrl}
+                      onChange={(e) => setCtInstagramUrl(e.target.value)}
+                      placeholder="https://instagram.com/valcheck.ve"
+                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Ubicación / Sede y Horario de Atención */}
+              <div className="rounded-3xl border border-border bg-card p-5 shadow-xs space-y-3">
+                <div className="flex items-center gap-2.5 border-b border-border pb-3">
+                  <span className="flex size-8 items-center justify-center rounded-full bg-amber-100 text-amber-900 font-bold text-xs">
+                    <MapPin className="size-4" />
+                  </span>
+                  <div>
+                    <h4 className="font-bold text-sm">Ubicación y Horario</h4>
+                    <p className="text-[11px] text-muted-foreground">Detalles de sede física, entregas y disponibilidad</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2.5 text-xs">
+                  <div>
+                    <label className="font-semibold text-muted-foreground block text-[11px]">Ubicación / Ciudad / Entregas</label>
+                    <input
+                      type="text"
+                      required
+                      value={ctDireccion}
+                      onChange={(e) => setCtDireccion(e.target.value)}
+                      placeholder="Venezuela · Envíos nacionales a todo el país"
+                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-muted-foreground block text-[11px]">Horario de Atención</label>
+                    <input
+                      type="text"
+                      required
+                      value={ctHorario}
+                      onChange={(e) => setCtHorario(e.target.value)}
+                      placeholder="Lunes a Sábado: 8:30 AM - 6:30 PM"
+                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end pt-4">
+          {/* ========================================================================= */}
+          {/* BLOQUE B: CUENTAS BANCARIAS Y MÉTODOS DE PAGO */}
+          {/* ========================================================================= */}
+          <div className="space-y-4 pt-4">
+            <div className="border-b border-border/80 pb-2">
+              <div className="flex items-center gap-2">
+                <span className="flex size-7 items-center justify-center rounded-full bg-brand-yellow text-brand-brown font-bold">
+                  <Wallet className="size-4" />
+                </span>
+                <h3 className="font-display text-lg font-bold">Cuentas Bancarias y Métodos de Cobro</h3>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Modifica los datos bancarios, teléfonos de Pago Móvil, números de cuenta y credenciales de Binance que los clientes copian en el checkout para pagar.
+              </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* 1. PAGO MÓVIL */}
+              <div className="rounded-3xl border border-border bg-card p-5 shadow-xs space-y-3">
+                <div className="flex items-center gap-2.5 border-b border-border pb-3">
+                  <span className="flex size-8 items-center justify-center rounded-full bg-brand-yellow text-brand-brown font-bold text-xs">
+                    PM
+                  </span>
+                  <div>
+                    <h4 className="font-bold text-sm">Pago Móvil</h4>
+                    <p className="text-[11px] text-muted-foreground">Datos bancarios para transferencias móviles inmediatas</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2.5 text-xs">
+                  <div>
+                    <label className="font-semibold text-muted-foreground block text-[11px]">Banco</label>
+                    <input
+                      type="text"
+                      required
+                      value={pmBanco}
+                      onChange={(e) => setPmBanco(e.target.value)}
+                      placeholder="Ej. Banesco, Banco de Venezuela, Mercantil"
+                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="font-semibold text-muted-foreground block text-[11px]">Código Banco</label>
+                      <input
+                        type="text"
+                        required
+                        value={pmCodigo}
+                        onChange={(e) => setPmCodigo(e.target.value)}
+                        placeholder="Ej. 0134"
+                        className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-semibold text-muted-foreground block text-[11px]">Teléfono del Pago Móvil</label>
+                      <input
+                        type="text"
+                        required
+                        value={pmTelefono}
+                        onChange={(e) => setPmTelefono(e.target.value)}
+                        placeholder="0414-0000000"
+                        className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-muted-foreground block text-[11px]">Cédula o RIF</label>
+                    <input
+                      type="text"
+                      required
+                      value={pmCedula}
+                      onChange={(e) => setPmCedula(e.target.value)}
+                      placeholder="V-28.000.000 o J-50123456-7"
+                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-muted-foreground block text-[11px]">Nombre del Titular</label>
+                    <input
+                      type="text"
+                      required
+                      value={pmTitular}
+                      onChange={(e) => setPmTitular(e.target.value)}
+                      placeholder="Nombre completo o razón social"
+                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. BINANCE PAY */}
+              <div className="rounded-3xl border border-border bg-card p-5 shadow-xs space-y-3">
+                <div className="flex items-center gap-2.5 border-b border-border pb-3">
+                  <span className="flex size-8 items-center justify-center rounded-full bg-yellow-400 text-yellow-950 font-bold text-xs">
+                    BN
+                  </span>
+                  <div>
+                    <h4 className="font-bold text-sm">Binance Pay (Cripto USDT)</h4>
+                    <p className="text-[11px] text-muted-foreground">ID de pago y transferencias en USDT</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2.5 text-xs">
+                  <div>
+                    <label className="font-semibold text-muted-foreground block text-[11px]">Binance Pay ID</label>
+                    <input
+                      type="text"
+                      required
+                      value={binPayId}
+                      onChange={(e) => setBinPayId(e.target.value)}
+                      placeholder="Ej. 847291034"
+                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-muted-foreground block text-[11px]">Correo Binance</label>
+                    <input
+                      type="email"
+                      required
+                      value={binCorreo}
+                      onChange={(e) => setBinCorreo(e.target.value)}
+                      placeholder="valcheck.pagos@gmail.com"
+                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-muted-foreground block text-[11px]">Red Sugerida</label>
+                    <input
+                      type="text"
+                      required
+                      value={binRed}
+                      onChange={(e) => setBinRed(e.target.value)}
+                      placeholder="USDT (BEP-20 / TRC-20)"
+                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-muted-foreground block text-[11px]">Nombre de Cuenta</label>
+                    <input
+                      type="text"
+                      required
+                      value={binTitular}
+                      onChange={(e) => setBinTitular(e.target.value)}
+                      placeholder="ValCheck Official"
+                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. CUENTA BANCARIA NACIONAL */}
+              <div className="rounded-3xl border border-border bg-card p-5 shadow-xs space-y-3 md:col-span-2">
+                <div className="flex items-center gap-2.5 border-b border-border pb-3">
+                  <span className="flex size-8 items-center justify-center rounded-full bg-blue-100 text-blue-900 font-bold text-xs">
+                    CB
+                  </span>
+                  <div>
+                    <h4 className="font-bold text-sm">Cuenta Bancaria Nacional (Transferencias Bs)</h4>
+                    <p className="text-[11px] text-muted-foreground">Transferencias bancarias de cuenta corriente o ahorros</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2.5 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label className="font-semibold text-muted-foreground block text-[11px]">Banco</label>
+                      <input
+                        type="text"
+                        required
+                        value={cbBanco}
+                        onChange={(e) => setCbBanco(e.target.value)}
+                        placeholder="Banesco"
+                        className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-semibold text-muted-foreground block text-[11px]">Tipo de Cuenta</label>
+                      <input
+                        type="text"
+                        required
+                        value={cbTipo}
+                        onChange={(e) => setCbTipo(e.target.value)}
+                        placeholder="Cuenta Corriente"
+                        className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-muted-foreground block text-[11px]">Número de Cuenta (20 dígitos)</label>
+                    <input
+                      type="text"
+                      required
+                      value={cbNumero}
+                      onChange={(e) => setCbNumero(e.target.value)}
+                      placeholder="0134-0987-12-0001234567"
+                      className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-mono"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label className="font-semibold text-muted-foreground block text-[11px]">Titular de la Cuenta</label>
+                      <input
+                        type="text"
+                        required
+                        value={cbTitular}
+                        onChange={(e) => setCbTitular(e.target.value)}
+                        placeholder="Nombre completo o Empresa"
+                        className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-semibold text-muted-foreground block text-[11px]">RIF / Cédula del Titular</label>
+                      <input
+                        type="text"
+                        required
+                        value={cbRif}
+                        onChange={(e) => setCbRif(e.target.value)}
+                        placeholder="J-50123456-7"
+                        className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-border">
+            <p className="text-xs text-muted-foreground">
+              ✓ Los cambios se guardan al instante y se sincronizan en checkout, tienda y contacto.
+            </p>
             <button
               type="submit"
-              className="rounded-full bg-primary px-7 py-3 text-sm font-bold text-primary-foreground hover:scale-105 transition-all shadow-lg"
+              className="w-full sm:w-auto rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-primary-foreground hover:scale-105 active:scale-95 transition-all shadow-lg cursor-pointer"
             >
-              Guardar Todos los Métodos de Pago
+              Guardar Todos los Datos (Contacto y Cuentas)
             </button>
           </div>
         </form>

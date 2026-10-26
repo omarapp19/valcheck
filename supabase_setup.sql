@@ -179,3 +179,24 @@ END;
 -- ==============================================================================
 DELETE FROM public.productos WHERE id IN ('prod-1', 'prod-2', 'prod-3', 'prod-4');
 
+
+-- ==============================================================================
+-- 5. TABLA DE CONFIGURACIÓN GENERAL Y AJUSTES DE CONTACTO / PAGOS
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.configuracion (
+  id TEXT PRIMARY KEY,
+  datos JSONB NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.configuracion ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Permitir lectura de configuracion" ON public.configuracion;
+CREATE POLICY "Permitir lectura de configuracion" 
+ON public.configuracion FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Permitir gestion de configuracion" ON public.configuracion;
+CREATE POLICY "Permitir gestion de configuracion" 
+ON public.configuracion FOR ALL USING (true) WITH CHECK (true);
+
+

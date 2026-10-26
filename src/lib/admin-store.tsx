@@ -57,6 +57,15 @@ export interface Order {
   actualizadoEn: string;
 }
 
+export interface AjustesContacto {
+  telefono: string;
+  email: string;
+  instagram: string;
+  instagramUrl: string;
+  direccion: string;
+  horario: string;
+}
+
 export interface AjustesPago {
   pagoMovil: {
     banco: string;
@@ -83,6 +92,7 @@ export interface AjustesPago {
     numero: string;
     numeroFormateado: string;
   };
+  contacto: AjustesContacto;
   tasaCambioUSD: number;
 }
 
@@ -111,6 +121,14 @@ export const AJUSTES_PAGO_DEFAULT: AjustesPago = {
   whatsapp: {
     numero: "584120000000",
     numeroFormateado: "+58 412 000 0000",
+  },
+  contacto: {
+    telefono: "+58 412 000 0000",
+    email: "hola@valcheck.ve",
+    instagram: "@valcheck.ve",
+    instagramUrl: "https://instagram.com/valcheck.ve",
+    direccion: "Venezuela · Envíos nacionales",
+    horario: "Lunes a Sábado: 8:30 AM - 6:30 PM",
   },
   tasaCambioUSD: TASA_BCV_FALLBACK,
 };
@@ -260,12 +278,21 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
 
       const storedPayment = localStorage.getItem(STORAGE_PAYMENT_KEY);
       if (storedPayment) {
-        const parsed = JSON.parse(storedPayment);
-        setAjustesPago({
-          ...AJUSTES_PAGO_DEFAULT,
-          ...parsed,
-          tasaCambioUSD: parsed.tasaCambioUSD || TASA_BCV_FALLBACK,
-        });
+        try {
+          const parsed = JSON.parse(storedPayment);
+          setAjustesPago({
+            ...AJUSTES_PAGO_DEFAULT,
+            ...parsed,
+            pagoMovil: { ...AJUSTES_PAGO_DEFAULT.pagoMovil, ...(parsed.pagoMovil || {}) },
+            binance: { ...AJUSTES_PAGO_DEFAULT.binance, ...(parsed.binance || {}) },
+            cuentaBancaria: { ...AJUSTES_PAGO_DEFAULT.cuentaBancaria, ...(parsed.cuentaBancaria || {}) },
+            whatsapp: { ...AJUSTES_PAGO_DEFAULT.whatsapp, ...(parsed.whatsapp || {}) },
+            contacto: { ...AJUSTES_PAGO_DEFAULT.contacto, ...(parsed.contacto || {}) },
+            tasaCambioUSD: parsed.tasaCambioUSD || TASA_BCV_FALLBACK,
+          });
+        } catch {
+          /* ignore parse error */
+        }
       }
     } catch {
       /* ignore */
@@ -274,6 +301,34 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
 
     // Sincronización con Supabase si está disponible
     if (isSupabaseConfigured && supabase) {
+      // 0. Cargar ajustes y datos de contacto desde Supabase (tabla 'configuracion')
+      supabase
+        .from("configuracion")
+        .select("datos")
+        .eq("id", "ajustes_tienda")
+        .maybeSingle()
+        .then(({ data, error }) => {
+          if (!error && data?.datos) {
+            setAjustesPago((prev) => {
+              const merged: AjustesPago = {
+                ...AJUSTES_PAGO_DEFAULT,
+                ...prev,
+                ...data.datos,
+                pagoMovil: { ...AJUSTES_PAGO_DEFAULT.pagoMovil, ...prev.pagoMovil, ...(data.datos.pagoMovil || {}) },
+                binance: { ...AJUSTES_PAGO_DEFAULT.binance, ...prev.binance, ...(data.datos.binance || {}) },
+                cuentaBancaria: { ...AJUSTES_PAGO_DEFAULT.cuentaBancaria, ...prev.cuentaBancaria, ...(data.datos.cuentaBancaria || {}) },
+                whatsapp: { ...AJUSTES_PAGO_DEFAULT.whatsapp, ...prev.whatsapp, ...(data.datos.whatsapp || {}) },
+                contacto: { ...AJUSTES_PAGO_DEFAULT.contacto, ...prev.contacto, ...(data.datos.contacto || {}) },
+              };
+              try {
+                localStorage.setItem(STORAGE_PAYMENT_KEY, JSON.stringify(merged));
+              } catch {
+                /* ignore */
+              }
+              return merged;
+            });
+          }
+        });
       // 1. Cargar productos desde Supabase (tabla 'productos')
       supabase
         .from("productos")
@@ -607,15 +662,33 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
 
   const actualizarAjustesPago = (nuevos: Partial<AjustesPago>) => {
     setAjustesPago((prev) => {
-      const combinados = {
+      const combinados: AjustesPago = {
         ...prev,
         ...nuevos,
         pagoMovil: { ...prev.pagoMovil, ...(nuevos.pagoMovil || {}) },
         binance: { ...prev.binance, ...(nuevos.binance || {}) },
         cuentaBancaria: { ...prev.cuentaBancaria, ...(nuevos.cuentaBancaria || {}) },
         whatsapp: { ...prev.whatsapp, ...(nuevos.whatsapp || {}) },
+        contacto: { ...prev.contacto, ...(nuevos.contacto || {}) },
       };
-      localStorage.setItem(STORAGE_PAYMENT_KEY, JSON.stringify(combinados));
+      try {
+        localStorage.setItem(STORAGE_PAYMENT_KEY, JSON.stringify(combinados));
+      } catch {
+        /* ignore */
+      }
+
+      if (isSupabaseConfigured && supabase) {
+        supabase
+          .from("configuracion")
+          .upsert({ id: "ajustes_tienda", datos: combinados })
+          .then(({ error }) => {
+            if (error) {
+              // Silencioso si la tabla no ha sido creada aún en Supabase
+              console.warn("Aviso de sincronización Supabase configuracion:", error.message);
+            }
+          });
+      }
+
       return combinados;
     });
   };

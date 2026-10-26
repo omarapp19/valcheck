@@ -96,21 +96,29 @@ export function Header() {
           {/* Icono de Usuario / Mi Cuenta / Auth */}
           <Link
             to={isLoggedIn ? (isAdmin ? "/admin" : "/cuenta") : "/auth"}
-            className="flex size-9 sm:size-10 items-center justify-center rounded-full transition-colors hover:bg-brand-yellow/60 text-foreground"
+            className={`flex size-9 sm:size-10 items-center justify-center rounded-full transition-all duration-200 cursor-pointer ${
+              isMaquillaje
+                ? "text-foreground hover:bg-brand-yellow hover:text-brand-brown"
+                : "text-foreground hover:bg-brand-brown hover:text-brand-yellow"
+            }`}
             title={isLoggedIn ? `Mi Cuenta (${user?.nombre})` : "Iniciar Sesión o Registrarse"}
             aria-label="Cuenta de usuario"
           >
-            <UserIcon className="size-4.5 sm:size-5" />
+            <UserIcon className="size-4.5 sm:size-5 transition-colors" />
           </Link>
 
           {/* Carrito */}
           <button
             type="button"
             onClick={abrirCarrito}
-            className="relative flex size-9 sm:size-10 items-center justify-center rounded-full transition-colors hover:bg-brand-yellow/60 cursor-pointer"
+            className={`relative flex size-9 sm:size-10 items-center justify-center rounded-full transition-all duration-200 cursor-pointer ${
+              isMaquillaje
+                ? "text-foreground hover:bg-brand-yellow hover:text-brand-brown"
+                : "text-foreground hover:bg-brand-brown hover:text-brand-yellow"
+            }`}
             aria-label="Abrir carrito de compras"
           >
-            <ShoppingBag className="size-4.5 sm:size-5" />
+            <ShoppingBag className="size-4.5 sm:size-5 transition-colors" />
             {totalItems > 0 && (
               <span className="absolute -right-0.5 -top-0.5 flex size-4.5 sm:size-5 items-center justify-center rounded-full bg-primary text-[10px] sm:text-[11px] font-bold text-primary-foreground animate-in zoom-in-50 duration-200">
                 {totalItems}
@@ -120,7 +128,11 @@ export function Header() {
 
           {/* Menú móvil */}
           <button
-            className="flex size-9 sm:size-10 items-center justify-center rounded-full hover:bg-brand-yellow/60 md:hidden"
+            className={`flex size-9 sm:size-10 items-center justify-center rounded-full transition-all duration-200 md:hidden cursor-pointer ${
+              isMaquillaje
+                ? "text-foreground hover:bg-brand-yellow hover:text-brand-brown"
+                : "text-foreground hover:bg-brand-brown hover:text-brand-yellow"
+            }`}
             onClick={() => setOpen(!open)}
             aria-label="Menú"
           >
