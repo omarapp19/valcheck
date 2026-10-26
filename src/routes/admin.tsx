@@ -523,12 +523,12 @@ function AdminPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-3 sm:px-6 py-6 sm:py-8 md:py-12">
+    <div className="mx-auto max-w-7xl px-3 sm:px-6 py-4 sm:py-8 md:py-12 w-full overflow-x-hidden min-w-0">
       {/* Cabecera */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-5 sm:pb-6">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex size-7 items-center justify-center rounded-full bg-brand-yellow text-brand-brown font-bold text-xs">
+            <span className="flex size-7 items-center justify-center rounded-full bg-brand-yellow text-brand-brown font-bold text-xs shrink-0">
               ✓
             </span>
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
@@ -568,16 +568,16 @@ function AdminPage() {
       </div>
 
       {/* Tarjetas de Métricas (KPIs) */}
-      <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+      <div className="mt-5 sm:mt-8 grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-4">
         {/* KPI 1 */}
-        <div className="rounded-2xl border-2 border-primary/20 bg-card p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+        <div className="rounded-2xl border-2 border-primary/20 bg-card p-3 sm:p-4 shadow-xs flex flex-col justify-between">
           <span className="text-muted-foreground text-[10px] sm:text-[11px] font-bold uppercase block truncate">
             Ventas Aprobadas
           </span>
-          <p className="mt-1 text-xl sm:text-2xl font-bold font-display text-foreground truncate">
+          <p className="mt-1 text-lg sm:text-2xl font-bold font-display text-foreground truncate">
             {formatUSD(totalVentasUSD)}
           </p>
-          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 truncate">{formatVES(totalVentasUSD)}</p>
+          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{formatVES(totalVentasUSD)}</p>
         </div>
 
         {/* KPI 2 */}
@@ -587,7 +587,7 @@ function AdminPage() {
             setTabActiva("pedidos");
             setSeccionPedidos("pendientes");
           }}
-          className="rounded-2xl border-2 border-amber-500/30 hover:border-amber-500/60 bg-card p-3.5 sm:p-4 shadow-xs text-left cursor-pointer transition-all hover:scale-[1.01] flex flex-col justify-between"
+          className="rounded-2xl border-2 border-amber-500/30 hover:border-amber-500/60 bg-card p-3 sm:p-4 shadow-xs text-left cursor-pointer transition-all hover:scale-[1.01] flex flex-col justify-between"
         >
           <span className="text-amber-700 dark:text-amber-400 text-[10px] sm:text-[11px] font-bold uppercase flex items-center justify-between gap-1">
             <span className="truncate">Por Verificar</span>
@@ -595,10 +595,10 @@ function AdminPage() {
               <Clock className="size-3 sm:size-3.5" />
             </span>
           </span>
-          <p className="mt-1 text-xl sm:text-2xl font-bold font-display text-foreground">
+          <p className="mt-1 text-lg sm:text-2xl font-bold font-display text-foreground">
             {totalPendientes}
           </p>
-          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 truncate">Nuevos por comprobar</p>
+          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 line-clamp-1">Por comprobar</p>
         </button>
 
         {/* KPI 3 */}
@@ -608,7 +608,7 @@ function AdminPage() {
             setTabActiva("pedidos");
             setSeccionPedidos("aprobados");
           }}
-          className="rounded-2xl border-2 border-emerald-500/30 hover:border-emerald-500/60 bg-card p-3.5 sm:p-4 shadow-xs text-left cursor-pointer transition-all hover:scale-[1.01] flex flex-col justify-between"
+          className="rounded-2xl border-2 border-emerald-500/30 hover:border-emerald-500/60 bg-card p-3 sm:p-4 shadow-xs text-left cursor-pointer transition-all hover:scale-[1.01] flex flex-col justify-between"
         >
           <span className="text-emerald-700 dark:text-emerald-400 text-[10px] sm:text-[11px] font-bold uppercase flex items-center justify-between gap-1">
             <span className="truncate">Aprobados</span>
@@ -616,43 +616,53 @@ function AdminPage() {
               <CheckCircle2 className="size-3 sm:size-3.5" />
             </span>
           </span>
-          <p className="mt-1 text-xl sm:text-2xl font-bold font-display text-foreground">
+          <p className="mt-1 text-lg sm:text-2xl font-bold font-display text-foreground">
             {totalAprobados}
           </p>
-          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 truncate">Listos para envío</p>
+          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 line-clamp-1">Listos para envío</p>
         </button>
 
         {/* KPI 4 */}
-        <div className="rounded-2xl border-2 border-primary/20 bg-card p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+        <div className="rounded-2xl border-2 border-primary/20 bg-card p-3 sm:p-4 shadow-xs flex flex-col justify-between">
           <span className="text-muted-foreground text-[10px] sm:text-[11px] font-bold uppercase flex items-center justify-between gap-1">
             <span className="truncate">Productos Activos</span>
             <ShoppingBag className="size-3.5 sm:size-4 text-muted-foreground shrink-0" />
           </span>
-          <p className="mt-1 text-xl sm:text-2xl font-bold font-display text-foreground">
+          <p className="mt-1 text-lg sm:text-2xl font-bold font-display text-foreground">
             {totalProductosCount}
           </p>
-          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 truncate">En catálogo web</p>
+          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 line-clamp-1">En catálogo web</p>
         </div>
       </div>
 
-      {/* Pestañas de Navegación del Panel (Deslizables horizontalmente en móvil) */}
-      <div className="mt-6 sm:mt-8 flex border-b border-border overflow-x-auto whitespace-nowrap scrollbar-none gap-1 sm:gap-2 -mx-3 px-3 sm:mx-0 sm:px-0">
+      {/* Pestañas de Navegación del Panel */}
+      <div className="mt-5 sm:mt-8 grid grid-cols-3 gap-1 p-1 bg-muted/60 dark:bg-muted/30 rounded-2xl border border-border sm:flex sm:bg-transparent sm:p-0 sm:rounded-none sm:border-0 sm:border-b sm:gap-2">
         <button
           type="button"
           onClick={() => {
             setTabActiva("pedidos");
             setSeccionPedidos("pendientes");
           }}
-          className={`flex items-center gap-1.5 sm:gap-2 border-b-2 py-2.5 sm:py-3 px-3 sm:px-5 text-xs sm:text-sm font-bold transition-colors cursor-pointer shrink-0 ${
+          className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-1.5 sm:px-5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-none sm:border-b-2 transition-all cursor-pointer ${
             tabActiva === "pedidos"
-              ? "border-primary text-foreground"
-              : "border-transparent text-muted-foreground hover:text-foreground"
+              ? "bg-card sm:bg-transparent text-foreground shadow-xs sm:shadow-none sm:border-primary"
+              : "text-muted-foreground hover:text-foreground sm:border-transparent"
           }`}
         >
-          <ShoppingBag className="size-4 shrink-0" />
-          <span>Gestión de Pedidos</span>
+          <div className="relative flex items-center justify-center">
+            <ShoppingBag className="size-4 shrink-0" />
+            {totalPendientes > 0 && (
+              <span className="sm:hidden absolute -top-1.5 -right-2 flex size-3.5 items-center justify-center rounded-full bg-amber-500 text-[8px] font-black text-white">
+                {totalPendientes}
+              </span>
+            )}
+          </div>
+          <span className="truncate">
+            <span className="sm:hidden">Pedidos</span>
+            <span className="hidden sm:inline">Gestión de Pedidos</span>
+          </span>
           {totalPendientes > 0 && (
-            <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white animate-pulse">
+            <span className="hidden sm:inline-flex rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white animate-pulse">
               {totalPendientes} nuevos
             </span>
           )}
@@ -661,27 +671,36 @@ function AdminPage() {
         <button
           type="button"
           onClick={() => setTabActiva("productos")}
-          className={`flex items-center gap-1.5 sm:gap-2 border-b-2 py-2.5 sm:py-3 px-3 sm:px-5 text-xs sm:text-sm font-bold transition-colors cursor-pointer shrink-0 ${
+          className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-1.5 sm:px-5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-none sm:border-b-2 transition-all cursor-pointer ${
             tabActiva === "productos"
-              ? "border-primary text-foreground"
-              : "border-transparent text-muted-foreground hover:text-foreground"
+              ? "bg-card sm:bg-transparent text-foreground shadow-xs sm:shadow-none sm:border-primary"
+              : "text-muted-foreground hover:text-foreground sm:border-transparent"
           }`}
         >
           <Package className="size-4 shrink-0" />
-          <span>Catálogo ({totalProductosCount})</span>
+          <span className="truncate">
+            <span className="sm:hidden">Catálogo</span>
+            <span className="hidden sm:inline">Catálogo ({totalProductosCount})</span>
+          </span>
+          <span className="sm:hidden text-[10px] font-semibold text-muted-foreground">
+            ({totalProductosCount})
+          </span>
         </button>
 
         <button
           type="button"
           onClick={() => setTabActiva("ajustes")}
-          className={`flex items-center gap-1.5 sm:gap-2 border-b-2 py-2.5 sm:py-3 px-3 sm:px-5 text-xs sm:text-sm font-bold transition-colors cursor-pointer shrink-0 ${
+          className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-1.5 sm:px-5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-none sm:border-b-2 transition-all cursor-pointer ${
             tabActiva === "ajustes"
-              ? "border-primary text-foreground"
-              : "border-transparent text-muted-foreground hover:text-foreground"
+              ? "bg-card sm:bg-transparent text-foreground shadow-xs sm:shadow-none sm:border-primary"
+              : "text-muted-foreground hover:text-foreground sm:border-transparent"
           }`}
         >
           <Building2 className="size-4 shrink-0" />
-          <span>Cuentas y Configuración</span>
+          <span className="truncate">
+            <span className="sm:hidden">Ajustes</span>
+            <span className="hidden sm:inline">Cuentas y Configuración</span>
+          </span>
         </button>
       </div>
 
@@ -692,11 +711,11 @@ function AdminPage() {
         <div className="mt-6 space-y-6">
           {/* Pestañas de Secciones de Pedidos */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3">
-            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto whitespace-nowrap scrollbar-none pb-1 sm:pb-0 -mx-3 px-3 sm:mx-0 sm:px-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto whitespace-nowrap scrollbar-none py-1">
               <button
                 type="button"
                 onClick={() => setSeccionPedidos("pendientes")}
-                className={`flex items-center gap-1.5 rounded-2xl px-3 sm:px-3.5 py-2 text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                className={`flex items-center gap-1.5 rounded-2xl px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold transition-all cursor-pointer shrink-0 ${
                   seccionPedidos === "pendientes"
                     ? "bg-amber-500 text-white shadow-sm scale-[1.02]"
                     : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -718,7 +737,7 @@ function AdminPage() {
               <button
                 type="button"
                 onClick={() => setSeccionPedidos("aprobados")}
-                className={`flex items-center gap-1.5 rounded-2xl px-3 sm:px-3.5 py-2 text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                className={`flex items-center gap-1.5 rounded-2xl px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold transition-all cursor-pointer shrink-0 ${
                   seccionPedidos === "aprobados"
                     ? "bg-emerald-600 text-white shadow-sm scale-[1.02]"
                     : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -740,7 +759,7 @@ function AdminPage() {
               <button
                 type="button"
                 onClick={() => setSeccionPedidos("enviados")}
-                className={`flex items-center gap-1.5 rounded-2xl px-3 sm:px-3.5 py-2 text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                className={`flex items-center gap-1.5 rounded-2xl px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold transition-all cursor-pointer shrink-0 ${
                   seccionPedidos === "enviados"
                     ? "bg-blue-600 text-white shadow-sm scale-[1.02]"
                     : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -762,7 +781,7 @@ function AdminPage() {
               <button
                 type="button"
                 onClick={() => setSeccionPedidos("rechazados")}
-                className={`flex items-center gap-1.5 rounded-2xl px-3 sm:px-3.5 py-2 text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                className={`flex items-center gap-1.5 rounded-2xl px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold transition-all cursor-pointer shrink-0 ${
                   seccionPedidos === "rechazados"
                     ? "bg-rose-600 text-white shadow-sm scale-[1.02]"
                     : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -780,24 +799,11 @@ function AdminPage() {
                   </span>
                 )}
               </button>
-            </div>
 
-            <div className="flex items-center gap-2 shrink-0 justify-between sm:justify-end">
-              {pedidos.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setModalVaciarPedidos(true)}
-                  className="inline-flex items-center gap-1.5 rounded-2xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs font-bold text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all cursor-pointer"
-                  title="Eliminar todos los pedidos registrados"
-                >
-                  <Trash2 className="size-3.5" />
-                  Vaciar
-                </button>
-              )}
               <button
                 type="button"
                 onClick={() => setSeccionPedidos("todos")}
-                className={`flex items-center gap-1.5 rounded-2xl px-3.5 py-2 text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 rounded-2xl px-3.5 py-1.5 sm:py-2 text-xs font-bold transition-all cursor-pointer shrink-0 ${
                   seccionPedidos === "todos"
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -806,6 +812,20 @@ function AdminPage() {
                 Historial ({pedidos.length})
               </button>
             </div>
+
+            {pedidos.length > 0 && (
+              <div className="flex items-center gap-2 shrink-0 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setModalVaciarPedidos(true)}
+                  className="inline-flex items-center gap-1.5 rounded-2xl border border-destructive/40 bg-destructive/10 px-3 py-1.5 sm:py-2 text-xs font-bold text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all cursor-pointer"
+                  title="Eliminar todos los pedidos registrados"
+                >
+                  <Trash2 className="size-3.5" />
+                  Vaciar Todo
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Barra de Filtros y Búsqueda */}
@@ -1139,23 +1159,23 @@ function AdminPage() {
       {/* ========================================================================= */}
       {tabActiva === "productos" && (
         <div className="mt-6 space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             <div>
-              <h2 className="font-display text-2xl font-bold">Catálogo de Productos</h2>
+              <h2 className="font-display text-xl sm:text-2xl font-bold">Catálogo de Productos</h2>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Carga nuevas piezas, edita precios o retira accesorios del catálogo
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 type="button"
                 onClick={restablecerCatalogo}
-                className="inline-flex items-center gap-1 rounded-full border border-border px-3.5 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                className="rounded-full border border-border px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer inline-flex items-center gap-1"
                 title="Restablecer productos originales"
               >
                 <RotateCcw className="size-3.5" />
-                Restablecer
+                <span className="hidden xs:inline">Restablecer</span>
               </button>
               <button
                 type="button"
@@ -1170,7 +1190,7 @@ function AdminPage() {
                   setProdDestacado(false);
                   setModalNuevoProducto(true);
                 }}
-                className="inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground shadow-sm hover:scale-105 transition-transform cursor-pointer"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-4 sm:px-5 py-2.5 text-xs font-bold text-primary-foreground shadow-sm hover:scale-105 transition-transform cursor-pointer"
               >
                 <Plus className="size-4" />
                 Cargar Nuevo Producto
@@ -1179,11 +1199,11 @@ function AdminPage() {
           </div>
 
           {/* Filtros de departamento en el catálogo de administración */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <div className="grid grid-cols-3 gap-1.5 sm:flex sm:items-center sm:gap-2">
             <button
               type="button"
               onClick={() => setAdminFiltroDept("todos")}
-              className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-all ${
+              className={`rounded-full px-2.5 sm:px-3.5 py-2 sm:py-1.5 text-xs font-bold transition-all text-center cursor-pointer ${
                 adminFiltroDept === "todos"
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : "bg-card border border-border text-muted-foreground hover:text-foreground"
@@ -1194,34 +1214,36 @@ function AdminPage() {
             <button
               type="button"
               onClick={() => setAdminFiltroDept("accesorios")}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all ${
+              className={`inline-flex items-center justify-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3.5 py-2 sm:py-1.5 text-xs font-bold transition-all text-center cursor-pointer ${
                 adminFiltroDept === "accesorios"
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : "bg-card border border-border text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Gem className="size-3.5" /> Accesorios ({productos.filter((p) => getDepartamentoProducto(p) === "accesorios").length})
+              <Gem className="size-3 sm:size-3.5 shrink-0" />
+              <span className="truncate">Accesorios ({productos.filter((p) => getDepartamentoProducto(p) === "accesorios").length})</span>
             </button>
             <button
               type="button"
               onClick={() => setAdminFiltroDept("maquillaje")}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all ${
+              className={`inline-flex items-center justify-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3.5 py-2 sm:py-1.5 text-xs font-bold transition-all text-center cursor-pointer ${
                 adminFiltroDept === "maquillaje"
                   ? "bg-brand-yellow text-brand-brown font-bold shadow-xs"
                   : "bg-card border border-border text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Palette className="size-3.5" /> Maquillaje ({productos.filter((p) => getDepartamentoProducto(p) === "maquillaje").length})
+              <Palette className="size-3 sm:size-3.5 shrink-0" />
+              <span className="truncate">Maquillaje ({productos.filter((p) => getDepartamentoProducto(p) === "maquillaje").length})</span>
             </button>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <div className="grid gap-2.5 sm:gap-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {productos
               .filter((p) => adminFiltroDept === "todos" || getDepartamentoProducto(p) === adminFiltroDept)
               .map((prod) => (
               <div
                 key={prod.id}
-                className={`overflow-hidden rounded-2xl border-2 bg-card p-3 shadow-xs flex flex-col justify-between transition-all ${
+                className={`overflow-hidden rounded-2xl border-2 bg-card p-2 sm:p-3 shadow-xs flex flex-col justify-between transition-all ${
                   prod.activo === false || (prod.stock ?? 10) <= 0
                     ? "border-muted-foreground/30 bg-muted/20"
                     : "border-primary/20"
@@ -1236,75 +1258,79 @@ function AdminPage() {
                         prod.activo === false ? "opacity-60 grayscale-[40%]" : ""
                       }`}
                     />
-                    <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
+                    <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 flex flex-col gap-1 items-start">
                       {prod.destacado && (
-                        <span className="rounded-full bg-brand-yellow px-2 py-0.5 text-[10px] font-bold text-brand-brown shadow-xs">
-                          Destacado
+                        <span className="rounded-full bg-brand-yellow px-1.5 py-0.5 text-[8px] sm:text-[10px] font-bold text-brand-brown shadow-xs">
+                          ★ Destacado
                         </span>
                       )}
-                      <span className="rounded-full bg-card/90 backdrop-blur px-2 py-0.5 text-[9px] font-bold text-foreground shadow-xs flex items-center gap-1">
+                      <span className="rounded-full bg-card/90 backdrop-blur px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold text-foreground shadow-xs flex items-center gap-0.5 sm:gap-1">
                         {getDepartamentoProducto(prod) === "maquillaje" ? (
                           <>
-                            <Palette className="size-2.5 text-amber-600" /> Maquillaje
+                            <Palette className="size-2.5 text-amber-600" />
+                            <span className="hidden xs:inline">Maquillaje</span>
                           </>
                         ) : (
                           <>
-                            <Gem className="size-2.5 text-primary" /> Accesorios
+                            <Gem className="size-2.5 text-primary" />
+                            <span className="hidden xs:inline">Accesorios</span>
                           </>
                         )}
                       </span>
                     </div>
 
-                    <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
+                    <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 flex flex-col gap-1 items-end">
                       {prod.activo === false ? (
-                        <span className="rounded-full bg-zinc-900/90 text-zinc-100 backdrop-blur px-2 py-0.5 text-[9px] font-bold shadow-xs flex items-center gap-1 border border-zinc-700">
-                          <EyeOff className="size-2.5" /> Desactivado
+                        <span className="rounded-full bg-zinc-900/90 text-zinc-100 backdrop-blur px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold shadow-xs flex items-center gap-1 border border-zinc-700">
+                          <EyeOff className="size-2 sm:size-2.5" />
+                          <span className="hidden xs:inline">Pausado</span>
                         </span>
                       ) : (
-                        <span className="rounded-full bg-emerald-700/90 text-white backdrop-blur px-2 py-0.5 text-[9px] font-bold shadow-xs flex items-center gap-1">
-                          <Eye className="size-2.5" /> En Tienda
+                        <span className="rounded-full bg-emerald-700/90 text-white backdrop-blur px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold shadow-xs flex items-center gap-1">
+                          <Eye className="size-2 sm:size-2.5" />
+                          <span className="hidden xs:inline">En Tienda</span>
                         </span>
                       )}
 
                       {(prod.stock ?? 10) <= 0 ? (
-                        <span className="rounded-full bg-red-600 text-white px-2 py-0.5 text-[9px] font-bold shadow-xs">
-                          Sin Stock (0)
+                        <span className="rounded-full bg-red-600 text-white px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold shadow-xs">
+                          Agotado
                         </span>
                       ) : (
-                        <span className="rounded-full bg-background/90 text-foreground backdrop-blur px-2 py-0.5 text-[9px] font-bold shadow-xs border border-border">
+                        <span className="rounded-full bg-background/90 text-foreground backdrop-blur px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold shadow-xs border border-border">
                           Stock: {prod.stock ?? 10}
                         </span>
                       )}
                     </div>
                   </div>
-                  <div className="mt-3">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <div className="mt-2 sm:mt-3">
+                    <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-muted-foreground block truncate">
                       {prod.categoria}
                     </span>
-                    <h3 className="font-display font-semibold text-sm leading-snug line-clamp-1 mt-0.5">
+                    <h3 className="font-display font-semibold text-xs sm:text-sm leading-snug line-clamp-1 mt-0.5" title={prod.nombre}>
                       {prod.nombre}
                     </h3>
-                    <div className="mt-1 flex items-baseline justify-between">
-                      <span className="font-bold text-sm text-foreground">
+                    <div className="mt-1 flex flex-col xs:flex-row xs:items-baseline xs:justify-between gap-0.5">
+                      <span className="font-bold text-xs sm:text-sm text-foreground">
                         {formatUSD(prod.precioUSD)}
                       </span>
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-[10px] sm:text-[11px] text-muted-foreground truncate">
                         {formatVES(prod.precioUSD)}
                       </span>
                     </div>
 
-                    <div className="mt-2 flex items-center justify-between text-[11px] rounded-lg bg-muted/60 px-2 py-1">
+                    <div className="mt-1.5 sm:mt-2 flex items-center justify-between text-[10px] sm:text-[11px] rounded-lg bg-muted/60 px-2 py-1">
                       <span className="text-muted-foreground">
-                        Stock disponible:
+                        Stock:
                       </span>
                       <span className={`font-bold ${(prod.stock ?? 10) <= 0 ? "text-destructive" : "text-foreground"}`}>
-                        {prod.stock ?? 10} unidades
+                        {prod.stock ?? 10} uds
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-border flex items-center justify-between gap-1">
+                <div className="mt-2.5 pt-2 sm:mt-3 sm:pt-3 border-t border-border flex items-center justify-between gap-1">
                   <button
                     type="button"
                     onClick={() => {
@@ -1315,7 +1341,7 @@ function AdminPage() {
                           : `"${prod.nombre}" desactivado y retirado de la tienda`
                       );
                     }}
-                    className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-lg border transition-all ${
+                    className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold px-1.5 sm:px-2 py-1 rounded-lg border transition-all cursor-pointer ${
                       prod.activo === false
                         ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/25"
                         : "bg-amber-500/15 border-amber-500/40 text-amber-800 dark:text-amber-400 hover:bg-amber-500/25"
@@ -1324,23 +1350,26 @@ function AdminPage() {
                   >
                     {prod.activo === false ? (
                       <>
-                        <Eye className="size-3" /> Activar
+                        <Eye className="size-3" />
+                        <span className="hidden xs:inline">Activar</span>
                       </>
                     ) : (
                       <>
-                        <EyeOff className="size-3" /> Desactivar
+                        <EyeOff className="size-3" />
+                        <span className="hidden xs:inline">Pausar</span>
                       </>
                     )}
                   </button>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 sm:gap-2">
                     <button
                       type="button"
                       onClick={() => abrirEdicion(prod)}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground"
+                      className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-muted-foreground hover:text-foreground p-1 sm:p-0 cursor-pointer"
+                      title="Editar producto"
                     >
                       <Edit className="size-3.5" />
-                      Editar
+                      <span className="hidden sm:inline">Editar</span>
                     </button>
 
                     <button
@@ -1351,10 +1380,11 @@ function AdminPage() {
                           toast.info("Producto eliminado");
                         }
                       }}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-destructive hover:opacity-80"
+                      className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-destructive hover:opacity-80 p-1 sm:p-0 cursor-pointer"
+                      title="Eliminar producto"
                     >
                       <Trash2 className="size-3.5" />
-                      Eliminar
+                      <span className="hidden sm:inline">Eliminar</span>
                     </button>
                   </div>
                 </div>
@@ -1368,49 +1398,51 @@ function AdminPage() {
       {/* SECCIÓN 3: DATOS Y CONFIGURACIÓN */}
       {/* ========================================================================= */}
       {tabActiva === "ajustes" && (
-        <form onSubmit={handleGuardarAjustesPago} className="mt-6 max-w-4xl space-y-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
-            <div>
-              <h2 className="font-display text-2xl font-bold">Datos de Contacto, Cuentas y Configuración</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Edita los canales de contacto (WhatsApp, teléfono, correo, Instagram, dirección) y las cuentas de cobro (Pago Móvil, Cuenta Bancaria, Binance Pay).
+        <form onSubmit={handleGuardarAjustesPago} className="mt-6 max-w-4xl space-y-6 sm:space-y-8 w-full min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-border pb-4">
+            <div className="min-w-0">
+              <h2 className="font-display text-xl sm:text-2xl font-bold break-words">
+                Datos de Contacto, Cuentas y Configuración
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5 break-words">
+                Edita los canales de contacto (WhatsApp, teléfono, Instagram) y cuentas de cobro (Pago Móvil, Transferencias, Binance Pay).
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
               <button
                 type="button"
                 onClick={handleRestablecerAjustesPago}
-                className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted cursor-pointer"
+                className="flex-1 sm:flex-initial rounded-full border border-border px-3.5 py-2 text-xs font-semibold hover:bg-muted cursor-pointer text-center"
               >
-                Valores por Defecto
+                Por Defecto
               </button>
               <button
                 type="submit"
-                className="rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground hover:scale-105 transition-all shadow-md cursor-pointer"
+                className="flex-1 sm:flex-initial rounded-full bg-primary px-4 sm:px-5 py-2 text-xs font-bold text-primary-foreground hover:scale-105 transition-all shadow-md cursor-pointer text-center"
               >
-                Guardar Todos los Cambios
+                Guardar Cambios
               </button>
             </div>
           </div>
 
           {/* TASA DE CAMBIO OFICIAL BCV (SINCRONIZACIÓN AUTOMÁTICA) */}
-          <div className="rounded-3xl border-2 border-emerald-500/40 bg-gradient-to-br from-emerald-500/10 via-card to-brand-yellow/10 p-5 sm:p-6 shadow-xs">
+          <div className="rounded-3xl border-2 border-emerald-500/40 bg-gradient-to-br from-emerald-500/10 via-card to-brand-yellow/10 p-4 sm:p-6 shadow-xs">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="flex size-2 rounded-full bg-emerald-500 animate-pulse" />
+              <div className="space-y-1.5 min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="flex size-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                   <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
-                    Tasa Oficial BCV — Sincronización Automática
+                    Tasa Oficial BCV
                   </span>
                   <span className="rounded-full bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 text-[10px] font-bold px-2 py-0.5">
                     En Vivo
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground max-w-xl">
+                <p className="text-xs text-muted-foreground max-w-xl break-words">
                   Se conecta automáticamente con la cotización oficial del <strong>Banco Central de Venezuela (BCV)</strong>.
                   Se actualiza sola en segundo plano para mantener los precios y totales en Bolívares (VES) siempre al día.
                 </p>
-                <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground pt-1">
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground pt-1">
                   <span>
                     📅 <strong>Fecha oficial BCV:</strong> {tasaBCVFecha || "Actualizada hoy"}
                   </span>
@@ -1421,8 +1453,8 @@ function AdminPage() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <div className="flex items-center gap-2 rounded-2xl border-2 border-emerald-500/40 bg-card px-4 py-2.5 shadow-xs">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                <div className="flex items-center justify-between sm:justify-start gap-2 rounded-2xl border-2 border-emerald-500/40 bg-card px-4 py-2.5 shadow-xs">
                   <span className="text-xs font-bold text-muted-foreground">1 USD =</span>
                   <div className="flex items-baseline gap-1">
                     <span className="font-display text-xl font-bold text-emerald-800 dark:text-emerald-300">
@@ -1438,7 +1470,7 @@ function AdminPage() {
                     toast.success("Tasa BCV sincronizada y actualizada exitosamente");
                   }}
                   disabled={tasaBCVCargando}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2.5 text-xs font-bold shadow-xs hover:scale-105 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2.5 text-xs font-bold shadow-xs hover:scale-105 active:scale-95 transition-all disabled:opacity-50 cursor-pointer text-center"
                   title="Consultar la tasa del BCV ahora mismo"
                 >
                   <RefreshCw className={`size-3.5 ${tasaBCVCargando ? "animate-spin" : ""}`} />
@@ -1682,7 +1714,7 @@ function AdminPage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <div>
                       <label className="font-semibold text-muted-foreground block text-[11px]">Código Banco</label>
                       <input
@@ -1895,9 +1927,9 @@ function AdminPage() {
 
       {/* MODAL 1: RECHAZAR PAGO */}
       {modalRechazar && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-3xl bg-background border-2 border-primary p-6 shadow-2xl">
-            <h3 className="font-display text-xl font-bold text-destructive">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl sm:rounded-3xl bg-background border-2 border-primary p-4 sm:p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 className="font-display text-lg sm:text-xl font-bold text-destructive">
               Rechazar Pago del Pedido #{modalRechazar.id}
             </h3>
             <p className="text-xs text-muted-foreground mt-1">
@@ -1917,17 +1949,17 @@ function AdminPage() {
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex flex-wrap justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setModalRechazar(null)}
-                  className="rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted"
+                  className="flex-1 sm:flex-initial rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="rounded-full bg-destructive px-5 py-2 text-xs font-bold text-destructive-foreground hover:opacity-90"
+                  className="flex-1 sm:flex-initial rounded-full bg-destructive px-5 py-2 text-xs font-bold text-destructive-foreground hover:opacity-90"
                 >
                   Confirmar Rechazo
                 </button>
@@ -1939,17 +1971,17 @@ function AdminPage() {
 
       {/* MODAL ELIMINAR PEDIDO INDIVIDUAL */}
       {modalEliminarPedido && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-sm rounded-3xl bg-background border-2 border-destructive p-6 shadow-2xl">
-            <h3 className="font-display text-lg font-bold text-destructive">¿Eliminar Pedido #{modalEliminarPedido}?</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-xs">
+          <div className="w-full max-w-sm rounded-2xl sm:rounded-3xl bg-background border-2 border-destructive p-4 sm:p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 className="font-display text-base sm:text-lg font-bold text-destructive">¿Eliminar Pedido #{modalEliminarPedido}?</h3>
             <p className="text-xs text-muted-foreground mt-2">
               Esta acción eliminará permanentemente este pedido del historial.
             </p>
-            <div className="flex justify-end gap-2 mt-5">
+            <div className="flex flex-wrap justify-end gap-2 mt-5">
               <button
                 type="button"
                 onClick={() => setModalEliminarPedido(null)}
-                className="rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted"
+                className="flex-1 sm:flex-initial rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted"
               >
                 Cancelar
               </button>
@@ -1960,7 +1992,7 @@ function AdminPage() {
                   toast.success(`Pedido #${modalEliminarPedido} eliminado`);
                   setModalEliminarPedido(null);
                 }}
-                className="rounded-full bg-destructive px-5 py-2 text-xs font-bold text-destructive-foreground hover:opacity-90"
+                className="flex-1 sm:flex-initial rounded-full bg-destructive px-5 py-2 text-xs font-bold text-destructive-foreground hover:opacity-90"
               >
                 Eliminar
               </button>
@@ -1971,17 +2003,17 @@ function AdminPage() {
 
       {/* MODAL VACIAR TODOS LOS PEDIDOS */}
       {modalVaciarPedidos && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-sm rounded-3xl bg-background border-2 border-destructive p-6 shadow-2xl">
-            <h3 className="font-display text-lg font-bold text-destructive">¿Eliminar todos los pedidos?</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-xs">
+          <div className="w-full max-w-sm rounded-2xl sm:rounded-3xl bg-background border-2 border-destructive p-4 sm:p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 className="font-display text-base sm:text-lg font-bold text-destructive">¿Eliminar todos los pedidos?</h3>
             <p className="text-xs text-muted-foreground mt-2">
               Se eliminarán todos los pedidos ({pedidos.length}) registrados para empezar desde cero.
             </p>
-            <div className="flex justify-end gap-2 mt-5">
+            <div className="flex flex-wrap justify-end gap-2 mt-5">
               <button
                 type="button"
                 onClick={() => setModalVaciarPedidos(false)}
-                className="rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted"
+                className="flex-1 sm:flex-initial rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted"
               >
                 Cancelar
               </button>
@@ -1992,7 +2024,7 @@ function AdminPage() {
                   toast.success("Todos los pedidos han sido eliminados correctamente");
                   setModalVaciarPedidos(false);
                 }}
-                className="rounded-full bg-destructive px-5 py-2 text-xs font-bold text-destructive-foreground hover:opacity-90"
+                className="flex-1 sm:flex-initial rounded-full bg-destructive px-5 py-2 text-xs font-bold text-destructive-foreground hover:opacity-90"
               >
                 Confirmar y Vaciar
               </button>
@@ -2003,47 +2035,48 @@ function AdminPage() {
 
       {/* MODAL LIGHTBOX: VER COMPROBANTE DE PAGO */}
       {modalComprobante && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="relative w-full max-w-2xl rounded-3xl bg-background border-2 border-primary p-5 shadow-2xl flex flex-col max-h-[92vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-2xl rounded-2xl sm:rounded-3xl bg-background border-2 border-primary p-4 sm:p-5 shadow-2xl flex flex-col max-h-[92vh]">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <div>
-                <h3 className="font-display text-lg font-bold">
-                  Comprobante de Pago — Pedido #{modalComprobante.pedidoId}
+              <div className="pr-2">
+                <h3 className="font-display text-base sm:text-lg font-bold">
+                  Comprobante — #{modalComprobante.pedidoId}
                 </h3>
-                <p className="text-xs text-muted-foreground truncate max-w-md">{modalComprobante.nombre}</p>
+                <p className="text-xs text-muted-foreground truncate max-w-[200px] sm:max-w-md">{modalComprobante.nombre}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setModalComprobante(null)}
-                className="text-muted-foreground hover:text-foreground text-sm font-bold p-1 cursor-pointer"
+                className="text-muted-foreground hover:text-foreground text-sm font-bold p-1 cursor-pointer shrink-0"
               >
                 ✕
               </button>
             </div>
 
-            <div className="flex-1 overflow-auto p-2 my-2 flex items-center justify-center bg-muted/40 rounded-2xl min-h-[300px]">
+            <div className="flex-1 overflow-auto p-2 my-2 flex items-center justify-center bg-muted/40 rounded-xl sm:rounded-2xl min-h-[160px]">
               <img
                 src={modalComprobante.url}
                 alt={`Comprobante pedido #${modalComprobante.pedidoId}`}
-                className="max-h-[65vh] w-auto max-w-full rounded-xl object-contain shadow-md"
+                className="max-h-[55vh] sm:max-h-[65vh] w-auto max-w-full rounded-xl object-contain shadow-md"
               />
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-border">
+            <div className="flex items-center justify-between gap-2 pt-2 border-t border-border">
               <a
                 href={modalComprobante.url}
                 target="_blank"
                 rel="noreferrer"
                 download={`comprobante-${modalComprobante.pedidoId}.jpg`}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs font-semibold hover:bg-muted transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 sm:px-3.5 py-1.5 text-xs font-semibold hover:bg-muted transition-colors truncate"
               >
-                <UploadCloud className="size-3.5 rotate-180" />
-                Abrir imagen completa
+                <UploadCloud className="size-3.5 rotate-180 shrink-0" />
+                <span className="hidden xs:inline">Abrir imagen completa</span>
+                <span className="xs:hidden">Ver completa</span>
               </a>
               <button
                 type="button"
                 onClick={() => setModalComprobante(null)}
-                className="rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground hover:scale-105 transition-transform cursor-pointer"
+                className="rounded-full bg-primary px-4 sm:px-5 py-1.5 sm:py-2 text-xs font-bold text-primary-foreground hover:scale-105 transition-transform cursor-pointer"
               >
                 Cerrar
               </button>
@@ -2054,12 +2087,12 @@ function AdminPage() {
 
       {/* MODAL 2: MARCAR ENVIADO CON GUÍA */}
       {modalGuia && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-3xl bg-background border-2 border-primary p-6 shadow-2xl">
-            <h3 className="font-display text-xl font-bold text-foreground">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl sm:rounded-3xl bg-background border-2 border-primary p-4 sm:p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 className="font-display text-lg sm:text-xl font-bold text-foreground">
               {modalGuia.empresa === "Coordinar con la tienda"
-                ? `Confirmar Despacho / Entrega #${modalGuia.id}`
-                : `Despachar Pedido #${modalGuia.id} por ${modalGuia.empresa}`}
+                ? `Confirmar Despacho #${modalGuia.id}`
+                : `Despachar #${modalGuia.id} (${modalGuia.empresa})`}
             </h3>
             <p className="text-xs text-muted-foreground mt-1">
               {modalGuia.empresa === "Coordinar con la tienda"
@@ -2088,19 +2121,19 @@ function AdminPage() {
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex flex-wrap justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setModalGuia(null)}
-                  className="rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted"
+                  className="flex-1 sm:flex-initial rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="rounded-full bg-blue-600 px-5 py-2 text-xs font-bold text-white hover:bg-blue-700"
+                  className="flex-1 sm:flex-initial rounded-full bg-blue-600 px-5 py-2 text-xs font-bold text-white hover:bg-blue-700"
                 >
-                  Confirmar Guía y Envío
+                  Confirmar Envío
                 </button>
               </div>
             </form>
@@ -2110,11 +2143,11 @@ function AdminPage() {
 
       {/* MODAL 3: DETALLE DEL PEDIDO */}
       {modalDetallePedido && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-3xl bg-background border-2 border-primary p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-xs">
+          <div className="w-full max-w-lg rounded-2xl sm:rounded-3xl bg-background border-2 border-primary p-4 sm:p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div>
-                <h3 className="font-display text-xl font-bold">
+                <h3 className="font-display text-lg sm:text-xl font-bold">
                   Orden #{modalDetallePedido.id}
                 </h3>
                 <span className="text-xs text-muted-foreground">
@@ -2124,7 +2157,7 @@ function AdminPage() {
               <button
                 type="button"
                 onClick={() => setModalDetallePedido(null)}
-                className="text-muted-foreground hover:text-foreground text-sm font-bold p-1"
+                className="text-muted-foreground hover:text-foreground text-sm font-bold p-1 cursor-pointer"
               >
                 ✕
               </button>
@@ -2134,28 +2167,28 @@ function AdminPage() {
               <div className="rounded-xl border border-border bg-card p-3 space-y-2">
                 <p className="font-bold uppercase text-[11px] text-muted-foreground">Piezas adquiridas</p>
                 {modalDetallePedido.items.map((it) => (
-                  <div key={it.id} className="flex items-center gap-3 py-1 border-b border-border/40 last:border-0">
-                    <img src={it.imagen} alt={it.nombre} className="size-10 rounded-lg object-cover" />
-                    <div className="flex-1">
-                      <p className="font-semibold text-foreground">{it.nombre}</p>
+                  <div key={it.id} className="flex items-center gap-3 py-1.5 border-b border-border/40 last:border-0">
+                    <img src={it.imagen} alt={it.nombre} className="size-10 rounded-lg object-cover shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-foreground truncate">{it.nombre}</p>
                       <p className="text-muted-foreground text-[10px]">{it.cantidad} × {formatUSD(it.precioUSD)}</p>
                     </div>
-                    <span className="font-bold">{formatUSD(it.precioUSD * it.cantidad)}</span>
+                    <span className="font-bold shrink-0">{formatUSD(it.precioUSD * it.cantidad)}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="rounded-xl border border-border bg-card p-3">
+              <div className="rounded-xl border border-border bg-card p-3 space-y-1">
                 <p className="font-bold uppercase text-[11px] text-muted-foreground">Destinatario y Encomienda</p>
-                <p className="mt-1 font-semibold">{modalDetallePedido.cliente.nombre} ({modalDetallePedido.cliente.cedula})</p>
+                <p className="mt-1 font-semibold break-words">{modalDetallePedido.cliente.nombre} ({modalDetallePedido.cliente.cedula})</p>
                 <p className="text-muted-foreground">Teléfono: {modalDetallePedido.cliente.telefono}</p>
                 <p className="text-muted-foreground">Empresa: {modalDetallePedido.envio.empresa} (Cobro en Destino)</p>
-                <p className="text-muted-foreground">Agencia: {modalDetallePedido.envio.agencia}, {modalDetallePedido.envio.ciudad}</p>
+                <p className="text-muted-foreground break-words">Agencia: {modalDetallePedido.envio.agencia}, {modalDetallePedido.envio.ciudad}</p>
                 {modalDetallePedido.envio.notas && (
-                  <p className="text-muted-foreground mt-1">Notas: {modalDetallePedido.envio.notas}</p>
+                  <p className="text-muted-foreground mt-1 break-words">Notas: {modalDetallePedido.envio.notas}</p>
                 )}
                 {modalDetallePedido.envio.numeroGuia && (
-                  <p className="text-blue-700 font-bold mt-1">Guía: {modalDetallePedido.envio.numeroGuia}</p>
+                  <p className="text-blue-700 font-bold mt-1 break-all">Guía: {modalDetallePedido.envio.numeroGuia}</p>
                 )}
               </div>
 
@@ -2163,7 +2196,7 @@ function AdminPage() {
                 <p className="font-bold uppercase text-[11px] text-muted-foreground">Información del Pago</p>
                 <p className="mt-1 font-semibold">{labelMetodoPago(modalDetallePedido.pago.metodo)}</p>
                 {modalDetallePedido.pago.referencia && (
-                  <p className="font-mono text-xs">Ref: {modalDetallePedido.pago.referencia}</p>
+                  <p className="font-mono text-xs break-all">Ref: {modalDetallePedido.pago.referencia}</p>
                 )}
                 {(modalDetallePedido.pago.comprobanteUrl || modalDetallePedido.pago.comprobanteNombre) && (
                   <div className="mt-2 pt-2 border-t border-border/50">
@@ -2185,7 +2218,7 @@ function AdminPage() {
                           <img
                             src={modalDetallePedido.pago.comprobanteUrl || modalDetallePedido.pago.comprobanteNombre}
                             alt="Comprobante"
-                            className="max-h-40 w-auto rounded-lg object-contain mx-auto"
+                            className="max-h-36 sm:max-h-40 w-auto rounded-lg object-contain mx-auto"
                           />
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1 rounded-lg">
                             <Eye className="size-4" /> Clic para ampliar
@@ -2207,7 +2240,7 @@ function AdminPage() {
                         </button>
                       </div>
                     ) : (
-                      <p className="text-brand-brown font-medium mt-0.5">
+                      <p className="text-brand-brown font-medium mt-0.5 break-words">
                         📎 {modalDetallePedido.pago.comprobanteNombre}
                       </p>
                     )}
@@ -2216,11 +2249,11 @@ function AdminPage() {
               </div>
             </div>
 
-            <div className="mt-6 pt-3 border-t border-border flex justify-end">
+            <div className="mt-5 pt-3 border-t border-border flex justify-end">
               <button
                 type="button"
                 onClick={() => setModalDetallePedido(null)}
-                className="rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground"
+                className="w-full sm:w-auto rounded-full bg-primary px-6 py-2.5 text-xs font-bold text-primary-foreground text-center cursor-pointer"
               >
                 Cerrar
               </button>
@@ -2231,9 +2264,9 @@ function AdminPage() {
 
       {/* MODAL 4: CARGAR NUEVO PRODUCTO */}
       {modalNuevoProducto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-3xl bg-background border-2 border-primary p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 className="font-display text-xl font-bold">Cargar Nuevo Producto</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl sm:rounded-3xl bg-background border-2 border-primary p-4 sm:p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 className="font-display text-lg sm:text-xl font-bold">Cargar Nuevo Producto</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
               Completa los datos para publicar una nueva pieza en el catálogo.
             </p>
@@ -2443,19 +2476,19 @@ function AdminPage() {
                 <span>Marcar como producto destacado en el inicio</span>
               </label>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex flex-wrap justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setModalNuevoProducto(false)}
                   disabled={guardandoProducto}
-                  className="rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted disabled:opacity-50"
+                  className="flex-1 sm:flex-initial rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted disabled:opacity-50 text-center"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={guardandoProducto}
-                  className="rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground hover:scale-105 transition-transform disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                  className="flex-1 sm:flex-initial rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground hover:scale-105 transition-transform disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer text-center"
                 >
                   {guardandoProducto && <RefreshCw className="size-3.5 animate-spin" />}
                   {guardandoProducto ? "Guardando..." : "Publicar Producto"}
@@ -2468,9 +2501,9 @@ function AdminPage() {
 
       {/* MODAL 5: EDITAR PRODUCTO */}
       {modalEditarProducto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-3xl bg-background border-2 border-primary p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 className="font-display text-xl font-bold">Editar Producto</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl sm:rounded-3xl bg-background border-2 border-primary p-4 sm:p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 className="font-display text-lg sm:text-xl font-bold">Editar Producto</h3>
 
             <form onSubmit={handleGuardarEdicionProducto} className="mt-4 space-y-3.5 text-xs">
               <div>
@@ -2670,19 +2703,19 @@ function AdminPage() {
                 <span>Marcar como producto destacado en el inicio</span>
               </label>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex flex-wrap justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setModalEditarProducto(null)}
                   disabled={guardandoProducto}
-                  className="rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted disabled:opacity-50"
+                  className="flex-1 sm:flex-initial rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted disabled:opacity-50 text-center"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={guardandoProducto}
-                  className="rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground hover:scale-105 transition-transform disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                  className="flex-1 sm:flex-initial rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground hover:scale-105 transition-transform disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer text-center"
                 >
                   {guardandoProducto && <RefreshCw className="size-3.5 animate-spin" />}
                   {guardandoProducto ? "Guardando..." : "Guardar Cambios"}

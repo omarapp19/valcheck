@@ -136,9 +136,9 @@ function RootComponent() {
         <AdminStoreProvider>
           <DepartmentProvider>
             <CartProvider>
-              <div className="flex min-h-screen flex-col">
+              <div className="flex min-h-screen flex-col overflow-x-hidden w-full max-w-full">
                 {!isHome && <Header />}
-                <main className="flex-1 flex flex-col">
+                <main className="flex-1 flex flex-col w-full min-w-0 overflow-x-hidden">
                   <Outlet />
                 </main>
                 {!isHome && <Footer />}
