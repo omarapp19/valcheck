@@ -379,6 +379,7 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
         .then(({ data, error }) => {
           if (!error && data) {
             const validData = data.filter((d: any) => !["prod-1", "prod-2", "prod-3", "prod-4"].includes(d.id));
+            const deletedIds = getDeletedProductIds();
             if (validData.length > 0) {
               const mapped: Producto[] = validData.map((d: any) => ({
                 id: d.id,
@@ -403,7 +404,8 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
                 const localesNoEnSupabase = prev.filter(
                   (p) => !supabaseIds.has(p.id) && !productosIniciales.some((pi) => pi.id === p.id)
                 );
-                const combinados = [...localesNoEnSupabase, ...mapped].filter((p) => !deletedIds.has(p.id));
+                const currentDeleted = getDeletedProductIds();
+                const combinados = [...localesNoEnSupabase, ...mapped].filter((p) => !currentDeleted.has(p.id));
                 try {
                   localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(combinados));
                 } catch {
