@@ -351,12 +351,12 @@ function AuthPage() {
             >
               {/* Alerta si el email necesita confirmación */}
               {emailPendienteConfirmar && (
-                <div className="rounded-2xl bg-amber-50 border border-amber-300 p-3.5 text-xs text-amber-900 space-y-2">
+                <div className="rounded-2xl bg-amber-500/15 border border-amber-500/40 p-3.5 text-xs text-amber-900 dark:text-amber-200 space-y-2">
                   <div className="flex items-start gap-2">
-                    <AlertCircle className="size-4 text-amber-700 shrink-0 mt-0.5" />
+                    <AlertCircle className="size-4 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
                     <div>
                       <p className="font-bold">Tu cuenta aún no ha sido confirmada</p>
-                      <p className="mt-0.5 text-[11px] text-amber-800">
+                      <p className="mt-0.5 text-[11px] text-amber-800 dark:text-amber-300">
                         Supabase requiere confirmar tu correo antes del primer inicio de sesión.
                       </p>
                     </div>
@@ -585,12 +585,12 @@ function AuthPage() {
               </div>
 
               {resetEnviado ? (
-                <div className="rounded-2xl bg-emerald-50 border border-emerald-300 p-4 text-center space-y-2">
+                <div className="rounded-2xl bg-emerald-500/15 border border-emerald-500/40 p-4 text-center space-y-2">
                   <CheckCircle2 className="size-8 text-emerald-600 mx-auto" />
-                  <p className="font-display font-bold text-base text-emerald-900">
+                  <p className="font-display font-bold text-base text-emerald-900 dark:text-emerald-300">
                     ¡Correo de recuperación enviado!
                   </p>
-                  <p className="text-xs text-emerald-800 leading-relaxed">
+                  <p className="text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed">
                     Hemos enviado un enlace a <strong>{resetEmail}</strong>. Al abrir el enlace podrás establecer una nueva contraseña.
                   </p>
                   <button

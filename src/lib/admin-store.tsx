@@ -138,9 +138,9 @@ interface AdminStoreContextValue {
   pedidos: Order[];
   ajustesPago: AjustesPago;
   actualizarAjustesPago: (nuevos: Partial<AjustesPago>) => void;
-  agregarProducto: (p: Omit<Producto, "id">) => Producto;
-  editarProducto: (id: string, p: Partial<Producto>) => void;
-  eliminarProducto: (id: string) => void;
+  agregarProducto: (p: Omit<Producto, "id">) => Promise<Producto>;
+  editarProducto: (id: string, p: Partial<Producto>) => Promise<void>;
+  eliminarProducto: (id: string) => Promise<void>;
   toggleActivoProducto: (id: string) => void;
   crearPedido: (data: {
     numeroPedido?: string | undefined;
@@ -354,12 +354,27 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
                 calificacion: Number(d.calificacion ?? 5.0),
                 totalResenas: d.resenas_count ?? 12,
               }));
-              setProductos(mapped);
-              localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(mapped));
+              setProductos((prev) => {
+                // Conservar productos creados localmente que aún no se hayan reflejado para evitar pérdidas al recargar
+                const supabaseIds = new Set(mapped.map((m) => m.id));
+                const localesNoEnSupabase = prev.filter(
+                  (p) => !supabaseIds.has(p.id) && !productosIniciales.some((pi) => pi.id === p.id)
+                );
+                const combinados = [...localesNoEnSupabase, ...mapped];
+                try {
+                  localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(combinados));
+                } catch {
+                  /* ignore */
+                }
+                return combinados;
+              });
             } else {
-              // Si la base de datos está vacía de productos reales, usar el catálogo de joyería original
               setProductos(productosIniciales);
-              localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(productosIniciales));
+              try {
+                localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(productosIniciales));
+              } catch {
+                /* ignore */
+              }
             }
           }
         });
@@ -411,7 +426,11 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
 
   const persistProductos = (prods: Producto[]) => {
     setProductos(prods);
-    localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(prods));
+    try {
+      localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(prods));
+    } catch (e) {
+      console.warn("Aviso: Quota excedida en localStorage:", e);
+    }
   };
 
   const persistPedidos = (ords: Order[]) => {
@@ -419,52 +438,85 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(ords));
   };
 
-  const agregarProducto = (p: Omit<Producto, "id">) => {
+  const agregarProducto = async (p: Omit<Producto, "id">): Promise<Producto> => {
     const slugId = p.nombre
       .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
-    const id = `${slugId}-${Date.now().toString().slice(-4)}`;
+    const id = `${slugId || "producto"}-${Date.now().toString().slice(-4)}`;
+
+    const precioNum = Number(p.precio ?? p.precioUSD ?? 0);
 
     const nuevo: Producto = {
       ...p,
       id,
+      precio: precioNum,
+      precioUSD: precioNum,
     };
     const actualizados = [nuevo, ...productos];
     persistProductos(actualizados);
 
     if (isSupabaseConfigured && supabase) {
-      supabase.from("productos").insert({
+      const { error } = await supabase.from("productos").insert({
         id,
-        nombre: p.nombre,
-        precio_usd: p.precio,
-        precio_anterior: p.precioAnterior,
-        categoria: p.categoria,
-        imagen: p.imagen,
-        descripcion: p.descripcion,
-        stock: p.stock,
-        destacado: true,
-      }).then();
+        nombre: nuevo.nombre,
+        precio_usd: precioNum,
+        precio_anterior: nuevo.precioAnterior ? Number(nuevo.precioAnterior) : null,
+        categoria: nuevo.categoria,
+        imagen: nuevo.imagen,
+        descripcion: nuevo.descripcion || "",
+        stock: nuevo.stock ?? 10,
+        destacado: Boolean(nuevo.destacado),
+      });
+
+      if (error) {
+        console.error("Error al guardar producto en Supabase:", error);
+        throw new Error(error.message);
+      }
     }
 
     return nuevo;
   };
 
-  const editarProducto = (id: string, p: Partial<Producto>) => {
-    const actualizados = productos.map((item) => (item.id === id ? { ...item, ...p } : item));
+  const editarProducto = async (id: string, p: Partial<Producto>): Promise<void> => {
+    const precioNum =
+      p.precio !== undefined
+        ? Number(p.precio)
+        : p.precioUSD !== undefined
+        ? Number(p.precioUSD)
+        : undefined;
+
+    const actualizados = productos.map((item) =>
+      item.id === id
+        ? {
+            ...item,
+            ...p,
+            ...(precioNum !== undefined ? { precio: precioNum, precioUSD: precioNum } : {}),
+          }
+        : item
+    );
     persistProductos(actualizados);
 
     if (isSupabaseConfigured && supabase) {
       const updates: any = {};
       if (p.nombre !== undefined) updates.nombre = p.nombre;
-      if (p.precio !== undefined) updates.precio_usd = p.precio;
-      if (p.precioAnterior !== undefined) updates.precio_anterior = p.precioAnterior;
+      if (precioNum !== undefined) updates.precio_usd = precioNum;
+      if (p.precioAnterior !== undefined) updates.precio_anterior = p.precioAnterior ? Number(p.precioAnterior) : null;
       if (p.categoria !== undefined) updates.categoria = p.categoria;
       if (p.imagen !== undefined) updates.imagen = p.imagen;
       if (p.descripcion !== undefined) updates.descripcion = p.descripcion;
       if (p.stock !== undefined) updates.stock = p.stock;
-      if (p.activo !== undefined) updates.activo = p.activo;
-      supabase.from("productos").update(updates).eq("id", id).then();
+      if (p.destacado !== undefined) updates.destacado = Boolean(p.destacado);
+
+      if (Object.keys(updates).length > 0) {
+        const { error } = await supabase.from("productos").update(updates).eq("id", id);
+        if (error) {
+          console.error("Error al actualizar producto en Supabase:", error);
+          throw new Error(error.message);
+        }
+      }
     }
   };
 
@@ -473,18 +525,17 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
       p.id === id ? { ...p, activo: p.activo === false ? true : false } : p
     );
     persistProductos(actualizados);
-    if (isSupabaseConfigured && supabase) {
-      const prod = actualizados.find((p) => p.id === id);
-      supabase.from("productos").update({ activo: prod?.activo }).eq("id", id).then();
-    }
   };
 
-  const eliminarProducto = (id: string) => {
+  const eliminarProducto = async (id: string): Promise<void> => {
     const actualizados = productos.filter((item) => item.id !== id);
     persistProductos(actualizados);
 
     if (isSupabaseConfigured && supabase) {
-      supabase.from("productos").delete().eq("id", id).then();
+      const { error } = await supabase.from("productos").delete().eq("id", id);
+      if (error) {
+        console.error("Error al eliminar producto en Supabase:", error);
+      }
     }
   };
 

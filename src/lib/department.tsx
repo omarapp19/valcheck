@@ -34,10 +34,10 @@ export function DepartmentProvider({ children }: { children: ReactNode }) {
     if (typeof document !== "undefined") {
       if (dept === "maquillaje") {
         document.documentElement.setAttribute("data-theme", "maquillaje");
-        document.documentElement.classList.add("theme-maquillaje");
+        document.documentElement.classList.add("theme-maquillaje", "dark");
       } else {
         document.documentElement.removeAttribute("data-theme");
-        document.documentElement.classList.remove("theme-maquillaje");
+        document.documentElement.classList.remove("theme-maquillaje", "dark");
       }
     }
   };

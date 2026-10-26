@@ -2,7 +2,7 @@
 @source "../src";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark *, .theme-maquillaje *, [data-theme="maquillaje"] *));
 
 /*
  * Sistema de diseño ValCheck — "Belleza Verificada"

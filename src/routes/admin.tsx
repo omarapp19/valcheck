@@ -194,21 +194,59 @@ function AdminPage() {
     }
   }, [ajustesPago]);
 
-  const handleSubirImagenLocal = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [guardandoProducto, setGuardandoProducto] = useState(false);
+
+  const comprimirImagen = (file: File, maxDim = 1000, calidad = 0.82): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            resolve(e.target?.result as string);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", calidad));
+        };
+        img.onerror = reject;
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleSubirImagenLocal = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("La imagen no debe superar los 5MB");
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error("La imagen no debe superar los 15MB");
       return;
     }
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (typeof reader.result === "string") {
-        setProdImagen(reader.result);
-        toast.success("Foto seleccionada exitosamente");
-      }
-    };
-    reader.readAsDataURL(file);
+    const toastId = toast.loading("Optimizando foto del producto...");
+    try {
+      const dataUrl = await comprimirImagen(file);
+      setProdImagen(dataUrl);
+      toast.success("Foto cargada y optimizada exitosamente", { id: toastId });
+    } catch {
+      toast.error("Error al procesar la imagen", { id: toastId });
+    }
   };
 
   const handleGuardarAjustesPago = (e: React.FormEvent) => {
@@ -260,19 +298,19 @@ function AdminPage() {
   // Acceso de emergencia si no es admin
   if (!isAdmin) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <span className="mx-auto flex size-20 items-center justify-center rounded-full bg-brand-yellow text-brand-brown">
-          <ShieldCheck className="size-10" />
+      <div className="mx-auto max-w-md px-3 sm:px-4 py-10 sm:py-20 text-center">
+        <span className="mx-auto flex size-16 sm:size-20 items-center justify-center rounded-full bg-brand-yellow text-brand-brown">
+          <ShieldCheck className="size-8 sm:size-10" />
         </span>
-        <h1 className="mt-4 font-display text-3xl font-bold">Panel Administrativo</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <h1 className="mt-4 font-display text-2xl sm:text-3xl font-bold">Panel Administrativo</h1>
+        <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
           Esta sección está reservada para administradores de ValCheck.
         </p>
 
-        <div className="mt-6 rounded-2xl border border-border bg-card p-5 text-left">
+        <div className="mt-6 rounded-2xl border border-border bg-card p-4 sm:p-5 text-left">
           <p className="text-xs font-bold uppercase text-muted-foreground">Acceso de Administrador:</p>
           <div className="mt-2 text-xs space-y-1">
-            <p><strong>Correos autorizados:</strong> omarapp1921@gmail.com, perezpandreav@gmail.com</p>
+            <p className="break-all"><strong>Correos autorizados:</strong> omarapp1921@gmail.com, perezpandreav@gmail.com</p>
             <p><strong>Contraseña de prueba:</strong> admin123</p>
           </div>
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -284,7 +322,7 @@ function AdminPage() {
                   toast.success("Has ingresado como Administrador (Omar)");
                 }
               }}
-              className="rounded-full bg-primary py-2.5 px-3 text-xs font-bold text-primary-foreground hover:scale-105 transition-transform text-center"
+              className="rounded-full bg-primary py-2.5 px-3 text-xs font-bold text-primary-foreground hover:scale-105 transition-transform text-center cursor-pointer"
             >
               Entrar como Omar
             </button>
@@ -296,7 +334,7 @@ function AdminPage() {
                   toast.success("Has ingresado como Administradora (Andrea)");
                 }
               }}
-              className="rounded-full border border-primary text-primary py-2.5 px-3 text-xs font-bold hover:bg-primary/10 transition-colors text-center"
+              className="rounded-full border border-primary text-primary py-2.5 px-3 text-xs font-bold hover:bg-primary/10 transition-colors text-center cursor-pointer"
             >
               Entrar como Andrea
             </button>
@@ -409,50 +447,66 @@ function AdminPage() {
   };
 
   // Guardar Producto
-  const handleGuardarNuevoProducto = (e: React.FormEvent) => {
+  const handleGuardarNuevoProducto = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prodNombre.trim()) {
       toast.error("Ingresa el nombre del producto");
       return;
     }
-    const fallbackImg = productos[0]?.imagen || "";
-    agregarProducto({
-      nombre: prodNombre.trim(),
-      categoria: prodCategoria,
-      departamento: prodDepartamento,
-      precioUSD: Number(prodPrecioUSD) || 10,
-      stock: Number(prodStock) >= 0 ? Number(prodStock) : 0,
-      activo: prodActivo,
-      descripcion: prodDescripcion.trim() || "Pieza exclusiva verificada por ValCheck.",
-      imagen: prodImagen.trim() || fallbackImg,
-      destacado: prodDestacado,
-    });
-    toast.success(`Producto "${prodNombre}" agregado con éxito`);
-    setModalNuevoProducto(false);
-    setProdNombre("");
-    setProdDescripcion("");
-    setProdImagen("");
-    setProdStock(10);
-    setProdActivo(true);
+    const fallbackImg = productos[0]?.imagen || "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=600&auto=format&fit=crop&q=80";
+    setGuardandoProducto(true);
+    try {
+      await agregarProducto({
+        nombre: prodNombre.trim(),
+        categoria: prodCategoria,
+        departamento: prodDepartamento,
+        precioUSD: Number(prodPrecioUSD) || 10,
+        precio: Number(prodPrecioUSD) || 10,
+        stock: Number(prodStock) >= 0 ? Number(prodStock) : 0,
+        activo: prodActivo,
+        descripcion: prodDescripcion.trim() || "Pieza exclusiva verificada por ValCheck.",
+        imagen: prodImagen.trim() || fallbackImg,
+        destacado: prodDestacado,
+      });
+      toast.success(`¡Producto "${prodNombre}" guardado y publicado con éxito!`);
+      setModalNuevoProducto(false);
+      setProdNombre("");
+      setProdDescripcion("");
+      setProdImagen("");
+      setProdStock(10);
+      setProdActivo(true);
+    } catch (err: any) {
+      toast.error("Error al guardar en base de datos: " + (err?.message || "Intenta nuevamente"));
+    } finally {
+      setGuardandoProducto(false);
+    }
   };
 
   // Guardar Edición Producto
-  const handleGuardarEdicionProducto = (e: React.FormEvent) => {
+  const handleGuardarEdicionProducto = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!modalEditarProducto) return;
-    editarProducto(modalEditarProducto.id, {
-      nombre: prodNombre.trim(),
-      categoria: prodCategoria,
-      departamento: prodDepartamento,
-      precioUSD: Number(prodPrecioUSD),
-      stock: Number(prodStock) >= 0 ? Number(prodStock) : 0,
-      activo: prodActivo,
-      descripcion: prodDescripcion.trim(),
-      imagen: prodImagen.trim() || modalEditarProducto.imagen,
-      destacado: prodDestacado,
-    });
-    toast.success("Producto actualizado correctamente");
-    setModalEditarProducto(null);
+    setGuardandoProducto(true);
+    try {
+      await editarProducto(modalEditarProducto.id, {
+        nombre: prodNombre.trim(),
+        categoria: prodCategoria,
+        departamento: prodDepartamento,
+        precioUSD: Number(prodPrecioUSD),
+        precio: Number(prodPrecioUSD),
+        stock: Number(prodStock) >= 0 ? Number(prodStock) : 0,
+        activo: prodActivo,
+        descripcion: prodDescripcion.trim(),
+        imagen: prodImagen.trim() || modalEditarProducto.imagen,
+        destacado: prodDestacado,
+      });
+      toast.success("Producto actualizado correctamente");
+      setModalEditarProducto(null);
+    } catch (err: any) {
+      toast.error("Error al actualizar producto: " + (err?.message || "Intenta nuevamente"));
+    } finally {
+      setGuardandoProducto(false);
+    }
   };
 
   const abrirEdicion = (p: Producto) => {
@@ -469,7 +523,7 @@ function AdminPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
+    <div className="mx-auto max-w-7xl px-3 sm:px-6 py-6 sm:py-8 md:py-12">
       {/* Cabecera */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
         <div>
@@ -481,22 +535,22 @@ function AdminPage() {
               Panel de Administración
             </span>
           </div>
-          <h1 className="font-display text-3xl font-bold mt-1">Gestión General ValCheck</h1>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold mt-1">Gestión General ValCheck</h1>
           <p className="text-xs text-muted-foreground">
             Control de compras, aprobación de pagos móviles, guías de encomiendas y catálogo.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <Link
             to="/tienda"
-            className="rounded-full border border-border px-3.5 py-2 text-xs font-semibold hover:bg-muted transition-colors"
+            className="rounded-full border border-border px-3.5 py-2 text-xs font-semibold hover:bg-muted transition-colors text-center"
           >
             Ver Tienda Pública
           </Link>
           <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-brand-yellow/50 border border-brand-yellow/80 px-3 py-1.5 text-xs font-bold text-brand-brown">
             <ShieldCheck className="size-3.5" />
-            <span>{user?.email || "Admin"}</span>
+            <span className="max-w-[160px] truncate">{user?.email || "Admin"}</span>
           </div>
           <button
             type="button"
@@ -514,16 +568,16 @@ function AdminPage() {
       </div>
 
       {/* Tarjetas de Métricas (KPIs) */}
-      <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         {/* KPI 1 */}
-        <div className="rounded-2xl border-2 border-primary/20 bg-card p-4 shadow-xs">
-          <span className="text-muted-foreground text-[11px] font-bold uppercase block">
+        <div className="rounded-2xl border-2 border-primary/20 bg-card p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+          <span className="text-muted-foreground text-[10px] sm:text-[11px] font-bold uppercase block truncate">
             Ventas Aprobadas
           </span>
-          <p className="mt-1 text-2xl font-bold font-display text-foreground">
+          <p className="mt-1 text-xl sm:text-2xl font-bold font-display text-foreground truncate">
             {formatUSD(totalVentasUSD)}
           </p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">{formatVES(totalVentasUSD)}</p>
+          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 truncate">{formatVES(totalVentasUSD)}</p>
         </div>
 
         {/* KPI 2 */}
@@ -533,16 +587,18 @@ function AdminPage() {
             setTabActiva("pedidos");
             setSeccionPedidos("pendientes");
           }}
-          className="rounded-2xl border-2 border-amber-300 bg-amber-50/50 p-4 shadow-xs text-left cursor-pointer hover:border-amber-400 transition-colors"
+          className="rounded-2xl border-2 border-amber-500/30 hover:border-amber-500/60 bg-card p-3.5 sm:p-4 shadow-xs text-left cursor-pointer transition-all hover:scale-[1.01] flex flex-col justify-between"
         >
-          <span className="text-amber-800 text-[11px] font-bold uppercase block flex items-center justify-between">
-            Por Verificar
-            <Clock className="size-4 text-amber-600" />
+          <span className="text-amber-700 dark:text-amber-400 text-[10px] sm:text-[11px] font-bold uppercase flex items-center justify-between gap-1">
+            <span className="truncate">Por Verificar</span>
+            <span className="flex size-5 sm:size-6 items-center justify-center rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 shrink-0">
+              <Clock className="size-3 sm:size-3.5" />
+            </span>
           </span>
-          <p className="mt-1 text-2xl font-bold font-display text-amber-900">
+          <p className="mt-1 text-xl sm:text-2xl font-bold font-display text-foreground">
             {totalPendientes}
           </p>
-          <p className="text-[11px] text-amber-700/80 mt-0.5">Nuevos por comprobar</p>
+          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 truncate">Nuevos por comprobar</p>
         </button>
 
         {/* KPI 3 */}
@@ -552,50 +608,52 @@ function AdminPage() {
             setTabActiva("pedidos");
             setSeccionPedidos("aprobados");
           }}
-          className="rounded-2xl border-2 border-emerald-300 bg-emerald-50/50 p-4 shadow-xs text-left cursor-pointer hover:border-emerald-400 transition-colors"
+          className="rounded-2xl border-2 border-emerald-500/30 hover:border-emerald-500/60 bg-card p-3.5 sm:p-4 shadow-xs text-left cursor-pointer transition-all hover:scale-[1.01] flex flex-col justify-between"
         >
-          <span className="text-emerald-800 text-[11px] font-bold uppercase block flex items-center justify-between">
-            Aprobados
-            <CheckCircle2 className="size-4 text-emerald-600" />
+          <span className="text-emerald-700 dark:text-emerald-400 text-[10px] sm:text-[11px] font-bold uppercase flex items-center justify-between gap-1">
+            <span className="truncate">Aprobados</span>
+            <span className="flex size-5 sm:size-6 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0">
+              <CheckCircle2 className="size-3 sm:size-3.5" />
+            </span>
           </span>
-          <p className="mt-1 text-2xl font-bold font-display text-emerald-900">
+          <p className="mt-1 text-xl sm:text-2xl font-bold font-display text-foreground">
             {totalAprobados}
           </p>
-          <p className="text-[11px] text-emerald-700/80 mt-0.5">Listos para envío</p>
+          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 truncate">Listos para envío</p>
         </button>
 
         {/* KPI 4 */}
-        <div className="rounded-2xl border-2 border-primary/20 bg-card p-4 shadow-xs">
-          <span className="text-muted-foreground text-[11px] font-bold uppercase block flex items-center justify-between">
-            Productos Activos
-            <ShoppingBag className="size-4 text-muted-foreground" />
+        <div className="rounded-2xl border-2 border-primary/20 bg-card p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
+          <span className="text-muted-foreground text-[10px] sm:text-[11px] font-bold uppercase flex items-center justify-between gap-1">
+            <span className="truncate">Productos Activos</span>
+            <ShoppingBag className="size-3.5 sm:size-4 text-muted-foreground shrink-0" />
           </span>
-          <p className="mt-1 text-2xl font-bold font-display text-foreground">
+          <p className="mt-1 text-xl sm:text-2xl font-bold font-display text-foreground">
             {totalProductosCount}
           </p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">En catálogo web</p>
+          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 truncate">En catálogo web</p>
         </div>
       </div>
 
       {/* Pestañas de Navegación del Panel (Deslizables horizontalmente en móvil) */}
-      <div className="mt-8 flex border-b border-border overflow-x-auto whitespace-nowrap scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="mt-6 sm:mt-8 flex border-b border-border overflow-x-auto whitespace-nowrap scrollbar-none gap-1 sm:gap-2 -mx-3 px-3 sm:mx-0 sm:px-0">
         <button
           type="button"
           onClick={() => {
             setTabActiva("pedidos");
             setSeccionPedidos("pendientes");
           }}
-          className={`flex items-center gap-2 border-b-2 py-2.5 sm:py-3 px-4 sm:px-6 text-xs sm:text-sm font-bold transition-colors cursor-pointer shrink-0 ${
+          className={`flex items-center gap-1.5 sm:gap-2 border-b-2 py-2.5 sm:py-3 px-3 sm:px-5 text-xs sm:text-sm font-bold transition-colors cursor-pointer shrink-0 ${
             tabActiva === "pedidos"
               ? "border-primary text-foreground"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
-          <ShoppingBag className="size-4" />
-          Gestión de Pagos y Pedidos
+          <ShoppingBag className="size-4 shrink-0" />
+          <span>Gestión de Pedidos</span>
           {totalPendientes > 0 && (
             <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white animate-pulse">
-              {totalPendientes} por verificar
+              {totalPendientes} nuevos
             </span>
           )}
         </button>
@@ -603,27 +661,27 @@ function AdminPage() {
         <button
           type="button"
           onClick={() => setTabActiva("productos")}
-          className={`flex items-center gap-2 border-b-2 py-2.5 sm:py-3 px-4 sm:px-6 text-xs sm:text-sm font-bold transition-colors cursor-pointer shrink-0 ${
+          className={`flex items-center gap-1.5 sm:gap-2 border-b-2 py-2.5 sm:py-3 px-3 sm:px-5 text-xs sm:text-sm font-bold transition-colors cursor-pointer shrink-0 ${
             tabActiva === "productos"
               ? "border-primary text-foreground"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
-          <Package className="size-4" />
-          Catálogo de Productos ({totalProductosCount})
+          <Package className="size-4 shrink-0" />
+          <span>Catálogo ({totalProductosCount})</span>
         </button>
 
         <button
           type="button"
           onClick={() => setTabActiva("ajustes")}
-          className={`flex items-center gap-2 border-b-2 py-2.5 sm:py-3 px-4 sm:px-6 text-xs sm:text-sm font-bold transition-colors cursor-pointer shrink-0 ${
+          className={`flex items-center gap-1.5 sm:gap-2 border-b-2 py-2.5 sm:py-3 px-3 sm:px-5 text-xs sm:text-sm font-bold transition-colors cursor-pointer shrink-0 ${
             tabActiva === "ajustes"
               ? "border-primary text-foreground"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
-          <Building2 className="size-4" />
-          Datos y Configuración
+          <Building2 className="size-4 shrink-0" />
+          <span>Cuentas y Configuración</span>
         </button>
       </div>
 
@@ -876,14 +934,14 @@ function AdminPage() {
                     {/* Estado con selector o badge */}
                     <div className="flex items-center gap-2">
                       <span
-                        className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${
+                        className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider border ${
                           ped.estado === "pendiente"
-                            ? "bg-amber-100 text-amber-800"
+                            ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30"
                             : ped.estado === "aprobado"
-                              ? "bg-emerald-100 text-emerald-800"
+                              ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/30"
                               : ped.estado === "enviado"
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-rose-100 text-rose-800"
+                                ? "bg-blue-500/15 text-blue-800 dark:text-blue-300 border-blue-500/30"
+                                : "bg-rose-500/15 text-rose-800 dark:text-rose-300 border-rose-500/30"
                         }`}
                       >
                         {ped.estado}
@@ -1330,15 +1388,15 @@ function AdminPage() {
           </div>
 
           {/* TASA DE CAMBIO OFICIAL BCV (SINCRONIZACIÓN AUTOMÁTICA) */}
-          <div className="rounded-3xl border-2 border-emerald-500/40 bg-gradient-to-br from-emerald-50/70 via-background to-brand-yellow/20 p-5 sm:p-6 shadow-xs">
+          <div className="rounded-3xl border-2 border-emerald-500/40 bg-gradient-to-br from-emerald-500/10 via-card to-brand-yellow/10 p-5 sm:p-6 shadow-xs">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
                   <span className="flex size-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-900">
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
                     Tasa Oficial BCV — Sincronización Automática
                   </span>
-                  <span className="rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5">
+                  <span className="rounded-full bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 text-[10px] font-bold px-2 py-0.5">
                     En Vivo
                   </span>
                 </div>
@@ -1358,10 +1416,10 @@ function AdminPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <div className="flex items-center gap-2 rounded-2xl border-2 border-emerald-400 bg-background px-4 py-2.5 shadow-xs">
+                <div className="flex items-center gap-2 rounded-2xl border-2 border-emerald-500/40 bg-card px-4 py-2.5 shadow-xs">
                   <span className="text-xs font-bold text-muted-foreground">1 USD =</span>
                   <div className="flex items-baseline gap-1">
-                    <span className="font-display text-xl font-bold text-emerald-900">
+                    <span className="font-display text-xl font-bold text-emerald-800 dark:text-emerald-300">
                       Bs. {Number(tasaUSD || tasaBCV).toLocaleString("es-VE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                   </div>
@@ -1390,7 +1448,7 @@ function AdminPage() {
           <div className="space-y-4">
             <div className="border-b border-border/80 pb-2">
               <div className="flex items-center gap-2">
-                <span className="flex size-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 font-bold">
+                <span className="flex size-7 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/30">
                   <MessageCircle className="size-4" />
                 </span>
                 <h3 className="font-display text-lg font-bold">Canales de Contacto y Atención al Cliente</h3>
@@ -1404,7 +1462,7 @@ function AdminPage() {
               {/* WhatsApp de Pedidos y Soporte */}
               <div className="rounded-3xl border border-border bg-card p-5 shadow-xs space-y-3">
                 <div className="flex items-center gap-2.5 border-b border-border pb-3">
-                  <span className="flex size-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs">
+                  <span className="flex size-8 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-bold text-xs border border-emerald-500/30">
                     WA
                   </span>
                   <div>
@@ -1538,7 +1596,7 @@ function AdminPage() {
               {/* Ubicación / Sede y Horario de Atención */}
               <div className="rounded-3xl border border-border bg-card p-5 shadow-xs space-y-3">
                 <div className="flex items-center gap-2.5 border-b border-border pb-3">
-                  <span className="flex size-8 items-center justify-center rounded-full bg-amber-100 text-amber-900 font-bold text-xs">
+                  <span className="flex size-8 items-center justify-center rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold text-xs border border-amber-500/30">
                     <MapPin className="size-4" />
                   </span>
                   <div>
