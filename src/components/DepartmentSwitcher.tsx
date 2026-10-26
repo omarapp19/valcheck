@@ -39,7 +39,7 @@ export function DepartmentSwitcher() {
           </>
         ) : (
           <>
-            <Palette className="size-3 text-brand-yellow shrink-0" />
+            <Palette className="size-3 text-brand-brown shrink-0" />
             <span>Maquillaje</span>
           </>
         )}

@@ -174,7 +174,7 @@ export function Header() {
                   </>
                 ) : (
                   <>
-                    <Palette className="size-4 text-brand-yellow" />
+                    <Palette className="size-4 text-brand-brown" />
                     <span>Cambiar a Maquillaje</span>
                   </>
                 )}

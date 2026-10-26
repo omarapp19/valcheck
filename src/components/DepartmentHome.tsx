@@ -53,7 +53,7 @@ export function DepartmentHome({ departamento }: DepartmentHomeProps) {
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-8 md:grid-cols-2 md:py-16">
           <div>
             <span className="stamp inline-flex items-center gap-2 px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
-              {isMaquillaje ? <Palette className="size-3.5 text-brand-yellow" /> : <Gem className="size-3.5 text-brand-yellow" />}
+              {isMaquillaje ? <Palette className="size-3.5 text-brand-brown" /> : <Gem className="size-3.5 text-brand-brown" />}
               {isMaquillaje ? "Línea Cosmética Verificada" : "Belleza Verificada"}
             </span>
 

@@ -98,7 +98,7 @@ function Tienda() {
             </>
           ) : (
             <>
-              <Palette className="size-3.5 text-brand-yellow" />
+              <Palette className="size-3.5 text-brand-brown" />
               Ver colección de Maquillaje
             </>
           )}
