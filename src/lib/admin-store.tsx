@@ -208,22 +208,7 @@ export const esPedidoDemo = (o: any) => {
 const PEDIDOS_DEMO: Order[] = [];
 
 export function AdminStoreProvider({ children }: { children: ReactNode }) {
-  const [productos, setProductos] = useState<Producto[]>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const deletedIds = getDeletedProductIds();
-        const storedProds = localStorage.getItem(STORAGE_PRODUCTS_KEY);
-        if (storedProds) {
-          const parsed: Producto[] = JSON.parse(storedProds);
-          return parsed.filter((p) => !deletedIds.has(p.id));
-        }
-        return productosIniciales.filter((p) => !deletedIds.has(p.id));
-      } catch {
-        /* ignore */
-      }
-    }
-    return productosIniciales;
-  });
+  const [productos, setProductos] = useState<Producto[]>(productosIniciales);
   const [pedidos, setPedidos] = useState<Order[]>([]);
   const [ajustesPago, setAjustesPago] = useState<AjustesPago>(AJUSTES_PAGO_DEFAULT);
   const [hydrated, setHydrated] = useState(false);
