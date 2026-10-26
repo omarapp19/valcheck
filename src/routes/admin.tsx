@@ -691,96 +691,98 @@ function AdminPage() {
       {tabActiva === "pedidos" && (
         <div className="mt-6 space-y-6">
           {/* Pestañas de Secciones de Pedidos */}
-          <div className="flex flex-wrap items-center gap-2 border-b border-border pb-3">
-            <button
-              type="button"
-              onClick={() => setSeccionPedidos("pendientes")}
-              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer ${
-                seccionPedidos === "pendientes"
-                  ? "bg-amber-500 text-white shadow-sm scale-[1.02]"
-                  : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
-            >
-              <Clock className="size-4" />
-              Por Verificar (Nuevos)
-              {totalPendientes > 0 && (
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
-                    seccionPedidos === "pendientes" ? "bg-white text-amber-700" : "bg-amber-500 text-white"
-                  }`}
-                >
-                  {totalPendientes}
-                </span>
-              )}
-            </button>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3">
+            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto whitespace-nowrap scrollbar-none pb-1 sm:pb-0 -mx-3 px-3 sm:mx-0 sm:px-0">
+              <button
+                type="button"
+                onClick={() => setSeccionPedidos("pendientes")}
+                className={`flex items-center gap-1.5 rounded-2xl px-3 sm:px-3.5 py-2 text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                  seccionPedidos === "pendientes"
+                    ? "bg-amber-500 text-white shadow-sm scale-[1.02]"
+                    : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                <Clock className="size-3.5 shrink-0" />
+                Por Verificar
+                {totalPendientes > 0 && (
+                  <span
+                    className={`rounded-full px-1.5 py-0.5 text-[10px] font-black ${
+                      seccionPedidos === "pendientes" ? "bg-white text-amber-700" : "bg-amber-500 text-white"
+                    }`}
+                  >
+                    {totalPendientes}
+                  </span>
+                )}
+              </button>
 
-            <button
-              type="button"
-              onClick={() => setSeccionPedidos("aprobados")}
-              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer ${
-                seccionPedidos === "aprobados"
-                  ? "bg-emerald-600 text-white shadow-sm scale-[1.02]"
-                  : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
-            >
-              <CheckCircle2 className="size-4" />
-              Aprobados / Listos para Envío
-              {totalAprobados > 0 && (
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
-                    seccionPedidos === "aprobados" ? "bg-white text-emerald-700" : "bg-emerald-600 text-white"
-                  }`}
-                >
-                  {totalAprobados}
-                </span>
-              )}
-            </button>
+              <button
+                type="button"
+                onClick={() => setSeccionPedidos("aprobados")}
+                className={`flex items-center gap-1.5 rounded-2xl px-3 sm:px-3.5 py-2 text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                  seccionPedidos === "aprobados"
+                    ? "bg-emerald-600 text-white shadow-sm scale-[1.02]"
+                    : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                <CheckCircle2 className="size-3.5 shrink-0" />
+                Aprobados
+                {totalAprobados > 0 && (
+                  <span
+                    className={`rounded-full px-1.5 py-0.5 text-[10px] font-black ${
+                      seccionPedidos === "aprobados" ? "bg-white text-emerald-700" : "bg-emerald-600 text-white"
+                    }`}
+                  >
+                    {totalAprobados}
+                  </span>
+                )}
+              </button>
 
-            <button
-              type="button"
-              onClick={() => setSeccionPedidos("enviados")}
-              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer ${
-                seccionPedidos === "enviados"
-                  ? "bg-blue-600 text-white shadow-sm scale-[1.02]"
-                  : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
-            >
-              <Truck className="size-4" />
-              Enviados
-              {totalEnviados > 0 && (
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
-                    seccionPedidos === "enviados" ? "bg-white text-blue-700" : "bg-blue-600 text-white"
-                  }`}
-                >
-                  {totalEnviados}
-                </span>
-              )}
-            </button>
+              <button
+                type="button"
+                onClick={() => setSeccionPedidos("enviados")}
+                className={`flex items-center gap-1.5 rounded-2xl px-3 sm:px-3.5 py-2 text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                  seccionPedidos === "enviados"
+                    ? "bg-blue-600 text-white shadow-sm scale-[1.02]"
+                    : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                <Truck className="size-3.5 shrink-0" />
+                Enviados
+                {totalEnviados > 0 && (
+                  <span
+                    className={`rounded-full px-1.5 py-0.5 text-[10px] font-black ${
+                      seccionPedidos === "enviados" ? "bg-white text-blue-700" : "bg-blue-600 text-white"
+                    }`}
+                  >
+                    {totalEnviados}
+                  </span>
+                )}
+              </button>
 
-            <button
-              type="button"
-              onClick={() => setSeccionPedidos("rechazados")}
-              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer ${
-                seccionPedidos === "rechazados"
-                  ? "bg-rose-600 text-white shadow-sm scale-[1.02]"
-                  : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
-            >
-              <XCircle className="size-4" />
-              Rechazados
-              {totalRechazados > 0 && (
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
-                    seccionPedidos === "rechazados" ? "bg-white text-rose-700" : "bg-rose-600 text-white"
-                  }`}
-                >
-                  {totalRechazados}
-                </span>
-              )}
-            </button>
+              <button
+                type="button"
+                onClick={() => setSeccionPedidos("rechazados")}
+                className={`flex items-center gap-1.5 rounded-2xl px-3 sm:px-3.5 py-2 text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                  seccionPedidos === "rechazados"
+                    ? "bg-rose-600 text-white shadow-sm scale-[1.02]"
+                    : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                <XCircle className="size-3.5 shrink-0" />
+                Rechazados
+                {totalRechazados > 0 && (
+                  <span
+                    className={`rounded-full px-1.5 py-0.5 text-[10px] font-black ${
+                      seccionPedidos === "rechazados" ? "bg-white text-rose-700" : "bg-rose-600 text-white"
+                    }`}
+                  >
+                    {totalRechazados}
+                  </span>
+                )}
+              </button>
+            </div>
 
-            <div className="flex items-center gap-2 ml-auto">
+            <div className="flex items-center gap-2 shrink-0 justify-between sm:justify-end">
               {pedidos.length > 0 && (
                 <button
                   type="button"
@@ -789,26 +791,26 @@ function AdminPage() {
                   title="Eliminar todos los pedidos registrados"
                 >
                   <Trash2 className="size-3.5" />
-                  Vaciar Pedidos
+                  Vaciar
                 </button>
               )}
               <button
                 type="button"
                 onClick={() => setSeccionPedidos("todos")}
-                className={`flex items-center gap-1.5 rounded-2xl px-3.5 py-2.5 text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 rounded-2xl px-3.5 py-2 text-xs font-bold transition-all cursor-pointer ${
                   seccionPedidos === "todos"
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
               >
-                Historial General ({pedidos.length})
+                Historial ({pedidos.length})
               </button>
             </div>
           </div>
 
           {/* Barra de Filtros y Búsqueda */}
           <div className="flex flex-col gap-3">
-            <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               {/* Contexto de la sección actual */}
               <div>
                 <p className="text-xs font-semibold text-muted-foreground">
@@ -821,29 +823,29 @@ function AdminPage() {
               </div>
 
               {/* Búsqueda */}
-              <div className="relative w-full lg:w-80">
+              <div className="relative w-full sm:w-80 shrink-0">
                 <Search className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
                 <input
                   type="text"
                   value={busquedaPedido}
                   onChange={(e) => setBusquedaPedido(e.target.value)}
-                  placeholder="Buscar por cliente, cédula, ref o banco..."
+                  placeholder="Buscar por cliente, CI, ref o banco..."
                   className="w-full rounded-full border border-input bg-background pl-9 pr-4 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
             </div>
 
             {/* Filtros específicos de Pago y Fecha */}
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card/60 p-2.5 text-xs">
-              <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card/60 p-3 text-xs">
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3">
                 {/* Selector de Método de Pago */}
                 <div className="flex items-center gap-1.5">
-                  <Wallet className="size-3.5 text-muted-foreground" />
-                  <span className="text-[11px] font-bold text-muted-foreground">Método:</span>
+                  <Wallet className="size-3.5 text-muted-foreground shrink-0" />
+                  <span className="text-[11px] font-bold text-muted-foreground shrink-0">Método:</span>
                   <select
                     value={filtroMetodoPago}
                     onChange={(e) => setFiltroMetodoPago(e.target.value)}
-                    className="rounded-xl border border-border bg-background px-2.5 py-1 text-xs font-medium outline-none focus:ring-2 focus:ring-ring cursor-pointer"
+                    className="w-full sm:w-auto rounded-xl border border-border bg-background px-2.5 py-1 text-xs font-medium outline-none focus:ring-2 focus:ring-ring cursor-pointer"
                   >
                     <option value="todos">Todos los métodos</option>
                     <option value="pago_movil">Pago Móvil (Bs)</option>
@@ -855,12 +857,12 @@ function AdminPage() {
 
                 {/* Selector de Fecha */}
                 <div className="flex items-center gap-1.5">
-                  <Clock className="size-3.5 text-muted-foreground" />
-                  <span className="text-[11px] font-bold text-muted-foreground">Período:</span>
+                  <Clock className="size-3.5 text-muted-foreground shrink-0" />
+                  <span className="text-[11px] font-bold text-muted-foreground shrink-0">Período:</span>
                   <select
                     value={filtroFecha}
                     onChange={(e) => setFiltroFecha(e.target.value)}
-                    className="rounded-xl border border-border bg-background px-2.5 py-1 text-xs font-medium outline-none focus:ring-2 focus:ring-ring cursor-pointer"
+                    className="w-full sm:w-auto rounded-xl border border-border bg-background px-2.5 py-1 text-xs font-medium outline-none focus:ring-2 focus:ring-ring cursor-pointer"
                   >
                     <option value="todos">Cualquier fecha</option>
                     <option value="hoy">Hoy</option>
@@ -871,9 +873,9 @@ function AdminPage() {
               </div>
 
               {/* Contador y Limpiar filtros */}
-              <div className="flex items-center gap-2 ml-auto">
+              <div className="flex items-center justify-between sm:justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/40">
                 <span className="text-[11px] font-medium text-muted-foreground">
-                  {pedidosFiltrados.length} {pedidosFiltrados.length === 1 ? "pedido en sección" : "pedidos en sección"}
+                  {pedidosFiltrados.length} {pedidosFiltrados.length === 1 ? "pedido" : "pedidos"}
                 </span>
                 {(filtroMetodoPago !== "todos" || filtroFecha !== "todos" || busquedaPedido) && (
                   <button
@@ -895,7 +897,7 @@ function AdminPage() {
 
           {/* Listado de Pedidos */}
           {pedidosFiltrados.length === 0 ? (
-            <div className="rounded-3xl border border-border bg-card p-12 text-center">
+            <div className="rounded-3xl border border-border bg-card p-8 sm:p-12 text-center">
               <ShoppingBag className="size-10 text-muted-foreground mx-auto" />
               <p className="mt-3 font-semibold text-sm">
                 {seccionPedidos === "pendientes"
@@ -914,11 +916,11 @@ function AdminPage() {
               {pedidosFiltrados.map((ped) => (
                 <div
                   key={ped.id}
-                  className="rounded-2xl border-2 border-primary/20 bg-card p-5 shadow-xs hover:border-primary/40 transition-all"
+                  className="rounded-2xl border-2 border-primary/20 bg-card p-4 sm:p-5 shadow-xs hover:border-primary/40 transition-all space-y-4"
                 >
                   {/* Encabezado del pedido */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
-                    <div className="flex items-center gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-border pb-3">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                       <span className="font-display font-bold text-lg text-foreground">
                         #{ped.id}
                       </span>
@@ -934,7 +936,7 @@ function AdminPage() {
                     {/* Estado con selector o badge */}
                     <div className="flex items-center gap-2">
                       <span
-                        className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider border ${
+                        className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider inline-block border ${
                           ped.estado === "pendiente"
                             ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30"
                             : ped.estado === "aprobado"
@@ -950,28 +952,28 @@ function AdminPage() {
                   </div>
 
                   {/* Cuerpo de la orden */}
-                  <div className="mt-4 grid gap-4 md:grid-cols-4 text-xs">
+                  <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 text-xs">
                     {/* Cliente */}
-                    <div>
-                      <span className="text-muted-foreground text-[11px] font-bold block">CLIENTE</span>
-                      <p className="font-semibold text-sm mt-0.5 text-foreground">{ped.cliente.nombre}</p>
+                    <div className="space-y-1">
+                      <span className="text-muted-foreground text-[11px] font-bold block uppercase tracking-wider">CLIENTE</span>
+                      <p className="font-semibold text-sm text-foreground break-words">{ped.cliente.nombre}</p>
                       <p className="text-muted-foreground">C.I: {ped.cliente.cedula}</p>
                       <a
                         href={`https://wa.me/${ped.cliente.telefono.replace(/[^0-9]/g, "")}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-brand-brown underline font-semibold mt-0.5 inline-block"
+                        className="text-brand-brown underline font-semibold inline-block break-all"
                       >
                         WhatsApp: {ped.cliente.telefono}
                       </a>
                     </div>
 
                     {/* Encomienda */}
-                    <div>
-                      <span className="text-muted-foreground text-[11px] font-bold block">
+                    <div className="space-y-1">
+                      <span className="text-muted-foreground text-[11px] font-bold block uppercase tracking-wider">
                         {ped.envio.empresa === "Coordinar con la tienda" ? "ENTREGA / ENVÍO" : "ENVÍO NACIONAL"}
                       </span>
-                      <p className="font-semibold mt-0.5 text-foreground">
+                      <p className="font-semibold text-foreground">
                         {ped.envio.empresa === "Coordinar con la tienda"
                           ? "🤝 Coordinar con la tienda"
                           : `${ped.envio.empresa} (Cobro a Destino)`}
@@ -979,29 +981,29 @@ function AdminPage() {
                       <p className="text-muted-foreground">
                         {ped.envio.ciudad}{ped.envio.estado ? `, ${ped.envio.estado}` : ""}
                       </p>
-                      <p className="text-muted-foreground truncate" title={ped.envio.agencia}>
+                      <p className="text-muted-foreground break-words" title={ped.envio.agencia}>
                         {ped.envio.empresa === "Coordinar con la tienda" ? "Punto:" : "Agencia:"} {ped.envio.agencia}
                       </p>
                       {ped.envio.numeroGuia && (
-                        <p className="text-blue-700 font-bold mt-1">Guía: {ped.envio.numeroGuia}</p>
+                        <p className="text-blue-700 font-bold break-all">Guía: {ped.envio.numeroGuia}</p>
                       )}
                     </div>
 
                     {/* Pago y Referencia */}
-                    <div>
-                      <span className="text-muted-foreground text-[11px] font-bold block">DATOS DE PAGO</span>
+                    <div className="space-y-1">
+                      <span className="text-muted-foreground text-[11px] font-bold block uppercase tracking-wider">DATOS DE PAGO</span>
                       {ped.pago.referencia && (
-                        <p className="font-mono text-sm font-bold text-foreground mt-0.5">
+                        <p className="font-mono text-sm font-bold text-foreground break-all">
                           Ref: {ped.pago.referencia}
                         </p>
                       )}
                       {ped.pago.idBinance && (
-                        <p className="font-mono text-xs font-bold text-foreground mt-0.5">
+                        <p className="font-mono text-xs font-bold text-foreground break-all">
                           TXID: {ped.pago.idBinance}
                         </p>
                       )}
                       {ped.pago.bancoOrigen && (
-                        <p className="text-muted-foreground">Banco: {ped.pago.bancoOrigen}</p>
+                        <p className="text-muted-foreground break-words">Banco: {ped.pago.bancoOrigen}</p>
                       )}
                       {(ped.pago.comprobanteUrl || ped.pago.comprobanteNombre) && (
                         <div className="mt-1.5">
@@ -1031,38 +1033,42 @@ function AdminPage() {
                     </div>
 
                     {/* Total y Piezas */}
-                    <div className="md:text-right">
-                      <span className="text-muted-foreground text-[11px] font-bold block">TOTAL PEDIDO</span>
-                      <p className="text-lg font-bold text-foreground mt-0.5">{formatUSD(ped.totalUSD)}</p>
-                      <p className="text-xs text-muted-foreground font-semibold">{ped.totalVES}</p>
-                      <p className="text-[11px] text-muted-foreground mt-1">
-                        {ped.items.reduce((s, i) => s + i.cantidad, 0)} piezas
-                      </p>
+                    <div className="rounded-xl bg-muted/40 p-3 sm:bg-transparent sm:p-0 lg:text-right flex lg:flex-col justify-between items-center lg:items-end">
+                      <div>
+                        <span className="text-muted-foreground text-[11px] font-bold block uppercase tracking-wider">TOTAL PEDIDO</span>
+                        <p className="text-lg font-bold text-foreground mt-0.5">{formatUSD(ped.totalUSD)}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground font-semibold">{ped.totalVES}</p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                          {ped.items.reduce((s, i) => s + i.cantidad, 0)} piezas
+                        </p>
+                      </div>
                     </div>
                   </div>
 
                   {/* Motivo de rechazo */}
                   {ped.estado === "rechazado" && ped.motivoRechazo && (
-                    <div className="mt-3 rounded-xl bg-rose-50 border border-rose-200 p-2.5 text-xs text-rose-800">
+                    <div className="rounded-xl bg-rose-50 border border-rose-200 p-2.5 text-xs text-rose-800 break-words">
                       <strong>Motivo de rechazo registrado:</strong> {ped.motivoRechazo}
                     </div>
                   )}
 
                   {/* Barra de Acciones del Pedido */}
-                  <div className="mt-4 pt-3 border-t border-border flex flex-wrap items-center justify-between gap-3">
+                  <div className="pt-3 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <button
                       type="button"
                       onClick={() => setModalDetallePedido(ped)}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs font-semibold hover:bg-muted transition-colors cursor-pointer"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-full border border-border px-3.5 py-2 text-xs font-semibold hover:bg-muted transition-colors cursor-pointer text-center"
                     >
                       <Eye className="size-3.5" />
                       Ver Piezas y Detalles
                     </button>
 
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2 justify-end">
                       {/* Si el pedido ya fue enviado, la compra está cerrada y ya no se puede rechazar el pago */}
                       {ped.estado === "enviado" ? (
-                        <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-xs font-bold text-blue-700">
+                        <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1.5 text-xs font-bold text-blue-700">
                           <CheckCircle2 className="size-3.5" />
                           <span>Compra cerrada (Enviado)</span>
                         </div>
@@ -1073,7 +1079,7 @@ function AdminPage() {
                             <button
                               type="button"
                               onClick={() => handleAprobar(ped.id)}
-                              className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition-colors cursor-pointer"
+                              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1 rounded-full bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition-colors cursor-pointer"
                             >
                               <Check className="size-3.5" />
                               Aprobar Pago
@@ -1087,7 +1093,7 @@ function AdminPage() {
                               setModalGuia({ id: ped.id, empresa: ped.envio.empresa });
                               setNumeroGuiaTexto(ped.envio.numeroGuia || "");
                             }}
-                            className="inline-flex items-center gap-1 rounded-full bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition-colors cursor-pointer"
+                            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1 rounded-full bg-blue-600 px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition-colors cursor-pointer"
                           >
                             <Truck className="size-3.5" />
                             Marcar Enviado
@@ -1101,7 +1107,7 @@ function AdminPage() {
                                 setModalRechazar({ id: ped.id });
                                 setMotivoRechazoTexto("");
                               }}
-                              className="inline-flex items-center gap-1 rounded-full border border-rose-300 text-rose-700 hover:bg-rose-50 px-3 py-1.5 text-xs font-bold transition-colors cursor-pointer"
+                              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1 rounded-full border border-rose-300 text-rose-700 hover:bg-rose-50 px-3 py-2 text-xs font-bold transition-colors cursor-pointer"
                             >
                               <X className="size-3.5" />
                               Rechazar Pago
@@ -1114,7 +1120,7 @@ function AdminPage() {
                       <button
                         type="button"
                         onClick={() => setModalEliminarPedido(ped.id)}
-                        className="inline-flex items-center gap-1 rounded-full border border-border text-muted-foreground hover:text-destructive hover:border-destructive hover:bg-destructive/10 px-2.5 py-1.5 text-xs font-medium transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center gap-1 rounded-full border border-border text-muted-foreground hover:text-destructive hover:border-destructive hover:bg-destructive/10 p-2 text-xs font-medium transition-colors cursor-pointer"
                         title={`Eliminar pedido #${ped.id}`}
                       >
                         <Trash2 className="size-3.5" />
@@ -2441,15 +2447,18 @@ function AdminPage() {
                 <button
                   type="button"
                   onClick={() => setModalNuevoProducto(false)}
-                  className="rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted"
+                  disabled={guardandoProducto}
+                  className="rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted disabled:opacity-50"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground hover:scale-105 transition-transform"
+                  disabled={guardandoProducto}
+                  className="rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground hover:scale-105 transition-transform disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
                 >
-                  Publicar Producto
+                  {guardandoProducto && <RefreshCw className="size-3.5 animate-spin" />}
+                  {guardandoProducto ? "Guardando..." : "Publicar Producto"}
                 </button>
               </div>
             </form>
@@ -2665,15 +2674,18 @@ function AdminPage() {
                 <button
                   type="button"
                   onClick={() => setModalEditarProducto(null)}
-                  className="rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted"
+                  disabled={guardandoProducto}
+                  className="rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted disabled:opacity-50"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground hover:scale-105 transition-transform"
+                  disabled={guardandoProducto}
+                  className="rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground hover:scale-105 transition-transform disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
                 >
-                  Guardar Cambios
+                  {guardandoProducto && <RefreshCw className="size-3.5 animate-spin" />}
+                  {guardandoProducto ? "Guardando..." : "Guardar Cambios"}
                 </button>
               </div>
             </form>
