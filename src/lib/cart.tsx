@@ -9,7 +9,7 @@ export interface CartItem {
 
 interface CartContextValue {
   items: CartItem[];
-  agregar: (id: string, options?: { openCart?: boolean }) => void;
+  agregar: (id: string, options?: { openCart?: boolean; notify?: boolean }) => void;
   quitar: (id: string) => void;
   cambiarCantidad: (id: string, cantidad: number) => void;
   vaciar: () => void;
@@ -82,7 +82,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const abrirCarrito = () => setIsOpen(true);
   const cerrarCarrito = () => setIsOpen(false);
 
-  const agregar = (id: string, options?: { openCart?: boolean }) => {
+  const agregar = (id: string, options?: { openCart?: boolean; notify?: boolean }) => {
     const catalogo = obtenerCatalogoCompleto();
     const producto = catalogo.find((p) => p.id === id) ?? productos.find((p) => p.id === id);
     if (!producto) return;
@@ -93,6 +93,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
 
     const maxStock = producto.stock ?? 10;
+    const currentItem = items.find((i) => i.producto.id === id);
+    if (currentItem && currentItem.cantidad >= maxStock) {
+      toast.warning(`Solo hay ${maxStock} unidades disponibles en stock.`);
+      return;
+    }
 
     setItems((prev) => {
       const existing = prev.find((i) => i.producto.id === id);
@@ -107,8 +112,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { producto, cantidad: 1 }];
     });
-    if (options?.openCart ?? true) {
+    // Por defecto NO se abre el panel desplegable
+    if (options?.openCart === true) {
       setIsOpen(true);
+    }
+
+    if (options?.notify ?? true) {
+      toast.success(producto.nombre, {
+        description: "Agregado al carrito",
+        duration: 2500,
+        action: {
+          label: "Ver bolsa",
+          onClick: () => setIsOpen(true),
+        },
+      });
     }
   };
 

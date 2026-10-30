@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft, BadgeCheck, ShoppingBag, AlertTriangle, EyeOff } from "lucide-react";
+import { ArrowLeft, BadgeCheck, ShoppingBag, AlertTriangle, EyeOff, Check } from "lucide-react";
 import { formatUSD, formatVES, isProductoDisponible, productos } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 import { useAdminStore } from "@/lib/admin-store";
 import { ProductCard } from "@/components/ProductCard";
-import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/producto/$id")({
   loader: ({ params }) => {
@@ -46,7 +47,8 @@ export const Route = createFileRoute("/producto/$id")({
 
 function ProductoPage() {
   const { producto: initialProducto } = Route.useLoaderData();
-  const { agregar, abrirCarrito } = useCart();
+  const { agregar } = useCart();
+  const [agregadoReciente, setAgregadoReciente] = useState(false);
   const { productos: adminProductos, tasaBCV } = useAdminStore();
 
   const producto = adminProductos.find((p) => p.id === initialProducto.id) ?? initialProducto;
@@ -80,7 +82,7 @@ function ProductoPage() {
             <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] flex items-center justify-center p-4">
               <span className="rounded-full bg-destructive text-destructive-foreground px-4 py-2 text-sm font-bold shadow-lg flex items-center gap-1.5">
                 <AlertTriangle className="size-4" />
-                {stock <= 0 ? "Agotado temporalmente" : "No disponible"}
+              {stock <= 0 ? "Agotado temporalmente" : "No disponible"}
               </span>
             </div>
           )}
@@ -91,7 +93,7 @@ function ProductoPage() {
             <p className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground">
               {producto.categoria}
             </p>
-            {stock <= 0 ? (
+              {stock <= 0 ? (
               <span className="rounded-full bg-destructive/10 text-destructive border border-destructive/20 px-2 py-0.5 text-[10px] font-bold">
                 Sin Stock (0)
               </span>
@@ -123,22 +125,34 @@ function ProductoPage() {
               onClick={() => {
                 if (!disponible) return;
                 agregar(producto.id);
-                toast.success(`${producto.nombre}`, {
-                  description: "Agregado exitosamente a tu bolsa",
-                  action: {
-                    label: "Ver bolsa",
-                    onClick: () => abrirCarrito(),
-                  },
-                });
+                setAgregadoReciente(true);
+                setTimeout(() => setAgregadoReciente(false), 1600);
               }}
-              className={`inline-flex flex-1 items-center justify-center gap-2 rounded-full px-7 py-3.5 sm:py-4 text-sm font-semibold transition-transform shadow-md ${
-                disponible
-                  ? "bg-primary text-primary-foreground hover:scale-[1.02] active:scale-95 cursor-pointer"
-                  : "bg-muted text-muted-foreground cursor-not-allowed opacity-70"
+              className={`inline-flex flex-1 items-center justify-center gap-2 rounded-full px-7 py-3.5 sm:py-4 text-sm font-semibold transition-all shadow-md ${
+                !disponible
+                  ? "bg-muted text-muted-foreground cursor-not-allowed opacity-70"
+                  : agregadoReciente
+                  ? "bg-emerald-600 text-white shadow-emerald-900/20 scale-[1.01]"
+                  : "bg-primary text-primary-foreground hover:scale-[1.02] active:scale-95 cursor-pointer"
+
+
               }`}
             >
-              <ShoppingBag className="size-4.5 sm:size-5" />
-              {stock <= 0 ? "Producto Agotado (Sin Stock)" : !activo ? "Producto No Disponible" : "Agregar al carrito"}
+              {stock <= 0 ? (
+                "Producto Agotado (Sin Stock)"
+              ) : !activo ? (
+                "Producto No Disponible"
+              ) : agregadoReciente ? (
+                <>
+                  <Check className="size-4.5 sm:size-5 stroke-[2.5] text-white animate-in zoom-in-75" />
+                  ¡Agregado al Carrito!
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="size-4.5 sm:size-5" />
+                  Agregar al carrito
+                </>
+              )}
             </button>
           </div>
 

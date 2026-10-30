@@ -34,7 +34,7 @@ export function VirtualTryOnModal({ producto, isOpen, onClose }: VirtualTryOnMod
     return null;
   }
 
-  const { agregar, abrirCarrito } = useCart();
+  const { agregar } = useCart();
 
   // Foto propia del usuario (selfie o archivo subido)
   const [baseImage, setBaseImage] = useState<string>("");
@@ -687,15 +687,7 @@ export function VirtualTryOnModal({ producto, isOpen, onClose }: VirtualTryOnMod
                 type="button"
                 onClick={() => {
                   agregar(producto.id);
-                  toast.success(`${producto.nombre}`, {
-                    description: "Agregado a tu bolsa de compras",
-                    action: {
-                      label: "Ver bolsa",
-                      onClick: () => abrirCarrito(),
-                    },
-                  });
                   onClose();
-                  abrirCarrito();
                 }}
                 className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-xs sm:text-sm font-bold text-primary-foreground transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-md"
               >

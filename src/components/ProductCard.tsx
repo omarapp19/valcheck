@@ -1,13 +1,14 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Plus, Check } from "lucide-react";
 import { formatUSD, formatVES, type Producto } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 import { useAdminStore } from "@/lib/admin-store";
-import { toast } from "sonner";
 
 export function ProductCard({ producto }: { producto: Producto }) {
-  const { agregar, abrirCarrito } = useCart();
+  const { agregar } = useCart();
   const { tasaBCV } = useAdminStore();
+  const [agregadoReciente, setAgregadoReciente] = useState(false);
   const agotado = (producto.stock ?? 10) <= 0;
 
   return (
@@ -82,23 +83,24 @@ export function ProductCard({ producto }: { producto: Producto }) {
             onClick={() => {
               if (agotado) return;
               agregar(producto.id);
-              toast.success(`${producto.nombre}`, {
-                description: "Agregado exitosamente a tu bolsa",
-                action: {
-                  label: "Ver bolsa",
-                  onClick: () => abrirCarrito(),
-                },
-              });
+              setAgregadoReciente(true);
+              setTimeout(() => setAgregadoReciente(false), 1200);
             }}
             className={`flex size-8 sm:size-9 md:size-10 shrink-0 items-center justify-center rounded-full transition-all cursor-pointer ${
               agotado
                 ? "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+                : agregadoReciente
+                ? "bg-emerald-600 text-white scale-105 shadow-md"
                 : "bg-primary text-primary-foreground hover:scale-105 active:scale-95 shadow-xs"
             }`}
             aria-label={`Agregar ${producto.nombre} al carrito`}
             title={agotado ? "Producto agotado" : "Agregar a la bolsa"}
           >
-            <Plus className="size-3.5 sm:size-4 md:size-5" />
+            {agregadoReciente ? (
+              <Check className="size-3.5 sm:size-4 md:size-5 text-white animate-in zoom-in-75" />
+            ) : (
+              <Plus className="size-3.5 sm:size-4 md:size-5" />
+            )}
           </button>
         </div>
       </div>
