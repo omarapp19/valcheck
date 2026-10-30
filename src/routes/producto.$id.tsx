@@ -59,7 +59,7 @@ function ProductoPage() {
     .slice(0, 4);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
+    <div className="mx-auto max-w-6xl px-3 sm:px-6 py-4 sm:py-10 w-full min-w-0 overflow-x-hidden">
       <Link
         to="/tienda"
         className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-muted-foreground hover:text-foreground"
@@ -152,7 +152,7 @@ function ProductoPage() {
       {relacionados.length > 0 && (
         <section className="mt-12 sm:mt-16">
           <h2 className="text-xl sm:text-2xl font-semibold">También te puede gustar</h2>
-          <div className="mt-4 sm:mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 md:gap-6">
+          <div className="mt-4 sm:mt-6 grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-4 md:gap-6 w-full min-w-0">
             {relacionados.map((p) => (
               <ProductCard key={p.id} producto={p} />
             ))}

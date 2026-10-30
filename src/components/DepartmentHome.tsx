@@ -170,7 +170,7 @@ export function DepartmentHome({ departamento }: DepartmentHomeProps) {
           </Link>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 md:gap-6">
+        <div className="mt-6 grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-4 md:gap-6 w-full min-w-0">
           {destacados.map((p) => (
             <ProductCard key={p.id} producto={p} />
           ))}
