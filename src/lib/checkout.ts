@@ -44,12 +44,12 @@ export type EmpresaEnvio = "ZOOM" | "MRW" | "Coordinar con la tienda";
 
 export interface DatosEnvio {
   nombreCompleto: string;
-  cedula: string;
+  cedula?: string | undefined;
   telefono: string;
-  estado: string;
+  estado?: string | undefined;
   ciudad: string;
-  empresa: EmpresaEnvio;
-  agenciaDestino: string;
+  empresa?: EmpresaEnvio | undefined;
+  agenciaDestino?: string | undefined;
   notas?: string | undefined;
 }
 
@@ -77,7 +77,7 @@ export function labelMetodoPago(metodo: MetodoPago): string {
     case "transferencia":
       return "Transferencia Bancaria (Bs)";
     case "whatsapp":
-      return "Directo vía WhatsApp (Acordar pago)";
+      return "Directo vía WhatsApp (Acordar con asesor)";
   }
 }
 
@@ -104,61 +104,45 @@ export function construirMensajeWhatsApp({
   let bloquePago = "";
   if (pago.metodo === "pago_movil") {
     bloquePago = `💳 *MÉTODO DE PAGO: PAGO MÓVIL*
-• *Banco Origen:* ${pago.bancoOrigen || "N/A"}
-• *Nro. de Referencia:* ${pago.referencia || "Pendiente"}
-${pago.telefonoOrigen ? `• *Teléfono emisor:* ${pago.telefonoOrigen}\n` : ""}• *Monto Pagado:* ${formatVES(totalUSD)} (${formatUSD(totalUSD)})
-• *Comprobante:* ${pago.comprobanteNombre ? `Adjunto en este chat (${pago.comprobanteNombre})` : "Adjunto en este chat"}`;
+• *Banco Origen:* ${pago.bancoOrigen || "Por coordinar"}
+• *Nro. de Referencia:* ${pago.referencia || "Por confirmar"}
+• *Monto en Bs:* ${formatVES(totalUSD)} (${formatUSD(totalUSD)})`;
   } else if (pago.metodo === "binance") {
     bloquePago = `🟡 *MÉTODO DE PAGO: BINANCE (USDT)*
-• *ID de Pago / TXID:* ${pago.idTransaccionBinance || pago.referencia || "Pendiente"}
-• *Monto en USDT:* ${totalUSD.toFixed(2)} USDT
-• *Comprobante:* ${pago.comprobanteNombre ? `Adjunto en este chat (${pago.comprobanteNombre})` : "Adjunto en este chat"}`;
+• *ID de Pago / TXID:* ${pago.idTransaccionBinance || pago.referencia || "Por confirmar"}
+• *Monto en USDT:* ${totalUSD.toFixed(2)} USDT`;
   } else if (pago.metodo === "transferencia") {
     bloquePago = `🏦 *MÉTODO DE PAGO: TRANSFERENCIA BANCARIA*
-• *Banco Origen:* ${pago.bancoOrigen || "N/A"}
-• *Nro. de Referencia:* ${pago.referencia || "Pendiente"}
-• *Monto Transferido:* ${formatVES(totalUSD)} (${formatUSD(totalUSD)})
-• *Comprobante:* ${pago.comprobanteNombre ? `Adjunto en este chat (${pago.comprobanteNombre})` : "Adjunto en este chat"}`;
+• *Banco Origen:* ${pago.bancoOrigen || "Por coordinar"}
+• *Nro. de Referencia:* ${pago.referencia || "Por confirmar"}
+• *Monto:* ${formatVES(totalUSD)} (${formatUSD(totalUSD)})`;
   } else {
-    bloquePago = `💬 *MÉTODO DE PAGO: DIRECTO VÍA WHATSAPP*
-• _Deseo acordar/coordinar el pago directamente con ustedes por este chat._
-• *Monto a coordinar:* ${formatUSD(totalUSD)} / ${formatVES(totalUSD)}`;
+    bloquePago = `💬 *MÉTODO: DIRECTO VÍA WHATSAPP*
+• _Deseo acordar el pago y la entrega directamente con ustedes por este chat._`;
   }
 
-  const mensaje = `🛍️ *NUEVO PEDIDO VALCHECK* 🛍️
+  const detalleEnvio =
+    envio.empresa && envio.empresa !== "Coordinar con la tienda"
+      ? `• *Preferencia de envío:* ${envio.empresa}${envio.agenciaDestino ? ` (${envio.agenciaDestino})` : ""}`
+      : "• *Entrega:* La tienda coordinará la entrega conmigo por WhatsApp";
+
+  const mensaje = `🛍️ *NUEVO PEDIDO VALCHECK*
 *Pedido:* #${numeroPedido}
 
 👤 *DATOS DEL CLIENTE:*
 • *Nombre:* ${envio.nombreCompleto}
-• *Cédula:* ${envio.cedula}
-• *Teléfono:* ${envio.telefono}
-
-${
-  envio.empresa === "Coordinar con la tienda"
-    ? `🤝 *ENTREGA / DESPACHO: COORDINAR CON LA TIENDA*
-• *Modalidad:* Retiro en tienda o entrega acordada
-• *Ubicación:* ${envio.ciudad}, ${envio.estado}
-• *Punto / Detalles:* ${envio.agenciaDestino || "Coordinar directamente por este chat"}
-${envio.notas ? `• *Notas adicionales:* ${envio.notas}\n` : ""}`
-    : `📦 *ENVÍO NACIONAL (${envio.empresa}):*
-• *Empresa:* ${envio.empresa} (Cobro en Destino)
-• *Ubicación:* ${envio.ciudad}, ${envio.estado}
-• *Agencia de Destino:* ${envio.agenciaDestino}
-${envio.notas ? `• *Notas adicionales:* ${envio.notas}\n` : ""}`
-}
+• *WhatsApp:* ${envio.telefono}
+• *Ciudad:* ${envio.ciudad}${envio.cedula && envio.cedula !== "Por coordinar" ? `\n• *Cédula:* ${envio.cedula}` : ""}
+${detalleEnvio}
+${envio.notas ? `• *Notas:* ${envio.notas}\n` : ""}
 ${bloquePago}
 
-🛒 *DETALLE DE PIEZAS:*
+🛒 *PRODUCTOS SOLICITADOS:*
 ${lineasProductos}
 
-💰 *TOTAL:* ${formatUSD(totalUSD)} / ${formatVES(totalUSD)} (Tasa BCV: ${TASA_BCV})
+💰 *TOTAL A PAGAR:* ${formatUSD(totalUSD)} / ${formatVES(totalUSD)}
 ---------------------------------
-⏳ *Gestión:* ${
-  envio.empresa === "Coordinar con la tienda"
-    ? "En el transcurso de 24 a 48 horas se verifica el pago y coordinamos la entrega contigo."
-    : `En el transcurso de 24 a 48 horas se verifica el pago y se gestiona el envío por ${envio.empresa}.`
-}
-✨ _¡Gracias por elegir ValCheck!_`;
+✨ _Hola ValCheck, acabo de generar este pedido en la web. ¿Me pueden confirmar para concretar?_`;
 
   return encodeURIComponent(mensaje);
 }
